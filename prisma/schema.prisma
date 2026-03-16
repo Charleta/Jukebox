@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Config {
+  id     Int @id @default(1)
+  fichas Int @default(0)
+}
+
+model Cola {
+  id         Int      @id @default(autoincrement())
+  titulo     String
+  artista    String
+  duracion   Int
+  spotifyUri String
+  imagenUrl  String
+  orden      Int
+  createdAt  DateTime @default(now())
+}
