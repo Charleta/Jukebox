@@ -10,6 +10,24 @@ interface SearchResult {
   tracks: any[]
 }
 
+interface PlaylistCancion {
+  id: number
+  titulo: string
+  artista: string
+  duracion: number
+  spotifyUri: string
+  imagenUrl: string
+  orden: number
+}
+
+interface Playlist {
+  id: number
+  nombre: string
+  descripcion: string
+  imagenUrl: string
+  canciones: PlaylistCancion[]
+}
+
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
   const [pin, setPin] = useState('')
@@ -21,6 +39,81 @@ export default function AdminPage() {
   const [results, setResults] = useState<SearchResult | null>(null)
   const [searching, setSearching] = useState(false)
   const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [progreso, setProgreso] = useState(0)
+  const [duracion, setDuracion] = useState(0)
+
+  // Playlists
+  const [playlists, setPlaylists] = useState<Playlist[]>([])
+  const [playlistActiva, setPlaylistActiva] = useState<number | null>(null)
+  const [creandoPlaylist, setCreandoPlaylist] = useState(false)
+  const [nombreNueva, setNombreNueva] = useState('')
+  const [queryPl, setQueryPl] = useState('')
+  const [resultsPl, setResultsPl] = useState<any | null>(null)
+  const [buscandoPl, setBuscandoPl] = useState(false)
+  const searchPlRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const cargarPlaylists = async () => {
+    const res = await fetch('/api/playlists')
+    if (res.ok) setPlaylists(await res.json())
+  }
+
+  useEffect(() => {
+    if (authed) cargarPlaylists()
+  }, [authed])
+
+  const crearPlaylist = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!nombreNueva.trim()) return
+    await fetch('/api/playlists', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: nombreNueva.trim() }),
+    })
+    setNombreNueva('')
+    setCreandoPlaylist(false)
+    cargarPlaylists()
+  }
+
+  const eliminarPlaylist = async (id: number) => {
+    await fetch(`/api/playlists/${id}`, { method: 'DELETE' })
+    if (playlistActiva === id) setPlaylistActiva(null)
+    cargarPlaylists()
+  }
+
+  const agregarAPlaylist = async (playlistId: number, track: any) => {
+    await fetch(`/api/playlists/${playlistId}/canciones`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        titulo: track.name,
+        artista: track.artists.map((a: any) => a.name).join(', '),
+        duracion: Math.floor(track.duration_ms / 1000),
+        spotifyUri: track.uri,
+        imagenUrl: track.album.images[0]?.url ?? '',
+      }),
+    })
+    setQueryPl('')
+    setResultsPl(null)
+    cargarPlaylists()
+  }
+
+  const quitarDePlaylist = async (playlistId: number, cancionId: number) => {
+    await fetch(`/api/playlists/${playlistId}/canciones/${cancionId}`, { method: 'DELETE' })
+    cargarPlaylists()
+  }
+
+  const handleSearchPl = (q: string) => {
+    setQueryPl(q)
+    if (searchPlRef.current) clearTimeout(searchPlRef.current)
+    if (!q.trim()) { setResultsPl(null); return }
+    searchPlRef.current = setTimeout(async () => {
+      setBuscandoPl(true)
+      const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(q)}`)
+      const data = await res.json()
+      setResultsPl(data)
+      setBuscandoPl(false)
+    }, 400)
+  }
 
   // Poll playback state
   useEffect(() => {
@@ -30,8 +123,10 @@ export default function AdminPage() {
       if (res.ok) {
         const data = await res.json()
         setIsPlaying(data.isPlaying ?? false)
+         setProgreso(data.progress_ms ?? 0)
+      setDuracion(data.duration_ms ?? 0)
       }
-    }, 2000)
+    }, 1000)
     return () => clearInterval(interval)
   }, [authed])
 
@@ -140,6 +235,20 @@ export default function AdminPage() {
           ) : (
             <div className="text-zinc-600 text-sm mb-4">Sin canciones en cola</div>
           )}
+          {duracion > 0 && (
+  <div className="mb-4">
+    <div className="h-0.5 bg-zinc-700 rounded overflow-hidden">
+      <div
+        className="h-full bg-yellow-400 transition-all duration-1000"
+        style={{ width: `${(progreso / duracion) * 100}%` }}
+      />
+    </div>
+    <div className="flex justify-between text-xs text-zinc-500 mt-1">
+      <span>{Math.floor(progreso / 60000)}:{String(Math.floor((progreso % 60000) / 1000)).padStart(2, '0')}</span>
+      <span>{Math.floor(duracion / 60000)}:{String(Math.floor((duracion % 60000) / 1000)).padStart(2, '0')}</span>
+    </div>
+  </div>
+)}
           <div className="flex gap-3">
             <button
               onClick={togglePlay}
@@ -229,6 +338,132 @@ export default function AdminPage() {
               >
                 ×
               </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Playlists */}
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800 mt-4">
+          <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
+            <div className="text-zinc-400 text-xs uppercase tracking-widest">Mis Playlists</div>
+            <button
+              onClick={() => { setCreandoPlaylist(true); setPlaylistActiva(null) }}
+              className="text-yellow-400 text-xs hover:text-yellow-300 transition-colors"
+            >
+              + Nueva
+            </button>
+          </div>
+
+          {creandoPlaylist && (
+            <form onSubmit={crearPlaylist} className="px-5 py-4 border-b border-zinc-800">
+              <input
+                autoFocus
+                type="text"
+                value={nombreNueva}
+                onChange={e => setNombreNueva(e.target.value)}
+                placeholder="Nombre de la playlist..."
+                className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors"
+              />
+              <div className="flex gap-2 mt-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 rounded text-sm transition-colors"
+                >
+                  Crear
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setCreandoPlaylist(false); setNombreNueva('') }}
+                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded text-sm transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          )}
+
+          {playlists.length === 0 && !creandoPlaylist && (
+            <div className="px-5 py-6 text-zinc-600 text-center text-sm">Sin playlists</div>
+          )}
+
+          {playlists.map(p => (
+            <div key={p.id} className="border-b border-zinc-800/50 last:border-b-0">
+              {/* Playlist header */}
+              <div className="flex items-center gap-3 px-5 py-3">
+                {p.imagenUrl ? (
+                  <img src={p.imagenUrl} alt="" className="w-10 h-10 rounded object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 rounded bg-zinc-800 flex items-center justify-center text-zinc-600 flex-shrink-0 text-lg">♪</div>
+                )}
+                <button
+                  onClick={() => setPlaylistActiva(playlistActiva === p.id ? null : p.id)}
+                  className="flex-1 text-left min-w-0"
+                >
+                  <div className="text-sm font-medium truncate">{p.nombre}</div>
+                  <div className="text-xs text-zinc-500">{p.canciones.length} canciones</div>
+                </button>
+                <button
+                  onClick={() => eliminarPlaylist(p.id)}
+                  className="text-zinc-600 hover:text-red-400 transition-colors text-lg px-1 flex-shrink-0"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Expanded: songs + search */}
+              {playlistActiva === p.id && (
+                <div className="px-5 pb-4">
+                  {/* Songs list */}
+                  <div className="space-y-1 mb-3 max-h-48 overflow-y-auto">
+                    {p.canciones.length === 0 && (
+                      <div className="text-zinc-600 text-xs text-center py-2">Sin canciones aún</div>
+                    )}
+                    {p.canciones.map(c => (
+                      <div key={c.id} className="flex items-center gap-2 py-1">
+                        <img src={c.imagenUrl} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium truncate">{c.titulo}</div>
+                          <div className="text-xs text-zinc-500 truncate">{c.artista}</div>
+                        </div>
+                        <button
+                          onClick={() => quitarDePlaylist(p.id, c.id)}
+                          className="text-zinc-600 hover:text-red-400 transition-colors text-base px-1 flex-shrink-0"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Search to add */}
+                  <input
+                    type="text"
+                    value={queryPl}
+                    onChange={e => handleSearchPl(e.target.value)}
+                    placeholder="Agregar canción..."
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-xs outline-none focus:border-yellow-400 transition-colors"
+                  />
+                  {buscandoPl && <div className="text-zinc-500 text-xs text-center py-2">Buscando...</div>}
+                  {resultsPl && (
+                    <div className="space-y-0.5 mt-2 max-h-48 overflow-y-auto">
+                      {resultsPl.tracks?.items?.map((track: any) => (
+                        <button
+                          key={track.id}
+                          onClick={() => agregarAPlaylist(p.id, track)}
+                          className="w-full flex items-center gap-2 p-1.5 rounded hover:bg-zinc-800 transition-colors text-left"
+                        >
+                          <img src={track.album.images[0]?.url} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-medium truncate">{track.name}</div>
+                            <div className="text-xs text-zinc-500 truncate">{track.artists.map((a: any) => a.name).join(', ')}</div>
+                          </div>
+                          <span className="text-yellow-400 text-sm flex-shrink-0">+</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

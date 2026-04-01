@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { SpotifyArtist, SpotifyTrack } from '@/types'
 
 interface SpotifyPlaylist {
@@ -11,13 +11,21 @@ interface SpotifyPlaylist {
   owner: { display_name: string }
 }
 
+interface InternalPlaylist {
+  id: number
+  nombre: string
+  imagenUrl: string
+  canciones: { id: number }[]
+}
+
 interface Props {
   onArtistSelect: (artist: SpotifyArtist) => void
   onTrackSelect: (track: SpotifyTrack) => void
   onPlaylistSelect: (playlist: SpotifyPlaylist) => void
+  onInternalPlaylistSelect: (id: number) => void
 }
 
-export function BuscadorArtista({ onArtistSelect, onTrackSelect, onPlaylistSelect }: Props) {
+export function BuscadorArtista({ onArtistSelect, onTrackSelect, onPlaylistSelect, onInternalPlaylistSelect }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<{
     artists: SpotifyArtist[]
@@ -26,6 +34,14 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onPlaylistSelec
   }>({ artists: [], tracks: [], playlists: [] })
   const [loading, setLoading] = useState(false)
   const debounceRef = useRef<NodeJS.Timeout>()
+  const [internalPlaylists, setInternalPlaylists] = useState<InternalPlaylist[]>([])
+
+  useEffect(() => {
+    fetch('/api/playlists')
+      .then(r => r.json())
+      .then(data => setInternalPlaylists(data))
+      .catch(() => {})
+  }, [])
 
   const search = (q: string) => {
     setQuery(q)
@@ -38,8 +54,9 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onPlaylistSelec
       setResults({
         artists: data.artists?.items?.slice(0, 4) ?? [],
         tracks: data.tracks?.items?.slice(0, 10) ?? [],
-        playlists: data.playlists?.items?.slice(0, 4) ?? [],
+        playlists: (data.playlists?.items ?? []).filter(Boolean).slice(0, 4),
       })
+      console.log('playlists raw:', data.playlists)
       setLoading(false)
     }, 400)
   }
@@ -60,6 +77,32 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onPlaylistSelec
         />
         {loading && <span className="px-4 text-zinc-500 text-sm animate-pulse">...</span>}
       </div>
+
+      {/* Nuestras listas — solo cuando no hay query activa */}
+      {!query && internalPlaylists.length > 0 && (
+        <div className="mt-5">
+          <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Nuestras Listas</div>
+          <div className="grid grid-cols-2 gap-3">
+            {internalPlaylists.map(p => (
+              <button
+                key={p.id}
+                onClick={() => onInternalPlaylistSelect(p.id)}
+                className="flex items-center gap-3 p-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-yellow-400/30 text-left transition-all"
+              >
+                {p.imagenUrl ? (
+                  <img src={p.imagenUrl} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-12 h-12 rounded bg-zinc-800 flex items-center justify-center text-zinc-500 flex-shrink-0 text-xl">♪</div>
+                )}
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate">{p.nombre}</div>
+                  <div className="text-xs text-zinc-500">{p.canciones.length} canciones</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Artistas */}
       {results.artists.length > 0 && (
@@ -105,7 +148,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onPlaylistSelec
                 />
                 <div className="min-w-0">
                   <div className="text-sm font-medium truncate">{p.name}</div>
-                  <div className="text-xs text-zinc-500">{p.tracks.total} canciones</div>
+                  <div className="text-xs text-zinc-500">{p.items?.total ?? '?'} canciones</div>
                 </div>
               </button>
             ))}

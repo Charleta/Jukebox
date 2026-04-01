@@ -18,11 +18,22 @@ export async function getAccessToken(): Promise<string> {
 
 export async function searchSpotify(query: string) {
   const token = await getAccessToken()
-  const res = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist,track&limit=10`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  )
-  return res.json()
+  const [generalRes, playlistRes] = await Promise.all([
+    fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist,track&limit=10`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    ),
+    fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=playlist&limit=6`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+  ])
+  const general = await generalRes.json()
+  const playlists = await playlistRes.json()
+  return {
+    ...general,
+    playlists: playlists.playlists,
+  }
 }
 
 export async function getArtistTopTracks(artistId: string) {
@@ -90,12 +101,25 @@ export async function searchPlaylists(query: string) {
 }
 
 export async function getPlaylistTracks(playlistId: string) {
-  const token = await getAccessToken()
+  // Client credentials - no necesita scopes de usuario
+  const basic = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')
+  const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${basic}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'grant_type=client_credentials',
+  })
+  const tokenData = await tokenRes.json()
+  const token = tokenData.access_token
+
   const res = await fetch(
     `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=AR&limit=50`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
   const data = await res.json()
+  console.log('playlist response:', JSON.stringify(data).slice(0, 300))
   return (data.items ?? [])
     .map((item: any) => item.track)
     .filter(Boolean)

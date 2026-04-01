@@ -12,5 +12,9 @@ export async function GET() {
   }
 
   const data = await res.json()
-  return NextResponse.json({ isPlaying: data.is_playing ?? false })
+  return NextResponse.json({
+  isPlaying: data.is_playing ?? false,
+  progress_ms: data.progress_ms ?? 0,
+  duration_ms: data.item?.duration_ms ?? 0,
+})
 }

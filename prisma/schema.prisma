@@ -22,3 +22,24 @@ model Cola {
   orden      Int
   createdAt  DateTime @default(now())
 }
+
+model Playlist {
+  id          Int               @id @default(autoincrement())
+  nombre      String
+  descripcion String            @default("")
+  imagenUrl   String            @default("")
+  createdAt   DateTime          @default(now())
+  canciones   PlaylistCancion[]
+}
+
+model PlaylistCancion {
+  id         Int      @id @default(autoincrement())
+  playlistId Int
+  titulo     String
+  artista    String
+  duracion   Int
+  spotifyUri String
+  imagenUrl  String
+  orden      Int
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+}

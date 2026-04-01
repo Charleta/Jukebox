@@ -46,12 +46,35 @@ export default function KioskoPage() {
   }
 
   const handlePlaylistSelect = async (playlist: any) => {
-  setArtist({ id: playlist.id, name: playlist.name, images: playlist.images, genres: [], followers: { total: playlist.tracks.total } })
-  setFocused(0)
-  const res = await fetch(`/api/spotify/search?playlistId=${playlist.id}`)
-  const data = await res.json()
-  setTracks(data.tracks ?? [])
-}
+    setArtist({ id: playlist.id, name: playlist.name, images: playlist.images, genres: [], followers: { total: playlist.items?.total ?? 0 } })
+    setFocused(0)
+    const res = await fetch(`/api/spotify/search?playlistId=${playlist.id}`)
+    const data = await res.json()
+    setTracks(data.tracks ?? [])
+  }
+
+  const handleInternalPlaylistSelect = async (id: number) => {
+    const res = await fetch(`/api/playlists/${id}`)
+    const playlist = await res.json()
+    setArtist({
+      id: String(playlist.id),
+      name: playlist.nombre,
+      images: playlist.imagenUrl ? [{ url: playlist.imagenUrl }] : [],
+      genres: [],
+      followers: { total: playlist.canciones.length },
+    })
+    setFocused(0)
+    setTracks(
+      playlist.canciones.map((c: any) => ({
+        id: String(c.id),
+        name: c.titulo,
+        uri: c.spotifyUri,
+        duration_ms: c.duracion * 1000,
+        album: { name: '', images: [{ url: c.imagenUrl }] },
+        artists: [{ name: c.artista }],
+      }))
+    )
+  }
   const handleTrackSelect = async (track: SpotifyTrack) => {
     if (fichas <= 0) { showToast('❌ SIN FICHAS — PEDILE AL ENCARGADO'); return }
     const res = await fetch('/api/cola', {
@@ -152,10 +175,11 @@ export default function KioskoPage() {
           />
         ) : (
           <BuscadorArtista
-  onArtistSelect={handleArtistSelect}
-  onTrackSelect={handleTrackSelect}
-  onPlaylistSelect={handlePlaylistSelect}
-/>
+            onArtistSelect={handleArtistSelect}
+            onTrackSelect={handleTrackSelect}
+            onPlaylistSelect={handlePlaylistSelect}
+            onInternalPlaylistSelect={handleInternalPlaylistSelect}
+          />
         )}
       </div>
 
