@@ -20,7 +20,7 @@ export async function searchSpotify(query: string) {
   const token = await getAccessToken()
   const [generalRes, playlistRes] = await Promise.all([
     fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist,track&limit=10`,
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist,track&limit=20`,
       { headers: { Authorization: `Bearer ${token}` } }
     ),
     fetch(
@@ -101,25 +101,13 @@ export async function searchPlaylists(query: string) {
 }
 
 export async function getPlaylistTracks(playlistId: string) {
-  // Client credentials - no necesita scopes de usuario
-  const basic = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')
-  const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${basic}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  })
-  const tokenData = await tokenRes.json()
-  const token = tokenData.access_token
-
+  const token = await getAccessToken()
   const res = await fetch(
     `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=AR&limit=50`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
   const data = await res.json()
-  console.log('playlist response:', JSON.stringify(data).slice(0, 300))
+  console.log('[playlist] status:', res.status, 'keys:', Object.keys(data), 'items:', data.items?.length ?? 'none', JSON.stringify(data).slice(0, 300))
   return (data.items ?? [])
     .map((item: any) => item.track)
     .filter(Boolean)

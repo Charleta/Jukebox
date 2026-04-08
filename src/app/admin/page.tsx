@@ -52,6 +52,12 @@ export default function AdminPage() {
   const [buscandoPl, setBuscandoPl] = useState(false)
   const searchPlRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Importador masivo
+  const [importPlaylistId, setImportPlaylistId] = useState<number | null>(null)
+  const [importTexto, setImportTexto] = useState('')
+  const [importando, setImportando] = useState(false)
+  const [importLog, setImportLog] = useState<{ linea: string; ok: boolean; msg: string }[]>([])
+
   const cargarPlaylists = async () => {
     const res = await fetch('/api/playlists')
     if (res.ok) setPlaylists(await res.json())
@@ -99,6 +105,37 @@ export default function AdminPage() {
 
   const quitarDePlaylist = async (playlistId: number, cancionId: number) => {
     await fetch(`/api/playlists/${playlistId}/canciones/${cancionId}`, { method: 'DELETE' })
+    cargarPlaylists()
+  }
+
+  const importarCanciones = async () => {
+    if (!importPlaylistId) return
+    const lineas = importTexto.split('\n').map(l => l.trim()).filter(Boolean)
+    if (!lineas.length) return
+    setImportando(true)
+    setImportLog([])
+    for (const linea of lineas) {
+      const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(linea)}`)
+      const data = await res.json()
+      const track = data.tracks?.items?.[0]
+      if (!track) {
+        setImportLog(prev => [...prev, { linea, ok: false, msg: 'No encontrada' }])
+        continue
+      }
+      await fetch(`/api/playlists/${importPlaylistId}/canciones`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          titulo: track.name,
+          artista: track.artists.map((a: any) => a.name).join(', '),
+          duracion: Math.floor(track.duration_ms / 1000),
+          spotifyUri: track.uri,
+          imagenUrl: track.album.images[0]?.url ?? '',
+        }),
+      })
+      setImportLog(prev => [...prev, { linea, ok: true, msg: `${track.name} — ${track.artists[0].name}` }])
+    }
+    setImportando(false)
     cargarPlaylists()
   }
 
@@ -190,8 +227,6 @@ export default function AdminPage() {
       }),
     })
     refetchCola()
-    setQuery('')
-    setResults(null)
   }
 
   if (!authed) return (
@@ -466,6 +501,55 @@ export default function AdminPage() {
               )}
             </div>
           ))}
+        </div>
+
+        {/* Importador masivo */}
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800 mt-4">
+          <div className="px-5 py-4 border-b border-zinc-800">
+            <div className="text-zinc-400 text-xs uppercase tracking-widest">Importar canciones de Spotify</div>
+            <div className="text-zinc-600 text-xs mt-1">Pegá los nombres (uno por línea) y elegí a qué lista agregarlos</div>
+          </div>
+          <div className="px-5 py-4 space-y-3">
+            <select
+              value={importPlaylistId ?? ''}
+              onChange={e => setImportPlaylistId(Number(e.target.value) || null)}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors"
+            >
+              <option value="">Elegí una lista...</option>
+              {playlists.map(p => (
+                <option key={p.id} value={p.id}>{p.nombre}</option>
+              ))}
+            </select>
+            <textarea
+              value={importTexto}
+              onChange={e => setImportTexto(e.target.value)}
+              placeholder={"Bohemian Rhapsody\nHotel California\nStairway to Heaven"}
+              rows={6}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors resize-none font-mono"
+            />
+            <button
+              onClick={importarCanciones}
+              disabled={importando || !importPlaylistId || !importTexto.trim()}
+              className="w-full bg-yellow-400 hover:bg-yellow-300 disabled:bg-zinc-700 disabled:text-zinc-500 text-black font-bold py-2.5 rounded text-sm transition-colors"
+            >
+              {importando ? 'Importando...' : 'Importar'}
+            </button>
+            {importLog.length > 0 && (
+              <div className="space-y-1 max-h-48 overflow-y-auto">
+                {importLog.map((entry, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs">
+                    <span className={entry.ok ? 'text-green-400' : 'text-red-400'}>{entry.ok ? '✓' : '✗'}</span>
+                    <span className="text-zinc-400 truncate">{entry.msg}</span>
+                  </div>
+                ))}
+                {!importando && (
+                  <div className="text-zinc-600 text-xs pt-1">
+                    {importLog.filter(e => e.ok).length}/{importLog.length} encontradas
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mt-6">

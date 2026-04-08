@@ -93,7 +93,7 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
 
       {/* Keyboard hints */}
       <div className="flex gap-5 px-8 py-3 border-t border-zinc-800 flex-shrink-0">
-        {[['↑ ↓', 'Navegar'], ['Enter', 'Agregar'], ['Esc', 'Volver']].map(([k, v]) => (
+        {[['← →', 'Navegar'], ['Enter', 'Agregar'], ['Esc', 'Volver']].map(([k, v]) => (
           <div key={k} className="flex items-center gap-2 text-xs text-zinc-500">
             <span className="bg-zinc-800 border border-zinc-700 rounded px-1.5 py-0.5 font-mono text-zinc-300">{k}</span>
             {v}

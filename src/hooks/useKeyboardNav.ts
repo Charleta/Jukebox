@@ -11,10 +11,10 @@ interface Options {
 export function useKeyboardNav({ itemCount, focused, setFocused, onEnter, onEscape }: Options) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'ArrowRight') {
         e.preventDefault()
         setFocused(Math.min(focused + 1, itemCount - 1))
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === 'ArrowLeft') {
         e.preventDefault()
         setFocused(Math.max(focused - 1, 0))
       } else if (e.key === 'Enter') {

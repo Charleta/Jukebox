@@ -22,6 +22,7 @@ export default function KioskoPage() {
   const { cola, refetch: refetchCola } = useCola()
   const [artist, setArtist] = useState<SpotifyArtist | null>(null)
   const [tracks, setTracks] = useState<SpotifyTrack[]>([])
+  const [loadingTracks, setLoadingTracks] = useState(false)
   const [focused, setFocused] = useState(0)
   const [toast, setToast] = useState('')
   const [progreso, setProgreso] = useState(0)
@@ -39,18 +40,13 @@ export default function KioskoPage() {
 
   const handleArtistSelect = async (a: SpotifyArtist) => {
     setArtist(a)
+    setTracks([])
     setFocused(0)
+    setLoadingTracks(true)
     const res = await fetch(`/api/spotify/search?artistId=${a.id}`)
     const data = await res.json()
     setTracks(data.tracks ?? [])
-  }
-
-  const handlePlaylistSelect = async (playlist: any) => {
-    setArtist({ id: playlist.id, name: playlist.name, images: playlist.images, genres: [], followers: { total: playlist.items?.total ?? 0 } })
-    setFocused(0)
-    const res = await fetch(`/api/spotify/search?playlistId=${playlist.id}`)
-    const data = await res.json()
-    setTracks(data.tracks ?? [])
+    setLoadingTracks(false)
   }
 
   const handleInternalPlaylistSelect = async (id: number) => {
@@ -164,22 +160,31 @@ export default function KioskoPage() {
 
       {/* RIGHT */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {artist && tracks.length > 0 ? (
-          <ListaCanciones
-            artist={artist}
-            tracks={tracks}
-            focused={focused}
-            setFocused={setFocused}
-            onAdd={handleTrackSelect}
-            onBack={() => { setArtist(null); setTracks([]) }}
-          />
-        ) : (
+        <div className={artist ? 'hidden' : 'flex-1 flex flex-col overflow-hidden'}>
           <BuscadorArtista
             onArtistSelect={handleArtistSelect}
             onTrackSelect={handleTrackSelect}
-            onPlaylistSelect={handlePlaylistSelect}
             onInternalPlaylistSelect={handleInternalPlaylistSelect}
           />
+        </div>
+        {artist && (
+          tracks.length > 0 ? (
+            <ListaCanciones
+              artist={artist}
+              tracks={tracks}
+              focused={focused}
+              setFocused={setFocused}
+              onAdd={handleTrackSelect}
+              onBack={() => { setArtist(null); setTracks([]) }}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full gap-3">
+              <div className="text-zinc-600 text-sm animate-pulse">Cargando canciones...</div>
+              <button onClick={() => { setArtist(null); setTracks([]) }} className="text-zinc-600 text-xs hover:text-zinc-400 transition-colors">
+                Volver
+              </button>
+            </div>
+          )
         )}
       </div>
 
