@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import "react-simple-keyboard/build/css/index.css";
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -23,4 +23,31 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Estilos teclado virtual */
+.hg-theme-default {
+  background-color: #18181b;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.hg-theme-default .hg-button {
+  background-color: #3f3f46;
+  color: white;
+  border: 1px solid #52525b;
+  border-radius: 6px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.hg-theme-default .hg-button:hover {
+  background-color: #f5c842;
+  color: black;
+}
+
+.hg-theme-default .hg-button span {
+  pointer-events: none;
 }

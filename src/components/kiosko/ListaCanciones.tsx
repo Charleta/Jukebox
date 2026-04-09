@@ -74,7 +74,12 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
             <span className={`text-xs w-5 text-right flex-shrink-0 ${focused === i ? 'text-yellow-400' : 'text-zinc-600'}`}>
               {i + 1}
             </span>
-            <img src={track.album.images[0]?.url} alt="" className="w-11 h-11 rounded object-cover flex-shrink-0" />
+            <img
+              src={track.album.images[0]?.url}
+              alt=""
+              className="w-11 h-11 rounded object-cover shrink-0 bg-zinc-800"
+              onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden' }}
+            />
             <div className="flex-1 min-w-0">
               <div className={`text-sm font-medium truncate ${focused === i ? 'text-yellow-400' : ''}`}>
                 {track.name}

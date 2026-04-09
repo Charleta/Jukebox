@@ -18,7 +18,13 @@ export async function POST(req: Request) {
   )
 
   if (!res.ok) {
-    const err = await res.json()
+    let err: unknown = {}
+    try {
+      err = await res.json()
+    } catch {
+      err = { status: res.status, message: res.statusText }
+    }
+    console.error(`[play] Spotify error ${res.status}:`, JSON.stringify(err))
     return NextResponse.json(err, { status: res.status })
   }
 

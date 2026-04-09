@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/cloud"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL_CLOUD")
+  directUrl = env("DIRECT_URL")
+}
+
+model Playlist {
+  id          Int               @id @default(autoincrement())
+  nombre      String
+  descripcion String            @default("")
+  imagenUrl   String            @default("")
+  createdAt   DateTime          @default(now())
+  canciones   PlaylistCancion[]
+}
+
+model PlaylistCancion {
+  id         Int      @id @default(autoincrement())
+  playlistId Int
+  titulo     String
+  artista    String
+  duracion   Int
+  spotifyUri String
+  imagenUrl  String
+  orden      Int
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+}

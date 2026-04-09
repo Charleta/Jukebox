@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prismaCloud as prisma } from '@/lib/dbCloud'
 
 export async function GET() {
   const playlists = await prisma.playlist.findMany({

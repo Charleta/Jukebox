@@ -18,7 +18,8 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
   const [deviceId, setDeviceId] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const playerRef = useRef<any>(null)
-  const intervalRef = useRef<NodeJS.Timeout>()
+  const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const maxTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const initPlayer = async () => {
     const res = await fetch('/api/spotify/token')
@@ -62,15 +63,16 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
   }
 
   useEffect(() => {
-    // Si el SDK ya cargó antes que el componente
     if (window.Spotify) {
       initPlayer()
     } else {
-      // Si el SDK todavía no cargó, esperamos el callback
       window.onSpotifyWebPlaybackSDKReady = initPlayer
     }
 
-    return () => clearInterval(intervalRef.current)
+    return () => {
+      clearInterval(intervalRef.current)
+      clearTimeout(maxTimerRef.current)
+    }
   }, [])
 
   useEffect(() => {
@@ -79,6 +81,8 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
   }, [spotifyUri, ready, deviceId])
 
   const playTrack = async (deviceId: string, uri: string) => {
+    clearTimeout(maxTimerRef.current)
+
     const res = await fetch('/api/spotify/play', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -87,7 +91,16 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
     if (!res.ok) {
       const err = await res.json()
       console.error('Play error:', err)
+      return
     }
+
+    const configRes = await fetch('/api/config')
+    const config = await configRes.json()
+    const maxSegundos = Number(config.valor ?? 300)
+
+    maxTimerRef.current = setTimeout(() => {
+      onTerminada()
+    }, maxSegundos * 1000)
   }
 
   return null

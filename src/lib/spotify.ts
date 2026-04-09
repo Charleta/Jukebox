@@ -20,7 +20,7 @@ export async function searchSpotify(query: string) {
   const token = await getAccessToken()
   const [generalRes, playlistRes] = await Promise.all([
     fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist,track&limit=20`,
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist,track&limit=10`,
       { headers: { Authorization: `Bearer ${token}` } }
     ),
     fetch(
@@ -28,6 +28,12 @@ export async function searchSpotify(query: string) {
       { headers: { Authorization: `Bearer ${token}` } }
     )
   ])
+
+   if (generalRes.status === 429) {
+    throw new Error('Rate limit de Spotify - esperá unos minutos')
+  }
+
+
   const general = await generalRes.json()
   const playlists = await playlistRes.json()
   return {
@@ -103,7 +109,7 @@ export async function searchPlaylists(query: string) {
 export async function getPlaylistTracks(playlistId: string) {
   const token = await getAccessToken()
   const res = await fetch(
-    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=AR&limit=50`,
+    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=AR&limit=10`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
   const data = await res.json()
