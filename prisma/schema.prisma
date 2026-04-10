@@ -28,6 +28,7 @@ model Cola {
   spotifyUri String
   imagenUrl  String
   orden      Int
+  tipo       String   @default("cliente")
   createdAt  DateTime @default(now())
 }
 

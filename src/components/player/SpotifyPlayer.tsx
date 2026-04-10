@@ -20,6 +20,7 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
   const playerRef = useRef<any>(null)
   const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const maxTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const terminadaRef = useRef(false)
 
   const initPlayer = async () => {
     const res = await fetch('/api/spotify/token')
@@ -47,9 +48,11 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
     player.addListener('player_state_changed', (state: any) => {
       if (!state) return
       if (state.position === 0 && state.paused && state.track_window.previous_tracks.length > 0) {
-        clearInterval(intervalRef.current)
-        onTerminada()
-      }
+  if (terminadaRef.current) return
+  terminadaRef.current = true
+  clearInterval(intervalRef.current)
+  onTerminada()
+}
     })
 
     intervalRef.current = setInterval(async () => {
@@ -82,7 +85,7 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
 
   const playTrack = async (deviceId: string, uri: string) => {
     clearTimeout(maxTimerRef.current)
-
+terminadaRef.current = false 
     const res = await fetch('/api/spotify/play', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -98,9 +101,11 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
     const config = await configRes.json()
     const maxSegundos = Number(config.valor ?? 300)
 
-    maxTimerRef.current = setTimeout(() => {
-      onTerminada()
-    }, maxSegundos * 1000)
+maxTimerRef.current = setTimeout(() => {
+  if (terminadaRef.current) return
+  terminadaRef.current = true
+  onTerminada()
+}, maxSegundos * 1000)
   }
 
   return null

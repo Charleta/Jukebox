@@ -153,6 +153,7 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
 
   const [maxDuracion, setMaxDuracion] = useState(300)
 const [maxDuracionInput, setMaxDuracionInput] = useState(5)
+const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
   const cargarPlaylists = async () => {
     const res = await fetch('/api/playlists')
     if (res.ok) setPlaylists(await res.json())
@@ -260,6 +261,24 @@ const [maxDuracionInput, setMaxDuracionInput] = useState(5)
     cargarPlaylists()
   }
 
+  const reproducirPlaylist = async (playlist: Playlist) => {
+  setCargandoPlaylist(playlist.id)
+  for (const cancion of playlist.canciones) {
+    await fetch('/api/cola/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        titulo: cancion.titulo,
+        artista: cancion.artista,
+        duracion: cancion.duracion,
+        spotifyUri: cancion.spotifyUri,
+        imagenUrl: cancion.imagenUrl,
+      }),
+    })
+  }
+  setCargandoPlaylist(null)
+  refetchCola()
+}
   const agregarAPlaylist = async (playlistId: number, track: any) => {
     await fetch(`/api/playlists/${playlistId}/canciones`, {
       method: 'POST',
@@ -495,6 +514,13 @@ const [maxDuracionInput, setMaxDuracionInput] = useState(5)
                 </button>
                 <button onClick={() => eliminarPlaylist(p.id)}
                   className="text-zinc-600 hover:text-red-400 transition-colors text-lg px-1 shrink-0">×</button>
+                  <button
+  onClick={() => reproducirPlaylist(p)}
+  disabled={cargandoPlaylist === p.id}
+  className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm px-1 shrink-0 disabled:text-zinc-600"
+>
+  {cargandoPlaylist === p.id ? '...' : '▶'}
+</button>
               </div>
 
               {playlistActiva === p.id && (

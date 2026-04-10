@@ -19,7 +19,7 @@ const formatMs = (ms: number) => {
 
 export default function KioskoPage() {
   const { fichas, refetch: refetchFichas } = useFichas()
-  const { cola, refetch: refetchCola } = useCola()
+  const { cola, colaClientes, refetch: refetchCola } = useCola()
   const [artist, setArtist] = useState<SpotifyArtist | null>(null)
   const [tracks, setTracks] = useState<SpotifyTrack[]>([])
   const [loadingTracks, setLoadingTracks] = useState(false)
@@ -91,7 +91,7 @@ export default function KioskoPage() {
     }
   }
 
-  const nowPlaying = cola[0] ?? null
+  const nowPlaying = colaClientes[0] ?? cola[0] ?? null
 
   return (
     <div className="h-screen overflow-hidden flex bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
@@ -155,7 +155,7 @@ export default function KioskoPage() {
         />
 
         <FichasDisplay fichas={fichas} />
-        <ColaProximas cola={cola.slice(1)} />
+        <ColaProximas cola={colaClientes.slice(1)} />
       </div>
 
       {/* RIGHT */}

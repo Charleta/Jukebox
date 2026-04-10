@@ -8,6 +8,7 @@ export interface CancionCola {
   spotifyUri: string
   imagenUrl: string
   orden: number
+  tipo: string
 }
 
 export function useCola() {
@@ -25,5 +26,7 @@ export function useCola() {
     return () => clearInterval(interval)
   }, [])
 
-  return { cola, refetch: fetchCola }
+  const colaClientes = cola.filter(c => c.tipo === 'cliente')
+
+  return { cola, colaClientes, refetch: fetchCola }
 }

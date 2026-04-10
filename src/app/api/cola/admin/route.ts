@@ -17,6 +17,7 @@ export async function POST(req: Request) {
       spotifyUri: body.spotifyUri,
       imagenUrl: body.imagenUrl,
       orden: (maxOrden?.orden ?? 0) + 1,
+      tipo: 'admin',
     },
   })
 
