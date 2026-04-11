@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   }
   if (esNuevoDia) {
     updateData.fichasHoy = cantidad > 0 ? cantidad : 0
-  } else if (cantidad > 0) {
+  } else {
     updateData.fichasHoy = { increment: cantidad }
   }
 

@@ -23,6 +23,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
   const [showKeyboard, setShowKeyboard] = useState(false)
   const [hasPhysicalKeyboard, setHasPhysicalKeyboard] = useState(false)
   const debounceRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const abortRef = useRef<AbortController | null>(null)
   const [internalPlaylists, setInternalPlaylists] = useState<InternalPlaylist[]>([])
   const keyboardRef = useRef<any>(null)
 
@@ -46,16 +47,25 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
   const search = (q: string) => {
     setQuery(q)
     clearTimeout(debounceRef.current)
+    abortRef.current?.abort()
     if (q.length < 2) { setResults({ artists: [], tracks: [] }); return }
     debounceRef.current = setTimeout(async () => {
+      abortRef.current = new AbortController()
       setLoading(true)
-      const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(q)}`)
-      const data = await res.json()
-      setResults({
-        artists: data.artists?.items?.slice(0, 4) ?? [],
-        tracks: data.tracks?.items?.slice(0, 10) ?? [],
-      })
-      setLoading(false)
+      try {
+        const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(q)}`, {
+          signal: abortRef.current.signal,
+        })
+        const data = await res.json()
+        setResults({
+          artists: data.artists?.items?.slice(0, 4) ?? [],
+          tracks: data.tracks?.items?.slice(0, 10) ?? [],
+        })
+      } catch (err: any) {
+        if (err.name !== 'AbortError') console.error('Search error:', err)
+      } finally {
+        setLoading(false)
+      }
     }, 400)
   }
 

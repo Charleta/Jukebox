@@ -154,6 +154,10 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [maxDuracion, setMaxDuracion] = useState(300)
 const [maxDuracionInput, setMaxDuracionInput] = useState(5)
 const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
+
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+const [dragOver, setDragOver] = useState<number | null>(null)
+const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' | 'config'>('fichas')
   const cargarPlaylists = async () => {
     const res = await fetch('/api/playlists')
     if (res.ok) setPlaylists(await res.json())
@@ -256,10 +260,12 @@ const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
   }
 
   const eliminarPlaylist = async (id: number) => {
-    await fetch(`/api/playlists/${id}`, { method: 'DELETE' })
-    if (playlistActiva === id) setPlaylistActiva(null)
-    cargarPlaylists()
-  }
+  const confirmado = window.confirm('¿Seguro que querés eliminar esta playlist? Se borrarán todas sus canciones.')
+  if (!confirmado) return
+  await fetch(`/api/playlists/${id}`, { method: 'DELETE' })
+  if (playlistActiva === id) setPlaylistActiva(null)
+  cargarPlaylists()
+}
 
   const reproducirPlaylist = async (playlist: Playlist) => {
   setCargandoPlaylist(playlist.id)
@@ -337,124 +343,120 @@ const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
     setImportando(false); cargarPlaylists()
   }
 
-  return (
-    <div className="min-h-screen bg-black text-white pb-8" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-      <div className="max-w-lg mx-auto px-4 pt-8">
-        <div className="text-4xl text-yellow-400 mb-6" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-          PANEL ADMIN
-        </div>
+  const moverEnCola = async (fromIndex: number, toIndex: number) => {
+  if (fromIndex === toIndex) return
+  const item = cola[fromIndex + 1] // +1 porque slice(1)
+  await fetch('/api/cola', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: item.id, nuevaPos: toIndex + 1 }),
+  })
+  refetchCola()
+}
 
-        {/* Reproducción */}
-        <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800 mb-4">
-          <div className="text-zinc-400 text-xs uppercase tracking-widest mb-3">Reproducción</div>
-          {cola[0] ? (
-            <div className="flex items-center gap-3 mb-4">
-              {cola[0].imagenUrl
-                ? <img src={cola[0].imagenUrl} alt="" className="w-12 h-12 rounded object-cover" />
-                : <div className="w-12 h-12 rounded bg-zinc-800 flex items-center justify-center text-xl">♪</div>
-              }
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{cola[0].titulo}</div>
-                <div className="text-sm text-zinc-400 truncate">{cola[0].artista}</div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-zinc-600 text-sm mb-4">Sin canciones en cola</div>
-          )}
-          {duracion > 0 && (
-            <div className="mb-4">
-              <div className="h-0.5 bg-zinc-700 rounded overflow-hidden">
-                <div className="h-full bg-yellow-400 transition-all duration-1000"
-                  style={{ width: `${(progreso / duracion) * 100}%` }} />
-              </div>
-              <div className="flex justify-between text-xs text-zinc-500 mt-1">
-                <span>{fmtMs(progreso)}</span>
-                <span>{fmtMs(duracion)}</span>
-              </div>
-            </div>
-          )}
-          <div className="flex gap-3">
-            <button onClick={togglePlay}
-              className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-3 rounded-lg text-xl transition-colors">
-              {isPlaying ? '⏸' : '▶'}
-            </button>
-            <button onClick={skipNext}
-              className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-lg text-xl transition-colors">
-              ⏭
-            </button>
-          </div>
-        </div>
+return (
+  <div className="min-h-screen bg-black text-white pb-24" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="max-w-lg mx-auto px-4 pt-6">
 
-        {/* Fichas */}
-        <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800 mb-4">
-          <div className="text-zinc-400 text-xs uppercase tracking-widest mb-1">Fichas disponibles</div>
-          <div className="text-6xl text-yellow-400 font-black leading-none mb-1"
-            style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-            {fichas}
+      {/* PLAYER SIEMPRE VISIBLE */}
+      <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800 mb-4">
+        {cola[0] ? (
+          <div className="flex items-center gap-3 mb-4">
+            {cola[0].imagenUrl
+              ? <img src={cola[0].imagenUrl} alt="" className="w-14 h-14 rounded object-cover" />
+              : <div className="w-14 h-14 rounded bg-zinc-800 flex items-center justify-center text-xl">♪</div>
+            }
+            <div className="flex-1 min-w-0">
+              <div className="font-medium truncate">{cola[0].titulo}</div>
+              <div className="text-sm text-zinc-400 truncate">{cola[0].artista}</div>
+            </div>
           </div>
-          <div className="flex items-baseline gap-3 mb-4">
+        ) : (
+          <div className="text-zinc-600 text-sm mb-4">Sin canciones en cola</div>
+        )}
+        {duracion > 0 && (
+          <div className="mb-4">
+            <div className="h-0.5 bg-zinc-700 rounded overflow-hidden">
+              <div className="h-full bg-yellow-400 transition-all duration-1000"
+                style={{ width: `${(progreso / duracion) * 100}%` }} />
+            </div>
+            <div className="flex justify-between text-xs text-zinc-500 mt-1">
+              <span>{fmtMs(progreso)}</span>
+              <span>{fmtMs(duracion)}</span>
+            </div>
+          </div>
+        )}
+        <div className="flex gap-3">
+          <button onClick={togglePlay}
+            className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-4 rounded-lg text-2xl transition-colors">
+            {isPlaying ? '⏸' : '▶'}
+          </button>
+          <button onClick={skipNext}
+            className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-4 rounded-lg text-2xl transition-colors">
+            ⏭
+          </button>
+        </div>
+      </div>
+
+      {/* CONTENIDO SEGÚN TAB */}
+
+      {seccion === 'fichas' && (
+        <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800">
+          <div className="text-zinc-400 text-xs uppercase tracking-widest mb-1">Disponibles</div>
+          <div className="text-7xl text-yellow-400 font-black leading-none mb-1"
+            style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichas}</div>
+          <div className="flex items-baseline gap-3 mb-6">
             <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
             <div className="text-4xl text-yellow-400 font-black leading-none"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              {fichasHoy}
-            </div>
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasHoy}</div>
           </div>
           <div className="grid grid-cols-4 gap-2">
             <button onClick={resetFichas}
-              className="bg-red-900/60 hover:bg-red-800 border border-red-800 text-red-400 font-bold py-3 rounded-lg text-sm transition-colors"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              A 0
-            </button>
+              className="bg-red-900/60 hover:bg-red-800 border border-red-800 text-red-400 font-bold py-4 rounded-lg text-sm transition-colors"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>A 0</button>
             <button onClick={() => cargarFichas(-1)}
-              className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-lg text-lg transition-colors"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              −1
-            </button>
+              className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-4 rounded-lg text-xl transition-colors"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>−1</button>
             <button onClick={() => cargarFichas(1)}
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-3 rounded-lg text-lg transition-colors"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              +1
-            </button>
+              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-4 rounded-lg text-xl transition-colors"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>+1</button>
             <button onClick={() => cargarFichas(2)}
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-3 rounded-lg text-lg transition-colors"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              +2
+              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-4 rounded-lg text-xl transition-colors"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>+2</button>
+          </div>
+        </div>
+      )}
+
+      {seccion === 'cola' && (
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+          <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
+            <span className="text-xs uppercase tracking-widest text-zinc-400">{cola.length} canciones en cola</span>
+            <button
+              onClick={async () => {
+                await fetch('/api/cola/shuffle', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ currentId: cola[0]?.id ?? null }),
+                })
+                refetchCola()
+              }}
+              title="Mezclar canciones de fondo (no afecta fichas)"
+              className="flex items-center gap-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-white px-3 py-1.5 rounded transition-colors"
+            >
+              ⇄ Mezclar
             </button>
           </div>
-        </div>
-
-        {/* Buscar y agregar */}
-        <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800 mb-4">
-          <div className="text-zinc-400 text-xs uppercase tracking-widest mb-3">Agregar canción</div>
-          <input type="text" value={query} onChange={e => handleSearch(e.target.value)}
-            placeholder="Buscar canción o artista..."
-            className="w-full bg-zinc-800 border border-zinc-700 rounded px-4 py-2.5 text-white outline-none focus:border-yellow-400 transition-colors mb-3" />
-          {searching && <div className="text-zinc-500 text-sm text-center py-2">Buscando...</div>}
-          {results && (
-            <div className="space-y-1 max-h-64 overflow-y-auto">
-              {results.tracks?.items?.map((track: any) => (
-                <button key={track.id} onClick={() => agregarSinFicha(track)}
-                  className="w-full flex items-center gap-3 p-2 rounded hover:bg-zinc-800 transition-colors text-left">
-                  <img src={track.album.images[0]?.url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">{track.name}</div>
-                    <div className="text-xs text-zinc-500 truncate">{track.artists.map((a: any) => a.name).join(', ')}</div>
-                  </div>
-                  <span className="text-yellow-400 text-lg shrink-0">+</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Cola */}
-        <div className="bg-zinc-900 rounded-lg border border-zinc-800">
-          <div className="px-5 py-4 border-b border-zinc-800 text-xs uppercase tracking-widest text-zinc-400">
-            Cola ({cola.length} canciones)
-          </div>
-          {cola.length === 0 && <div className="px-5 py-8 text-zinc-600 text-center text-sm">Vacía</div>}
-          {cola.map((c, i) => (
-            <div key={c.id} className="flex items-center gap-3 px-5 py-3 border-b border-zinc-800/50">
+          {cola.length <= 1 && <div className="px-5 py-8 text-zinc-600 text-center text-sm">No hay canciones siguientes</div>}
+          {cola.slice(1).map((c, i) => (
+            <div key={c.id} draggable
+              onDragStart={() => setDragIndex(i)}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(i) }}
+              onDragEnd={() => {
+                if (dragIndex !== null && dragOver !== null) moverEnCola(dragIndex, dragOver)
+                setDragIndex(null); setDragOver(null)
+              }}
+              className={`flex items-center gap-3 px-5 py-3 border-b border-zinc-800/50 cursor-grab transition-all ${dragOver === i ? 'bg-yellow-400/10' : ''}`}>
+              <span className="text-zinc-600 text-xs">⠿</span>
               <span className="text-zinc-600 text-xs w-4">{i + 1}</span>
               {c.imagenUrl
                 ? <img src={c.imagenUrl} alt="" className="w-9 h-9 rounded object-cover" />
@@ -469,15 +471,80 @@ const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
             </div>
           ))}
         </div>
+      )}
 
-        {/* Playlists */}
-        <div className="bg-zinc-900 rounded-lg border border-zinc-800 mt-4">
+      {seccion === 'agregar' && (
+        <div className="space-y-4">
+          <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800">
+            <div className="text-zinc-400 text-xs uppercase tracking-widest mb-3">Agregar canción a la cola</div>
+            <input type="text" value={query} onChange={e => handleSearch(e.target.value)}
+              placeholder="Buscar canción o artista..."
+              className="w-full bg-zinc-800 border border-zinc-700 rounded px-4 py-2.5 text-white outline-none focus:border-yellow-400 transition-colors mb-3" />
+            {searching && <div className="text-zinc-500 text-sm text-center py-2">Buscando...</div>}
+            {results && (
+              <div className="space-y-1 max-h-64 overflow-y-auto">
+                {results.tracks?.items?.map((track: any) => (
+                  <button key={track.id} onClick={() => agregarSinFicha(track)}
+                    className="w-full flex items-center gap-3 p-2 rounded hover:bg-zinc-800 transition-colors text-left">
+                    <img src={track.album.images[0]?.url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{track.name}</div>
+                      <div className="text-xs text-zinc-500 truncate">{track.artists.map((a: any) => a.name).join(', ')}</div>
+                    </div>
+                    <span className="text-yellow-400 text-lg shrink-0">+</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+            <div className="px-5 py-4 border-b border-zinc-800">
+              <div className="text-zinc-400 text-xs uppercase tracking-widest">Importar canciones</div>
+              <div className="text-zinc-600 text-xs mt-1">Pegá los nombres (uno por línea)</div>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              <select value={importPlaylistId ?? ''} onChange={e => setImportPlaylistId(Number(e.target.value) || null)}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors">
+                <option value="">Elegí una lista...</option>
+                {playlists.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+              </select>
+              <textarea value={importTexto} onChange={e => setImportTexto(e.target.value)}
+                placeholder={"Bohemian Rhapsody\nHotel California\nStairway to Heaven"}
+                rows={5}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors resize-none font-mono" />
+              <button onClick={importarCanciones}
+                disabled={importando || !importPlaylistId || !importTexto.trim()}
+                className="w-full bg-yellow-400 hover:bg-yellow-300 disabled:bg-zinc-700 disabled:text-zinc-500 text-black font-bold py-2.5 rounded text-sm transition-colors">
+                {importando ? 'Importando...' : 'Importar'}
+              </button>
+              {importLog.length > 0 && (
+                <div className="space-y-1 max-h-48 overflow-y-auto">
+                  {importLog.map((entry, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs">
+                      <span className={entry.ok ? 'text-green-400' : 'text-red-400'}>{entry.ok ? '✓' : '✗'}</span>
+                      <span className="text-zinc-400 truncate">{entry.msg}</span>
+                    </div>
+                  ))}
+                  {!importando && (
+                    <div className="text-zinc-600 text-xs pt-1">
+                      {importLog.filter(e => e.ok).length}/{importLog.length} encontradas
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {seccion === 'listas' && (
+        <div className="bg-zinc-900 rounded-lg border border-zinc-800">
           <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
             <div className="text-zinc-400 text-xs uppercase tracking-widest">Mis Playlists</div>
             <button onClick={() => { setCreandoPlaylist(true); setPlaylistActiva(null) }}
               className="text-yellow-400 text-xs hover:text-yellow-300 transition-colors">+ Nueva</button>
           </div>
-
           {creandoPlaylist && (
             <form onSubmit={crearPlaylist} className="px-5 py-4 border-b border-zinc-800">
               <input autoFocus type="text" value={nombreNueva} onChange={e => setNombreNueva(e.target.value)}
@@ -485,21 +552,15 @@ const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
                 className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors" />
               <div className="flex gap-2 mt-2">
                 <button type="submit"
-                  className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 rounded text-sm transition-colors">
-                  Crear
-                </button>
+                  className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 rounded text-sm transition-colors">Crear</button>
                 <button type="button" onClick={() => { setCreandoPlaylist(false); setNombreNueva('') }}
-                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded text-sm transition-colors">
-                  Cancelar
-                </button>
+                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded text-sm transition-colors">Cancelar</button>
               </div>
             </form>
           )}
-
           {playlists.length === 0 && !creandoPlaylist && (
             <div className="px-5 py-6 text-zinc-600 text-center text-sm">Sin playlists</div>
           )}
-
           {playlists.map(p => (
             <div key={p.id} className="border-b border-zinc-800/50 last:border-b-0">
               <div className="flex items-center gap-3 px-5 py-3">
@@ -512,17 +573,14 @@ const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
                   <div className="text-sm font-medium truncate">{p.nombre}</div>
                   <div className="text-xs text-zinc-500">{p.canciones.length} canciones</div>
                 </button>
+                <button onClick={() => reproducirPlaylist(p)}
+                  disabled={cargandoPlaylist === p.id}
+                  className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm px-1 shrink-0 disabled:text-zinc-600">
+                  {cargandoPlaylist === p.id ? '...' : '▶'}
+                </button>
                 <button onClick={() => eliminarPlaylist(p.id)}
                   className="text-zinc-600 hover:text-red-400 transition-colors text-lg px-1 shrink-0">×</button>
-                  <button
-  onClick={() => reproducirPlaylist(p)}
-  disabled={cargandoPlaylist === p.id}
-  className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm px-1 shrink-0 disabled:text-zinc-600"
->
-  {cargandoPlaylist === p.id ? '...' : '▶'}
-</button>
               </div>
-
               {playlistActiva === p.id && (
                 <div className="px-5 pb-4">
                   <div className="space-y-1 mb-3 max-h-48 overflow-y-auto">
@@ -565,85 +623,59 @@ const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
             </div>
           ))}
         </div>
-        {/* Límite de tiempo */}
-<div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800 mb-4">
-  <div className="text-zinc-400 text-xs uppercase tracking-widest mb-3">Límite por canción</div>
-  <div className="flex items-center gap-3">
-    <input
-      type="number"
-      min={1}
-      max={60}
-      value={maxDuracionInput}
-      onChange={e => setMaxDuracionInput(Number(e.target.value))}
-      className="w-20 bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-center outline-none focus:border-yellow-400"
-    />
-    <span className="text-zinc-400 text-sm">minutos</span>
-    <button
-      onClick={async () => {
-        const segundos = maxDuracionInput * 60
-        await fetch('/api/config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ valor: segundos }),
-        })
-        setMaxDuracion(segundos)
-      }}
-      className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 py-2 rounded-lg transition-colors"
-    >
-      Guardar
-    </button>
-  </div>
-  <div className="text-xs text-zinc-600 mt-2">Actual: {Math.floor(maxDuracion / 60)} min</div>
-</div>
+      )}
 
-        {/* Importador masivo */}
-        <div className="bg-zinc-900 rounded-lg border border-zinc-800 mt-4">
-          <div className="px-5 py-4 border-b border-zinc-800">
-            <div className="text-zinc-400 text-xs uppercase tracking-widest">Importar canciones de Spotify</div>
-            <div className="text-zinc-600 text-xs mt-1">Pegá los nombres (uno por línea) y elegí a qué lista agregarlos</div>
-          </div>
-          <div className="px-5 py-4 space-y-3">
-            <select value={importPlaylistId ?? ''} onChange={e => setImportPlaylistId(Number(e.target.value) || null)}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors">
-              <option value="">Elegí una lista...</option>
-              {playlists.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-            </select>
-            <textarea value={importTexto} onChange={e => setImportTexto(e.target.value)}
-              placeholder={"Bohemian Rhapsody\nHotel California\nStairway to Heaven"}
-              rows={6}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors resize-none font-mono" />
-            <button onClick={importarCanciones}
-              disabled={importando || !importPlaylistId || !importTexto.trim()}
-              className="w-full bg-yellow-400 hover:bg-yellow-300 disabled:bg-zinc-700 disabled:text-zinc-500 text-black font-bold py-2.5 rounded text-sm transition-colors">
-              {importando ? 'Importando...' : 'Importar'}
+      {seccion === 'config' && (
+        <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800">
+          <div className="text-zinc-400 text-xs uppercase tracking-widest mb-3">Límite por canción</div>
+          <div className="flex items-center gap-3">
+            <input type="number" min={1} max={60} value={maxDuracionInput}
+              onChange={e => setMaxDuracionInput(Number(e.target.value))}
+              className="w-20 bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-center outline-none focus:border-yellow-400" />
+            <span className="text-zinc-400 text-sm">minutos</span>
+            <button onClick={async () => {
+              const segundos = maxDuracionInput * 60
+              await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ valor: segundos }),
+              })
+              setMaxDuracion(segundos)
+            }} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 py-2 rounded-lg transition-colors">
+              Guardar
             </button>
-            {importLog.length > 0 && (
-              <div className="space-y-1 max-h-48 overflow-y-auto">
-                {importLog.map((entry, i) => (
-                  <div key={i} className="flex items-start gap-2 text-xs">
-                    <span className={entry.ok ? 'text-green-400' : 'text-red-400'}>{entry.ok ? '✓' : '✗'}</span>
-                    <span className="text-zinc-400 truncate">{entry.msg}</span>
-                  </div>
-                ))}
-                {!importando && (
-                  <div className="text-zinc-600 text-xs pt-1">
-                    {importLog.filter(e => e.ok).length}/{importLog.length} encontradas
-                  </div>
-                )}
-              </div>
-            )}
+          </div>
+          <div className="text-xs text-zinc-600 mt-2">Actual: {Math.floor(maxDuracion / 60)} min</div>
+          <div className="mt-6">
+            <button onClick={onLogout} className="text-zinc-500 text-sm hover:text-red-400 transition-colors">
+              Cerrar sesión
+            </button>
           </div>
         </div>
+      )}
 
-        <div className="mt-6">
-          <button onClick={onLogout}
-            className="text-zinc-500 text-sm hover:text-red-400 transition-colors">
-            Cerrar sesión
-          </button>
-        </div>
-      </div>
     </div>
-  )
+
+    {/* BARRA DE NAVEGACIÓN INFERIOR */}
+    <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 flex">
+      {[
+        { id: 'fichas', icon: '$', label: 'Fichas' },
+        { id: 'cola', icon: '≡', label: 'Cola' },
+        { id: 'agregar', icon: '+', label: 'Agregar' },
+        { id: 'listas', icon: '♪', label: 'Listas' },
+        { id: 'config', icon: '⚙', label: 'Config' },
+      ].map(tab => (
+        <button key={tab.id} onClick={() => setSeccion(tab.id as any)}
+          className={`flex-1 flex flex-col items-center py-3 gap-1 transition-colors ${
+            seccion === tab.id ? 'text-yellow-400' : 'text-zinc-500'
+          }`}>
+          <span className="text-lg">{tab.icon}</span>
+          <span className="text-xs">{tab.label}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+)
 }
 
 // ─── Login + Router ───────────────────────────────────────────────────────────

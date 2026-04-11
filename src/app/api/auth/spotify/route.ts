@@ -17,7 +17,7 @@ export async function GET() {
     response_type: 'code',
     client_id: CLIENT_ID,
     scope: SCOPES,
-    redirect_uri: 'http://127.0.0.1:3000/api/auth/callback',
+    redirect_uri: 'http://127.0.0.1:3000/callback',
   })
 
   return NextResponse.redirect(

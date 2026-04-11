@@ -22,13 +22,14 @@ export default function KioskoPage() {
   const { cola, colaClientes, refetch: refetchCola } = useCola()
   const [artist, setArtist] = useState<SpotifyArtist | null>(null)
   const [tracks, setTracks] = useState<SpotifyTrack[]>([])
-  const [loadingTracks, setLoadingTracks] = useState(false)
   const [focused, setFocused] = useState(0)
   const [toast, setToast] = useState('')
   const [progreso, setProgreso] = useState(0)
   const [duracion, setDuracion] = useState(0)
 
   const pasarSiguiente = async () => {
+    setProgreso(0)
+    setDuracion(0)
     await fetch('/api/cola/siguiente', { method: 'POST' })
     refetchCola()
   }
@@ -42,14 +43,15 @@ export default function KioskoPage() {
     setArtist(a)
     setTracks([])
     setFocused(0)
-    setLoadingTracks(true)
     const res = await fetch(`/api/spotify/search?artistId=${a.id}`)
     const data = await res.json()
     setTracks(data.tracks ?? [])
-    setLoadingTracks(false)
   }
 
   const handleInternalPlaylistSelect = async (id: number) => {
+    setArtist({ id: 'loading', name: 'Cargando lista...', images: [], genres: [], followers: { total: 0 } })
+    setTracks([])
+    setFocused(0)
     const res = await fetch(`/api/playlists/${id}`)
     const playlist = await res.json()
     setArtist({
@@ -59,7 +61,6 @@ export default function KioskoPage() {
       genres: [],
       followers: { total: playlist.canciones.length },
     })
-    setFocused(0)
     setTracks(
       playlist.canciones.map((c: any) => ({
         id: String(c.id),
@@ -111,18 +112,22 @@ export default function KioskoPage() {
               }}
             />
           )}
-          <div className="relative p-6">
-            <div className="text-xs tracking-widest text-yellow-400 mb-4 flex items-center gap-2">
+          <div className="relative p-4">
+            <div className="text-xs tracking-widest text-yellow-400 mb-3 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
               SONANDO AHORA
             </div>
             {nowPlaying ? (
               <>
-                <img src={nowPlaying.imagenUrl} alt="" className="w-full aspect-square rounded object-cover mb-4 shadow-2xl" />
-                <div className="text-2xl leading-tight mb-1" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-                  {nowPlaying.titulo}
+                <div className="flex items-center gap-3 mb-3">
+                  <img src={nowPlaying.imagenUrl} alt="" className="w-full h-60 rounded object-cover shadow-xl shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-lg leading-tight truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                      {nowPlaying.titulo}
+                    </div>
+                    <div className="text-xs text-zinc-400 truncate mt-0.5">{nowPlaying.artista}</div>
+                  </div>
                 </div>
-                <div className="text-sm text-zinc-400 mb-3">{nowPlaying.artista}</div>
 
                 {/* Barra de progreso */}
                 {duracion > 0 && (
@@ -141,8 +146,9 @@ export default function KioskoPage() {
                 )}
               </>
             ) : (
-              <div className="w-full aspect-square rounded bg-zinc-800 mb-4 flex items-center justify-center text-zinc-600">
-                Sin canciones
+              <div className="flex items-center gap-3">
+                <div className="w-16 h-16 rounded bg-zinc-800 flex items-center justify-center text-zinc-600 shrink-0">♪</div>
+                <div className="text-sm text-zinc-600">Sin canciones</div>
               </div>
             )}
           </div>
