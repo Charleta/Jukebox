@@ -1,11 +1,11 @@
 {
-  "name": "JukeBox Admin",
-  "short_name": "JukeBox",
-  "description": "Panel de administración del JukeBox",
-  "start_url": "/admin",
-  "display": "standalone",
+  "name": "Rancho Aparte Jukebox",
+  "short_name": "Rancho Aparte",
+  "description": "Jukebox Rancho Aparte",
+  "start_url": "/",
+  "display": "fullscreen",
   "background_color": "#000000",
-  "theme_color": "#f5c842",
+  "theme_color": "#000000",
   "orientation": "portrait",
   "icons": [
     {

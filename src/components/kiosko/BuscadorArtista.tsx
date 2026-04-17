@@ -7,6 +7,7 @@ interface InternalPlaylist {
   id: number
   nombre: string
   imagenUrl: string
+  esFavoritos: boolean
   canciones: { id: number }[]
 }
 
@@ -96,7 +97,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
           {query && (
             <button
               onClick={() => { search(''); setShowKeyboard(false); if (keyboardRef.current) keyboardRef.current.setInput('') }}
-              className="px-4 text-zinc-500 hover:text-white"
+              className="bg-red-950 active:bg-red-900 hover:bg-red-800 border border-red-900/60 text-red-400 font-black rounded-4xl mr-2 px-3 py-1.5 text-sm transition-colors"
             >
               ✕
             </button>
@@ -108,7 +109,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
           <div className="mt-5">
             <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Nuestras Listas</div>
             <div className="grid grid-cols-2 gap-3">
-              {internalPlaylists.map(p => (
+              {internalPlaylists.filter(p => !p.esFavoritos).map(p => (
                 <button
                   key={p.id}
                   onClick={() => onInternalPlaylistSelect(p.id)}
@@ -172,15 +173,16 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
         )}
       </div>
 
-      {/* Teclado virtual */}
+      {/* Teclado virtual — fijo al pie de pantalla */}
       {showKeyboard && (
-        <div className="flex-shrink-0 border-t border-zinc-800">
-          <div className="flex justify-end px-4 pt-2">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/98 border-t border-zinc-800 shadow-2xl backdrop-blur">
+          <div className="flex justify-between items-center px-4 pt-3 pb-1">
+            <span className="text-zinc-500 text-xs uppercase tracking-widest">Teclado</span>
             <button
               onClick={() => setShowKeyboard(false)}
-              className="text-zinc-500 text-xs hover:text-white"
+              className="text-zinc-500 text-xs bg-zinc-800 active:bg-zinc-700 px-3 py-1.5 rounded-full transition-colors"
             >
-              Cerrar teclado ✕
+              Cerrar ✕
             </button>
           </div>
           <Keyboard

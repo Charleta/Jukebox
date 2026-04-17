@@ -10,25 +10,26 @@ declare global {
 
 interface Props {
   spotifyUri: string | null
+  maxSegundos: number
   onTerminada: () => void
   onProgress: (position: number, duration: number) => void
 }
 
-export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
+export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress }: Props) {
   const [deviceId, setDeviceId] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const playerRef = useRef<any>(null)
   const deviceIdRef = useRef<string | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const maxTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const nearEndTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
+  const nearEndScheduledRef = useRef(false)
   const terminadaRef = useRef(false)
   const hasPlayedRef = useRef(false)
   const playStartTimeRef = useRef(0)
   const reconnectTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const reconnectAttemptsRef = useRef(0)
   const spotifyUriRef = useRef<string | null>(null)
-
-  // Calcula el delay del próximo reintento con backoff exponencial (máx 30s)
   const nextReconnectDelay = () => {
     const delay = Math.min(30000, 2000 * Math.pow(2, reconnectAttemptsRef.current))
     reconnectAttemptsRef.current++
@@ -66,10 +67,11 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
 
       player.addListener('ready', ({ device_id }: { device_id: string }) => {
         console.log('Player ready, device:', device_id)
-        reconnectAttemptsRef.current = 0  // reset backoff al conectar bien
+        reconnectAttemptsRef.current = 0
         deviceIdRef.current = device_id
         setDeviceId(device_id)
         setReady(true)
+
       })
 
       player.addListener('not_ready', ({ device_id }: { device_id: string }) => {
@@ -87,10 +89,6 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
           playStartTimeRef.current = playStartTimeRef.current || Date.now()
         }
 
-        // Detectar fin solo si:
-        // 1. La canción realmente empezó a sonar
-        // 2. Pasaron al menos 3 segundos desde que empezó (evita falsos positivos al cargar)
-        // 3. Posición en 0, pausado, y hay una canción previa
         const tiempoReproduciendo = Date.now() - playStartTimeRef.current
         if (
           hasPlayedRef.current &&
@@ -126,6 +124,25 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
         const state = await playerRef.current.getCurrentState()
         if (!state) return
         onProgress(state.position, state.duration)
+
+        // Backup: si estamos a menos de 2s del final, programar onTerminada preciso
+        if (
+          !terminadaRef.current &&
+          !nearEndScheduledRef.current &&
+          hasPlayedRef.current &&
+          !state.paused &&
+          state.duration > 0 &&
+          state.position >= state.duration - 2000
+        ) {
+          nearEndScheduledRef.current = true
+          const remaining = Math.max(0, state.duration - state.position)
+          clearTimeout(nearEndTimerRef.current)
+          nearEndTimerRef.current = setTimeout(() => {
+            if (terminadaRef.current) return
+            terminadaRef.current = true
+            onTerminada()
+          }, remaining + 300)
+        }
       }, 1000)
 
       player.connect()
@@ -145,6 +162,7 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
     return () => {
       clearInterval(intervalRef.current)
       clearTimeout(maxTimerRef.current)
+      clearTimeout(nearEndTimerRef.current)
       clearTimeout(reconnectTimerRef.current)
       playerRef.current?.disconnect()
     }
@@ -152,15 +170,21 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
 
   useEffect(() => {
     spotifyUriRef.current = spotifyUri
-    if (!ready || !deviceId || !spotifyUri) return
+    if (!spotifyUri) {
+      playerRef.current?.pause()
+      return
+    }
+    if (!ready || !deviceId) return
     playTrack(deviceId, spotifyUri)
   }, [spotifyUri, ready, deviceId])
 
   const playTrack = async (devId: string, uri: string) => {
     clearTimeout(maxTimerRef.current)
+    clearTimeout(nearEndTimerRef.current)
     terminadaRef.current = false
     hasPlayedRef.current = false
     playStartTimeRef.current = 0
+    nearEndScheduledRef.current = false
 
     try {
       const res = await fetch('/api/spotify/play', {
@@ -184,10 +208,6 @@ export function SpotifyPlayer({ spotifyUri, onTerminada, onProgress }: Props) {
         }
         return
       }
-
-      const configRes = await fetch('/api/config')
-      const config = await configRes.json()
-      const maxSegundos = Number(config.valor ?? 300)
 
       maxTimerRef.current = setTimeout(() => {
         if (terminadaRef.current) return

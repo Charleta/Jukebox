@@ -19,3 +19,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   return NextResponse.json(cancion)
 }
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { ids } = await req.json()
+  await Promise.all((ids as number[]).map((id, i) =>
+    prisma.playlistCancion.update({ where: { id }, data: { orden: i } })
+  ))
+  return NextResponse.json({ ok: true })
+}

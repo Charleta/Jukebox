@@ -127,6 +127,8 @@ exports.Prisma.PlaylistScalarFieldEnum = {
   nombre: 'nombre',
   descripcion: 'descripcion',
   imagenUrl: 'imagenUrl',
+  esFavoritos: 'esFavoritos',
+  orden: 'orden',
   createdAt: 'createdAt'
 };
 

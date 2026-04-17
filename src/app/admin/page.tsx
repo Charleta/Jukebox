@@ -3,9 +3,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
 
-const ADMIN_PIN    = process.env.NEXT_PUBLIC_ADMIN_PIN    ?? '1234'
-const OPERATOR_PIN = process.env.NEXT_PUBLIC_OPERATOR_PIN ?? '5678'
-
 type Role = 'admin' | 'operador'
 
 interface SearchResult { artists: { items: any[] }; tracks: { items: any[] } }
@@ -16,7 +13,7 @@ interface PlaylistCancion {
 }
 interface Playlist {
   id: number; nombre: string; descripcion: string
-  imagenUrl: string; canciones: PlaylistCancion[]
+  imagenUrl: string; esFavoritos: boolean; orden: number; canciones: PlaylistCancion[]
 }
 
 function fmtMs(ms: number) {
@@ -151,11 +148,37 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [importando, setImportando] = useState(false)
   const [importLog, setImportLog] = useState<{ linea: string; ok: boolean; msg: string }[]>([])
 
-  const [maxDuracion, setMaxDuracion] = useState(300)
-const [maxDuracionInput, setMaxDuracionInput] = useState(5)
-const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
+  const [maxDurKiosko, setMaxDurKiosko] = useState(300)
+  const [maxDurKioskoInput, setMaxDurKioskoInput] = useState(5)
+  const [maxDurAdmin, setMaxDurAdmin] = useState(300)
+  const [maxDurAdminInput, setMaxDurAdminInput] = useState(5)
+  const [fichasPackInput, setFichasPackInput] = useState(2)
+  const [precioPackInput, setPrecioPackInput] = useState(1000)
+  const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
 
+  const [configMsg, setConfigMsg] = useState('')
+  const [adminToast, setAdminToast] = useState('')
   const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [guardandoModal, setGuardandoModal] = useState(false)
+  const [dragSongIndex, setDragSongIndex] = useState<number | null>(null)
+  const [dragSongOver, setDragSongOver] = useState<number | null>(null)
+  const [dragPlIndex, setDragPlIndex] = useState<number | null>(null)
+  const [dragPlOver, setDragPlOver] = useState<number | null>(null)
+
+const [splash, setSplash] = useState(true)
+  const [splashFading, setSplashFading] = useState(false)
+
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setSplashFading(true), 1800)
+    const t2 = setTimeout(() => setSplash(false), 2400)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [])
+
+  const showAdminToast = (msg: string) => {
+    setAdminToast(msg)
+    setTimeout(() => setAdminToast(''), 2200)
+  }
 const [dragOver, setDragOver] = useState<number | null>(null)
 const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' | 'config'>('fichas')
   const cargarPlaylists = async () => {
@@ -167,11 +190,15 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
 
   useEffect(() => {
     fetch('/api/config')
-  .then(r => r.json())
-  .then(data => {
-    setMaxDuracion(Number(data.valor))
-    setMaxDuracionInput(Math.floor(Number(data.valor) / 60))
-  })
+      .then(r => r.json())
+      .then(data => {
+        setMaxDurKiosko(Number(data.max_duracion_kiosko ?? 300))
+        setMaxDurKioskoInput(Math.floor(Number(data.max_duracion_kiosko ?? 300) / 60))
+        setMaxDurAdmin(Number(data.max_duracion_admin ?? 300))
+        setMaxDurAdminInput(Math.floor(Number(data.max_duracion_admin ?? 300) / 60))
+        setFichasPackInput(Number(data.fichas_pack ?? 2))
+        setPrecioPackInput(Number(data.precio_pack ?? 1000))
+      })
     const interval = setInterval(async () => {
       const res = await fetch('/api/spotify/playback')
       if (res.ok) {
@@ -300,7 +327,8 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     setQueryPl(''); setResultsPl(null); cargarPlaylists()
   }
 
-  const quitarDePlaylist = async (playlistId: number, cancionId: number) => {
+  const quitarDePlaylist = async (playlistId: number, cancionId: number, titulo: string) => {
+    if (!window.confirm(`¿Eliminar "${titulo}" de la playlist?`)) return
     await fetch(`/api/playlists/${playlistId}/canciones/${cancionId}`, { method: 'DELETE' })
     cargarPlaylists()
   }
@@ -343,6 +371,71 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     setImportando(false); cargarPlaylists()
   }
 
+  const shuffleCola = async () => {
+    await fetch('/api/cola/shuffle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentId: cola[0]?.id ?? null }),
+    })
+    refetchCola()
+  }
+
+  const moverCancionPlaylist = async (playlistId: number, from: number, to: number) => {
+    if (from === to) return
+    const playlist = playlists.find(p => p.id === playlistId)
+    if (!playlist) return
+    const next = [...playlist.canciones]
+    const [moved] = next.splice(from, 1)
+    next.splice(to, 0, moved)
+    setPlaylists(prev => prev.map(p => p.id === playlistId ? { ...p, canciones: next } : p))
+    await fetch(`/api/playlists/${playlistId}/canciones`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: next.map(c => c.id) }),
+    })
+  }
+
+  const guardarEnFavoritos = async () => {
+    if (!cola[0]) return
+    const res = await fetch('/api/playlists/favoritos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        titulo: cola[0].titulo, artista: cola[0].artista,
+        duracion: cola[0].duracion, spotifyUri: cola[0].spotifyUri, imagenUrl: cola[0].imagenUrl,
+      }),
+    })
+    if (res.ok) { showAdminToast('❤ Guardada en Favoritos'); cargarPlaylists() }
+  }
+
+  const guardarEnPlaylist = async (playlistId: number) => {
+    if (!cola[0]) return
+    await fetch(`/api/playlists/${playlistId}/canciones`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        titulo: cola[0].titulo, artista: cola[0].artista,
+        duracion: cola[0].duracion, spotifyUri: cola[0].spotifyUri, imagenUrl: cola[0].imagenUrl,
+      }),
+    })
+    setGuardandoModal(false)
+    showAdminToast('✓ Guardada en la lista')
+    cargarPlaylists()
+  }
+
+  const moverPlaylist = async (from: number, to: number) => {
+    if (from === to) return
+    const next = [...playlists]
+    const [moved] = next.splice(from, 1)
+    next.splice(to, 0, moved)
+    setPlaylists(next)
+    await fetch('/api/playlists', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: next.map(p => p.id) }),
+    })
+  }
+
   const moverEnCola = async (fromIndex: number, toIndex: number) => {
   if (fromIndex === toIndex) return
   const item = cola[fromIndex + 1] // +1 porque slice(1)
@@ -355,82 +448,125 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
 }
 
 return (
-  <div className="min-h-screen bg-black text-white pb-24" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-    <div className="max-w-lg mx-auto px-4 pt-6">
+  <div className="min-h-screen bg-[#0c0c0c] text-white pb-24" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+    {splash && (
+        <div className={`fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center transition-opacity duration-500 ${splashFading ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="text-yellow-400 text-7xl font-black tracking-wide text-center" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+            Rancho Aparte
+          </div>
+          <div className="text-zinc-600 text-xs tracking-[0.6em] uppercase mt-3">Administrador</div>
+        </div>
+      )}
+    
+    
+    <div className="max-w-lg mx-auto px-4 pt-4">
 
-      {/* PLAYER SIEMPRE VISIBLE */}
-      <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800 mb-4">
-        {cola[0] ? (
-          <div className="flex items-center gap-3 mb-4">
-            {cola[0].imagenUrl
-              ? <img src={cola[0].imagenUrl} alt="" className="w-14 h-14 rounded object-cover" />
-              : <div className="w-14 h-14 rounded bg-zinc-800 flex items-center justify-center text-xl">♪</div>
-            }
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{cola[0].titulo}</div>
-              <div className="text-sm text-zinc-400 truncate">{cola[0].artista}</div>
-            </div>
-          </div>
-        ) : (
-          <div className="text-zinc-600 text-sm mb-4">Sin canciones en cola</div>
+      {/* PLAYER */}
+      <div className="relative overflow-hidden rounded-2xl mb-4 border border-white/5">
+        {cola[0]?.imagenUrl && (
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url(${cola[0].imagenUrl})`,
+            backgroundSize: 'cover', backgroundPosition: 'center',
+            filter: 'blur(40px) brightness(0.18)', transform: 'scale(1.1)'
+          }} />
         )}
-        {duracion > 0 && (
-          <div className="mb-4">
-            <div className="h-0.5 bg-zinc-700 rounded overflow-hidden">
-              <div className="h-full bg-yellow-400 transition-all duration-1000"
-                style={{ width: `${(progreso / duracion) * 100}%` }} />
+        <div className="relative bg-black/50 p-5">
+          {cola[0] ? (
+            <div className="flex items-center gap-4 mb-4">
+              {cola[0].imagenUrl
+                ? <img src={cola[0].imagenUrl} alt="" className="w-16 h-16 rounded-xl object-cover shadow-lg shrink-0" />
+                : <div className="w-16 h-16 rounded-xl bg-zinc-800 flex items-center justify-center text-xl shrink-0">♪</div>
+              }
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-yellow-400 tracking-widest uppercase mb-1 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse inline-block" />
+                  Sonando ahora
+                </div>
+                <div className="font-black text-lg leading-tight truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{cola[0].titulo}</div>
+                <div className="text-sm text-zinc-400 truncate">{cola[0].artista}</div>
+              </div>
             </div>
-            <div className="flex justify-between text-xs text-zinc-500 mt-1">
-              <span>{fmtMs(progreso)}</span>
-              <span>{fmtMs(duracion)}</span>
+          ) : (
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-16 h-16 rounded-xl bg-zinc-900 flex items-center justify-center text-2xl text-zinc-600 shrink-0">♪</div>
+              <div className="text-sm text-zinc-600">Sin canciones en cola</div>
             </div>
+          )}
+          {duracion > 0 && (
+            <div className="mb-4">
+              <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-yellow-400 rounded-full transition-all duration-1000"
+                  style={{ width: `${(progreso / duracion) * 100}%` }} />
+              </div>
+              <div className="flex justify-between text-xs text-zinc-500 mt-1.5">
+                <span>{fmtMs(progreso)}</span>
+                <span>{fmtMs(duracion)}</span>
+              </div>
+            </div>
+          )}
+          <div className="flex gap-3 mb-3">
+            <button onClick={togglePlay}
+              className="flex-1 bg-yellow-400 active:bg-yellow-300 text-black font-black py-2.5 rounded-xl text-xl transition-colors">
+              {isPlaying ? '⏸' : '▶'}
+            </button>
+            <button onClick={skipNext}
+              className="flex-1 bg-white/10 active:bg-white/20 text-white font-bold py-2.5 rounded-xl text-xl transition-colors">
+              ⏭
+            </button>
           </div>
-        )}
-        <div className="flex gap-3">
-          <button onClick={togglePlay}
-            className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-4 rounded-lg text-2xl transition-colors">
-            {isPlaying ? '⏸' : '▶'}
-          </button>
-          <button onClick={skipNext}
-            className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-4 rounded-lg text-2xl transition-colors">
-            ⏭
-          </button>
+          <div className="flex items-center justify-around">
+            <button onClick={guardarEnFavoritos} disabled={!cola[0]}
+              className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl active:bg-white/5 disabled:opacity-30 transition-colors text-red-400">
+              <span className="text-xl leading-none">❤</span>
+              <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Favoritos</span>
+            </button>
+            <button onClick={shuffleCola} disabled={cola.length < 2}
+              className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl active:bg-white/5 disabled:opacity-30 transition-colors text-zinc-400">
+              <span className="text-xl leading-none">⇄</span>
+              <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Mezclar</span>
+            </button>
+            <button onClick={() => setGuardandoModal(true)} disabled={!cola[0]}
+              className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl active:bg-white/5 disabled:opacity-30 transition-colors text-zinc-400">
+              <span className="text-xl leading-none">📁</span>
+              <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Guardar</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* CONTENIDO SEGÚN TAB */}
 
       {seccion === 'fichas' && (
-        <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800">
-          <div className="text-zinc-400 text-xs uppercase tracking-widest mb-1">Disponibles</div>
-          <div className="text-7xl text-yellow-400 font-black leading-none mb-1"
+        <div className="bg-gradient-to-b from-yellow-950/60 to-zinc-900 rounded-2xl p-6 border border-yellow-900/30 shadow-lg">
+          <div className="text-xs tracking-widest text-zinc-500 uppercase mb-1">Disponibles</div>
+          <div className="text-8xl text-yellow-400 font-black leading-none mb-2"
             style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichas}</div>
-          <div className="flex items-baseline gap-3 mb-6">
+          <div className="flex items-baseline gap-3 mb-7">
             <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
-            <div className="text-4xl text-yellow-400 font-black leading-none"
+            <div className="text-5xl text-yellow-400/70 font-black leading-none"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasHoy}</div>
           </div>
           <div className="grid grid-cols-4 gap-2">
             <button onClick={resetFichas}
-              className="bg-red-900/60 hover:bg-red-800 border border-red-800 text-red-400 font-bold py-4 rounded-lg text-sm transition-colors"
+              className="bg-red-950 active:bg-red-900 border border-red-900/60 text-red-400 font-black py-5 rounded-xl text-sm transition-colors"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>A 0</button>
             <button onClick={() => cargarFichas(-1)}
-              className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-4 rounded-lg text-xl transition-colors"
+              className="bg-zinc-800 active:bg-zinc-700 text-white font-black py-5 rounded-xl text-2xl transition-colors"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>−1</button>
             <button onClick={() => cargarFichas(1)}
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-4 rounded-lg text-xl transition-colors"
+              className="bg-yellow-400 active:bg-yellow-300 text-black font-black py-5 rounded-xl text-2xl transition-colors"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>+1</button>
             <button onClick={() => cargarFichas(2)}
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-4 rounded-lg text-xl transition-colors"
+              className="bg-yellow-400 active:bg-yellow-300 text-black font-black py-5 rounded-xl text-2xl transition-colors"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>+2</button>
           </div>
         </div>
       )}
 
       {seccion === 'cola' && (
-        <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+        <div className="bg-gradient-to-b from-sky-950/60 to-zinc-900 rounded-2xl border border-sky-900/30 overflow-hidden shadow-lg">
           <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
-            <span className="text-xs uppercase tracking-widest text-zinc-400">{cola.length} canciones en cola</span>
+            <span className="text-xs uppercase tracking-widest text-zinc-400 font-medium">{cola.length} en cola</span>
             <button
               onClick={async () => {
                 await fetch('/api/cola/shuffle', {
@@ -440,13 +576,12 @@ return (
                 })
                 refetchCola()
               }}
-              title="Mezclar canciones de fondo (no afecta fichas)"
-              className="flex items-center gap-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-white px-3 py-1.5 rounded transition-colors"
+              className="flex items-center gap-1.5 text-xs bg-white/5 active:bg-white/10 border border-white/10 text-zinc-300 px-3 py-1.5 rounded-full transition-colors"
             >
               ⇄ Mezclar
             </button>
           </div>
-          {cola.length <= 1 && <div className="px-5 py-8 text-zinc-600 text-center text-sm">No hay canciones siguientes</div>}
+          {cola.length <= 1 && <div className="px-5 py-10 text-zinc-600 text-center text-sm">No hay canciones siguientes</div>}
           {cola.slice(1).map((c, i) => (
             <div key={c.id} draggable
               onDragStart={() => setDragIndex(i)}
@@ -455,71 +590,72 @@ return (
                 if (dragIndex !== null && dragOver !== null) moverEnCola(dragIndex, dragOver)
                 setDragIndex(null); setDragOver(null)
               }}
-              className={`flex items-center gap-3 px-5 py-3 border-b border-zinc-800/50 cursor-grab transition-all ${dragOver === i ? 'bg-yellow-400/10' : ''}`}>
-              <span className="text-zinc-600 text-xs">⠿</span>
+              className={`flex items-center gap-3 px-5 py-3.5 border-b border-zinc-800/40 last:border-0 cursor-grab transition-colors ${dragOver === i ? 'bg-yellow-400/5' : ''}`}>
+              <span className="text-zinc-700 text-xs">⠿</span>
               <span className="text-zinc-600 text-xs w-4">{i + 1}</span>
               {c.imagenUrl
-                ? <img src={c.imagenUrl} alt="" className="w-9 h-9 rounded object-cover" />
-                : <div className="w-9 h-9 rounded bg-zinc-800 flex items-center justify-center text-sm">♪</div>
+                ? <img src={c.imagenUrl} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                : <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-sm shrink-0">♪</div>
               }
               <div className="flex-1 min-w-0">
-                <div className="text-sm truncate">{c.titulo}</div>
-                <div className="text-xs text-zinc-500">{c.artista}</div>
+                <div className="text-sm font-medium truncate">{c.titulo}</div>
+                <div className="text-xs text-zinc-500 truncate">{c.artista}</div>
               </div>
               <button onClick={() => eliminarDeCola(c.id)}
-                className="text-zinc-600 hover:text-red-400 transition-colors text-lg px-1">×</button>
+                className="text-zinc-700 active:text-red-400 transition-colors text-lg px-1 shrink-0">×</button>
             </div>
           ))}
         </div>
       )}
 
       {seccion === 'agregar' && (
-        <div className="space-y-4">
-          <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800">
-            <div className="text-zinc-400 text-xs uppercase tracking-widest mb-3">Agregar canción a la cola</div>
+        <div className="space-y-3">
+          <div className="bg-gradient-to-b from-emerald-950/60 to-zinc-900 rounded-2xl p-5 border border-emerald-900/30 shadow-lg">
+            <div className="text-xs tracking-widest text-zinc-500 uppercase mb-3">Agregar a la cola</div>
             <input type="text" value={query} onChange={e => handleSearch(e.target.value)}
               placeholder="Buscar canción o artista..."
-              className="w-full bg-zinc-800 border border-zinc-700 rounded px-4 py-2.5 text-white outline-none focus:border-yellow-400 transition-colors mb-3" />
+              className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-yellow-400 transition-colors mb-3 text-sm" />
             {searching && <div className="text-zinc-500 text-sm text-center py-2">Buscando...</div>}
             {results && (
               <div className="space-y-1 max-h-64 overflow-y-auto">
                 {results.tracks?.items?.map((track: any) => (
                   <button key={track.id} onClick={() => agregarSinFicha(track)}
-                    className="w-full flex items-center gap-3 p-2 rounded hover:bg-zinc-800 transition-colors text-left">
-                    <img src={track.album.images[0]?.url} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+                    className="w-full flex items-center gap-3 p-2.5 rounded-xl active:bg-zinc-800 transition-colors text-left">
+                    <img src={track.album.images[0]?.url} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{track.name}</div>
                       <div className="text-xs text-zinc-500 truncate">{track.artists.map((a: any) => a.name).join(', ')}</div>
                     </div>
-                    <span className="text-yellow-400 text-lg shrink-0">+</span>
+                    <span className="text-yellow-400 text-lg shrink-0 font-bold">+</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+          <div className="bg-gradient-to-b from-emerald-950/40 to-zinc-900 rounded-2xl border border-emerald-900/20 overflow-hidden shadow-lg">
             <div className="px-5 py-4 border-b border-zinc-800">
-              <div className="text-zinc-400 text-xs uppercase tracking-widest">Importar canciones</div>
-              <div className="text-zinc-600 text-xs mt-1">Pegá los nombres (uno por línea)</div>
+              <div className="text-xs tracking-widest text-zinc-500 uppercase">Importar por nombre</div>
+              <div className="text-zinc-600 text-xs mt-0.5">Un nombre por línea</div>
             </div>
             <div className="px-5 py-4 space-y-3">
               <select value={importPlaylistId ?? ''} onChange={e => setImportPlaylistId(Number(e.target.value) || null)}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors">
+                className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-yellow-400 transition-colors">
                 <option value="">Elegí una lista...</option>
                 {playlists.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
               </select>
               <textarea value={importTexto} onChange={e => setImportTexto(e.target.value)}
                 placeholder={"Bohemian Rhapsody\nHotel California\nStairway to Heaven"}
-                rows={5}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors resize-none font-mono" />
+                rows={4}
+                className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-yellow-400 transition-colors resize-none font-mono" />
               <button onClick={importarCanciones}
                 disabled={importando || !importPlaylistId || !importTexto.trim()}
-                className="w-full bg-yellow-400 hover:bg-yellow-300 disabled:bg-zinc-700 disabled:text-zinc-500 text-black font-bold py-2.5 rounded text-sm transition-colors">
-                {importando ? 'Importando...' : 'Importar'}
+                className="w-full bg-yellow-400 active:bg-yellow-300 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-3 rounded-xl text-sm transition-colors"
+                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                {importando ? 'Importando...' : 'IMPORTAR'}
               </button>
               {importLog.length > 0 && (
-                <div className="space-y-1 max-h-48 overflow-y-auto">
+                <div className="space-y-1 max-h-40 overflow-y-auto bg-black/40 rounded-xl p-3">
                   {importLog.map((entry, i) => (
                     <div key={i} className="flex items-start gap-2 text-xs">
                       <span className={entry.ok ? 'text-green-400' : 'text-red-400'}>{entry.ok ? '✓' : '✗'}</span>
@@ -527,7 +663,7 @@ return (
                     </div>
                   ))}
                   {!importando && (
-                    <div className="text-zinc-600 text-xs pt-1">
+                    <div className="text-zinc-600 text-xs pt-1 border-t border-zinc-800 mt-1">
                       {importLog.filter(e => e.ok).length}/{importLog.length} encontradas
                     </div>
                   )}
@@ -539,81 +675,133 @@ return (
       )}
 
       {seccion === 'listas' && (
-        <div className="bg-zinc-900 rounded-lg border border-zinc-800">
+        <div className=" bg-gradient-to-b from-violet-950/60 to-zinc-900 rounded-2xl border border-violet-900/30 overflow-hidden shadow-lg">
           <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
-            <div className="text-zinc-400 text-xs uppercase tracking-widest">Mis Playlists</div>
-            <button onClick={() => { setCreandoPlaylist(true); setPlaylistActiva(null) }}
-              className="text-yellow-400 text-xs hover:text-yellow-300 transition-colors">+ Nueva</button>
+            {playlistActiva ? (
+              <button onClick={() => setPlaylistActiva(null)}
+                className="flex items-center gap-2 text-sm text-violet-400 active:text-white transition-colors font-medium">
+                ← Todas las listas
+              </button>
+            ) : (
+              <>
+                <div className="text-xs tracking-widest text-zinc-400 uppercase font-medium">Mis Playlists</div>
+                <button onClick={() => { setCreandoPlaylist(true); setPlaylistActiva(null) }}
+                  className="text-xs bg-yellow-400 active:bg-yellow-300 text-black font-bold px-3 py-1.5 rounded-full transition-colors">
+                  + Nueva
+                </button>
+              </>
+            )}
           </div>
           {creandoPlaylist && (
-            <form onSubmit={crearPlaylist} className="px-5 py-4 border-b border-zinc-800">
+            <form onSubmit={crearPlaylist} className="px-5 py-4 border-b border-zinc-800 bg-black/20">
               <input autoFocus type="text" value={nombreNueva} onChange={e => setNombreNueva(e.target.value)}
                 placeholder="Nombre de la playlist..."
-                className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400 transition-colors" />
+                className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-yellow-400 transition-colors" />
               <div className="flex gap-2 mt-2">
                 <button type="submit"
-                  className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 rounded text-sm transition-colors">Crear</button>
+                  className="flex-1 bg-yellow-400 active:bg-yellow-300 text-black font-black py-2.5 rounded-xl text-sm transition-colors">Crear</button>
                 <button type="button" onClick={() => { setCreandoPlaylist(false); setNombreNueva('') }}
-                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded text-sm transition-colors">Cancelar</button>
+                  className="flex-1 bg-zinc-800 active:bg-zinc-700 text-white py-2.5 rounded-xl text-sm transition-colors">Cancelar</button>
               </div>
             </form>
           )}
           {playlists.length === 0 && !creandoPlaylist && (
-            <div className="px-5 py-6 text-zinc-600 text-center text-sm">Sin playlists</div>
+            <div className="px-5 py-10 text-zinc-600 text-center text-sm">Sin playlists</div>
           )}
-          {playlists.map(p => (
-            <div key={p.id} className="border-b border-zinc-800/50 last:border-b-0">
-              <div className="flex items-center gap-3 px-5 py-3">
-                {p.imagenUrl
-                  ? <img src={p.imagenUrl} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
-                  : <div className="w-10 h-10 rounded bg-zinc-800 flex items-center justify-center text-zinc-600 shrink-0 text-lg">♪</div>
+          {playlists.filter(p => !playlistActiva || p.id === playlistActiva).map((p, i) => (
+            <div key={p.id} draggable={!playlistActiva}
+              onDragStart={() => setDragPlIndex(i)}
+              onDragOver={(e) => { e.preventDefault(); if (!playlistActiva) setDragPlOver(i) }}
+              onDragEnd={() => {
+                if (dragPlIndex !== null && dragPlOver !== null) moverPlaylist(dragPlIndex, dragPlOver)
+                setDragPlIndex(null); setDragPlOver(null)
+              }}
+              className={`border-b border-zinc-800/40 last:border-0 transition-colors ${!playlistActiva && dragPlOver === i ? 'bg-violet-400/5' : ''}`}>
+              <div className="flex items-center gap-3 px-5 py-3.5">
+                {p.esFavoritos
+                  ? <div className="w-11 h-11 rounded-lg bg-red-950 flex items-center justify-center text-red-400 shrink-0 text-xl">❤</div>
+                  : p.imagenUrl
+                    ? <img src={p.imagenUrl} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
+                    : <div className="w-11 h-11 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-600 shrink-0 text-lg">♪</div>
                 }
                 <button onClick={() => setPlaylistActiva(playlistActiva === p.id ? null : p.id)}
                   className="flex-1 text-left min-w-0">
-                  <div className="text-sm font-medium truncate">{p.nombre}</div>
+                  <div className="text-sm font-medium truncate flex items-center gap-1.5">
+                    {p.esFavoritos && <span className="text-red-400 text-xs">❤</span>}
+                    {p.nombre}
+                  </div>
                   <div className="text-xs text-zinc-500">{p.canciones.length} canciones</div>
                 </button>
+                {!playlistActiva && (
+                  <span className="text-zinc-700 text-sm cursor-grab shrink-0">⠿</span>
+                )}
                 <button onClick={() => reproducirPlaylist(p)}
                   disabled={cargandoPlaylist === p.id}
-                  className="text-yellow-400 hover:text-yellow-300 transition-colors text-sm px-1 shrink-0 disabled:text-zinc-600">
-                  {cargandoPlaylist === p.id ? '...' : '▶'}
+                  className="w-8 h-8 rounded-full bg-yellow-400/10 text-yellow-400 active:bg-yellow-400/20 flex items-center justify-center text-sm shrink-0 disabled:opacity-40 transition-colors">
+                  {cargandoPlaylist === p.id ? '…' : '▶'}
                 </button>
-                <button onClick={() => eliminarPlaylist(p.id)}
-                  className="text-zinc-600 hover:text-red-400 transition-colors text-lg px-1 shrink-0">×</button>
+                {p.esFavoritos
+                  ? <span className="text-zinc-700 text-xl px-1 shrink-0 select-none">❤</span>
+                  : <button onClick={() => eliminarPlaylist(p.id)}
+                      className="text-zinc-700 active:text-red-400 transition-colors text-xl px-1 shrink-0">×</button>
+                }
               </div>
               {playlistActiva === p.id && (
-                <div className="px-5 pb-4">
-                  <div className="space-y-1 mb-3 max-h-48 overflow-y-auto">
+                <div className="px-5 pb-4 bg-black/20">
+                  <div className="space-y-0.5 mb-3 h-80 overflow-y-auto">
                     {p.canciones.length === 0 && (
-                      <div className="text-zinc-600 text-xs text-center py-2">Sin canciones aún</div>
+                      <div className="text-zinc-600 text-xs text-center py-3">Sin canciones aún</div>
                     )}
-                    {p.canciones.map(c => (
-                      <div key={c.id} className="flex items-center gap-2 py-1">
-                        <img src={c.imagenUrl} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
+                    {p.canciones.map((c, ci) => (
+                      <div key={c.id} draggable
+                        onDragStart={() => setDragSongIndex(ci)}
+                        onDragOver={(e) => { e.preventDefault(); setDragSongOver(ci) }}
+                        onDragEnd={() => {
+                          if (dragSongIndex !== null && dragSongOver !== null) moverCancionPlaylist(p.id, dragSongIndex, dragSongOver)
+                          setDragSongIndex(null); setDragSongOver(null)
+                        }}
+                        className={`flex items-center gap-2 py-1.5 px-1 rounded-lg cursor-grab transition-colors ${dragSongOver === ci ? 'bg-violet-400/10' : ''}`}>
+                        <span className="text-zinc-700 text-xs shrink-0">⠿</span>
+                        <img src={c.imagenUrl} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="text-xs font-medium truncate">{c.titulo}</div>
                           <div className="text-xs text-zinc-500 truncate">{c.artista}</div>
                         </div>
-                        <button onClick={() => quitarDePlaylist(p.id, c.id)}
-                          className="text-zinc-600 hover:text-red-400 transition-colors text-base px-1 shrink-0">×</button>
+                        <button
+                          onClick={async () => {
+                            await agregarSinFicha({
+                              name: c.titulo,
+                              artists: [{ name: c.artista }],
+                              duration_ms: c.duracion * 1000,
+                              uri: c.spotifyUri,
+                              album: { images: [{ url: c.imagenUrl }] },
+                            })
+                            showAdminToast(`✓ "${c.titulo}" agregada`)
+                          }}
+                          className="w-7 h-7 rounded-full bg-yellow-400/10 text-yellow-400 active:bg-yellow-400/20 flex items-center justify-center text-xs shrink-0 transition-colors"
+                          title="Agregar a la cola">
+                          +
+                        </button>
+                        <button onClick={() => quitarDePlaylist(p.id, c.id, c.titulo)}
+                          className="text-zinc-700 active:text-red-400 transition-colors text-base px-0.5 shrink-0">×</button>
                       </div>
                     ))}
                   </div>
                   <input type="text" value={queryPl} onChange={e => handleSearchPl(e.target.value)}
-                    placeholder="Agregar canción..."
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-xs outline-none focus:border-yellow-400 transition-colors" />
+                    placeholder="Agregar canción a la lista..."
+                    className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-xs outline-none focus:border-yellow-400 transition-colors" />
                   {buscandoPl && <div className="text-zinc-500 text-xs text-center py-2">Buscando...</div>}
                   {resultsPl && (
                     <div className="space-y-0.5 mt-2 max-h-48 overflow-y-auto">
                       {resultsPl.tracks?.items?.map((track: any) => (
                         <button key={track.id} onClick={() => agregarAPlaylist(p.id, track)}
-                          className="w-full flex items-center gap-2 p-1.5 rounded hover:bg-zinc-800 transition-colors text-left">
-                          <img src={track.album.images[0]?.url} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
+                          className="w-full flex items-center gap-2 p-2 rounded-xl active:bg-zinc-800 transition-colors text-left">
+                          <img src={track.album.images[0]?.url} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0" />
                           <div className="flex-1 min-w-0">
                             <div className="text-xs font-medium truncate">{track.name}</div>
                             <div className="text-xs text-zinc-500 truncate">{track.artists.map((a: any) => a.name).join(', ')}</div>
                           </div>
-                          <span className="text-yellow-400 text-sm shrink-0">+</span>
+                          <span className="text-yellow-400 text-sm shrink-0 font-bold">+</span>
                         </button>
                       ))}
                     </div>
@@ -626,28 +814,86 @@ return (
       )}
 
       {seccion === 'config' && (
-        <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800">
-          <div className="text-zinc-400 text-xs uppercase tracking-widest mb-3">Límite por canción</div>
-          <div className="flex items-center gap-3">
-            <input type="number" min={1} max={60} value={maxDuracionInput}
-              onChange={e => setMaxDuracionInput(Number(e.target.value))}
-              className="w-20 bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white text-center outline-none focus:border-yellow-400" />
-            <span className="text-zinc-400 text-sm">minutos</span>
-            <button onClick={async () => {
-              const segundos = maxDuracionInput * 60
-              await fetch('/api/config', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ valor: segundos }),
-              })
-              setMaxDuracion(segundos)
-            }} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-4 py-2 rounded-lg transition-colors">
-              Guardar
-            </button>
+        <div className="bg-gradient-to-b from-slate-900 to-zinc-900 rounded-2xl border border-slate-700/30 overflow-hidden shadow-lg">
+          <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
+            <div className="text-xs tracking-widest text-zinc-400 uppercase font-medium">Configuración</div>
+            {configMsg && (
+              <div className="text-xs text-green-400 font-medium flex items-center gap-1 animate-pulse">
+                ✓ {configMsg}
+              </div>
+            )}
           </div>
-          <div className="text-xs text-zinc-600 mt-2">Actual: {Math.floor(maxDuracion / 60)} min</div>
-          <div className="mt-6">
-            <button onClick={onLogout} className="text-zinc-500 text-sm hover:text-red-400 transition-colors">
+          <div className="p-5 space-y-6">
+            <div>
+              <div className="text-sm font-semibold text-white mb-0.5">Límite kiosko</div>
+              <div className="text-xs text-zinc-500 mb-3">Canciones pedidas con fichas por clientes</div>
+              <div className="flex items-center gap-3">
+                <input type="number" min={1} max={60} value={maxDurKioskoInput}
+                  onChange={e => setMaxDurKioskoInput(Number(e.target.value))}
+                  className="w-20 bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-center outline-none focus:border-yellow-400 transition-colors" />
+                <span className="text-zinc-500 text-sm flex-1">min · actual: {Math.floor(maxDurKiosko / 60)} min</span>
+                <button onClick={async () => {
+                  const seg = maxDurKioskoInput * 60
+                  await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ max_duracion_kiosko: seg }) })
+                  setMaxDurKiosko(seg)
+                  setConfigMsg('Guardado'); setTimeout(() => setConfigMsg(''), 2500)
+                }} className="bg-yellow-400 active:bg-yellow-300 text-black font-black px-4 py-2.5 rounded-xl text-sm transition-colors">
+                  Guardar
+                </button>
+              </div>
+            </div>
+
+            <div className="h-px bg-zinc-800" />
+
+            <div>
+              <div className="text-sm font-semibold text-white mb-0.5">Límite admin / listas</div>
+              <div className="text-xs text-zinc-500 mb-3">Canciones de playlists del admin</div>
+              <div className="flex items-center gap-3">
+                <input type="number" min={1} max={60} value={maxDurAdminInput}
+                  onChange={e => setMaxDurAdminInput(Number(e.target.value))}
+                  className="w-20 bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-center outline-none focus:border-yellow-400 transition-colors" />
+                <span className="text-zinc-500 text-sm flex-1">min · actual: {Math.floor(maxDurAdmin / 60)} min</span>
+                <button onClick={async () => {
+                  const seg = maxDurAdminInput * 60
+                  await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ max_duracion_admin: seg }) })
+                  setMaxDurAdmin(seg)
+                  setConfigMsg('Guardado'); setTimeout(() => setConfigMsg(''), 2500)
+                }} className="bg-yellow-400 active:bg-yellow-300 text-black font-black px-4 py-2.5 rounded-xl text-sm transition-colors">
+                  Guardar
+                </button>
+              </div>
+            </div>
+
+            <div className="h-px bg-zinc-800" />
+
+            <div>
+              <div className="text-sm font-semibold text-white mb-0.5">Pack de fichas</div>
+              <div className="text-xs text-zinc-500 mb-3">Lo que ve el kiosko al comprar</div>
+              <div className="flex gap-3 mb-3">
+                <div className="flex-1">
+                  <div className="text-xs text-zinc-500 mb-1.5">Fichas</div>
+                  <input type="number" min={1} max={20} value={fichasPackInput}
+                    onChange={e => setFichasPackInput(Number(e.target.value))}
+                    className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-center outline-none focus:border-yellow-400 transition-colors" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-zinc-500 mb-1.5">Precio ($)</div>
+                  <input type="number" min={1} value={precioPackInput}
+                    onChange={e => setPrecioPackInput(Number(e.target.value))}
+                    className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-center outline-none focus:border-yellow-400 transition-colors" />
+                </div>
+              </div>
+              <button onClick={async () => {
+                await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fichas_pack: fichasPackInput, precio_pack: precioPackInput }) })
+                setConfigMsg('Guardado'); setTimeout(() => setConfigMsg(''), 2500)
+              }} className="w-full bg-yellow-400 active:bg-yellow-300 text-black font-black py-3 rounded-xl transition-colors"
+                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                GUARDAR PACK
+              </button>
+            </div>
+
+            <div className="h-px bg-zinc-800" />
+            <button onClick={onLogout} className="text-zinc-500 text-sm active:text-red-400 transition-colors">
               Cerrar sesión
             </button>
           </div>
@@ -656,21 +902,59 @@ return (
 
     </div>
 
-    {/* BARRA DE NAVEGACIÓN INFERIOR */}
-    <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 flex">
+    {/* Modal guardar en playlist */}
+    {guardandoModal && cola[0] && (
+      <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70" onClick={() => setGuardandoModal(false)}>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-t-2xl w-full max-w-lg p-5 pb-8" onClick={e => e.stopPropagation()}>
+          <div className="text-xs tracking-widest text-zinc-500 uppercase mb-1">Guardar en lista</div>
+          <div className="text-sm font-medium text-white mb-4 truncate">{cola[0].titulo}</div>
+          <div className="space-y-1 max-h-64 overflow-y-auto">
+            {playlists.map(pl => (
+              <button key={pl.id} onClick={() => guardarEnPlaylist(pl.id)}
+                className="w-full flex items-center gap-3 p-3 rounded-xl active:bg-zinc-800 transition-colors text-left">
+                {pl.imagenUrl
+                  ? <img src={pl.imagenUrl} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                  : <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500 shrink-0">♪</div>
+                }
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{pl.nombre}</div>
+                  <div className="text-xs text-zinc-500">{pl.canciones.length} canciones</div>
+                </div>
+                {pl.esFavoritos && <span className="text-red-400 text-sm shrink-0">❤</span>}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setGuardandoModal(false)}
+            className="w-full mt-4 bg-zinc-800 active:bg-zinc-700 text-zinc-400 py-3 rounded-xl text-sm transition-colors">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Admin Toast */}
+    {adminToast && (
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold tracking-widest text-sm z-50 shadow-lg whitespace-nowrap">
+        {adminToast}
+      </div>
+    )}
+
+    {/* BARRA NAVEGACIÓN */}
+    <div className="fixed bottom-0 left-0 right-0 bg-zinc-950/95 backdrop-blur border-t border-white/5 flex">
       {[
-        { id: 'fichas', icon: '$', label: 'Fichas' },
-        { id: 'cola', icon: '≡', label: 'Cola' },
-        { id: 'agregar', icon: '+', label: 'Agregar' },
-        { id: 'listas', icon: '♪', label: 'Listas' },
-        { id: 'config', icon: '⚙', label: 'Config' },
+        { id: 'fichas', icon: '🎟', label: 'Fichas', color: 'text-yellow-400', dot: 'bg-yellow-400', bg: 'bg-yellow-400/10' },
+        { id: 'cola', icon: '≡', label: 'Cola', color: 'text-sky-400', dot: 'bg-sky-400', bg: 'bg-sky-400/10' },
+        { id: 'agregar', icon: '+', label: 'Agregar', color: 'text-emerald-400', dot: 'bg-emerald-400', bg: 'bg-emerald-400/10' },
+        { id: 'listas', icon: '♪', label: 'Listas', color: 'text-violet-400', dot: 'bg-violet-400', bg: 'bg-violet-400/10' },
+        { id: 'config', icon: '⚙', label: 'Config', color: 'text-zinc-300', dot: 'bg-zinc-400', bg: 'bg-zinc-400/10' },
       ].map(tab => (
         <button key={tab.id} onClick={() => setSeccion(tab.id as any)}
-          className={`flex-1 flex flex-col items-center py-3 gap-1 transition-colors ${
-            seccion === tab.id ? 'text-yellow-400' : 'text-zinc-500'
+          className={`flex-1 flex flex-col items-center py-3 gap-0.5 transition-all ${
+            seccion === tab.id ? `${tab.color} ${tab.bg}` : 'text-zinc-600'
           }`}>
-          <span className="text-lg">{tab.icon}</span>
-          <span className="text-xs">{tab.label}</span>
+          <span className={`text-xl transition-transform ${seccion === tab.id ? 'scale-110' : ''}`}>{tab.icon}</span>
+          <span className="text-[10px] font-medium">{tab.label}</span>
+          {seccion === tab.id && <span className={`w-1 h-1 rounded-full ${tab.dot}`} />}
         </button>
       ))}
     </div>
@@ -686,28 +970,40 @@ export default function AdminPage() {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('jukebox_role') as Role | null
-    if (saved === 'admin' || saved === 'operador') setRole(saved)
-    setHydrated(true)
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(({ role }) => {
+        if (role === 'admin' || role === 'operador') setRole(role as Role)
+      })
+      .catch(() => {})
+      .finally(() => setHydrated(true))
   }, [])
 
-  const handlePin = (e: React.FormEvent) => {
+  const handlePin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (pin === ADMIN_PIN) {
-      localStorage.setItem('jukebox_role', 'admin')
-      setRole('admin')
-    } else if (pin === OPERATOR_PIN) {
-      localStorage.setItem('jukebox_role', 'operador')
-      setRole('operador')
-    } else {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin }),
+      })
+      if (res.ok) {
+        const { role } = await res.json()
+        setRole(role as Role)
+      } else {
+        setError(true)
+        setPin('')
+        setTimeout(() => setError(false), 1000)
+      }
+    } catch {
       setError(true)
       setPin('')
       setTimeout(() => setError(false), 1000)
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('jukebox_role')
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
     setRole(null)
   }
 

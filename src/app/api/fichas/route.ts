@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
 function hoy() {
-  return new Date().toISOString().slice(0, 10) // YYYY-MM-DD UTC
+  return new Date().toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }).split('/').reverse().map(p => p.padStart(2, '0')).join('-')
 }
 
 export async function GET() {

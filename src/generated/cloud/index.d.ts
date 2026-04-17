@@ -973,10 +973,12 @@ export namespace Prisma {
 
   export type PlaylistAvgAggregateOutputType = {
     id: number | null
+    orden: number | null
   }
 
   export type PlaylistSumAggregateOutputType = {
     id: number | null
+    orden: number | null
   }
 
   export type PlaylistMinAggregateOutputType = {
@@ -984,6 +986,8 @@ export namespace Prisma {
     nombre: string | null
     descripcion: string | null
     imagenUrl: string | null
+    esFavoritos: boolean | null
+    orden: number | null
     createdAt: Date | null
   }
 
@@ -992,6 +996,8 @@ export namespace Prisma {
     nombre: string | null
     descripcion: string | null
     imagenUrl: string | null
+    esFavoritos: boolean | null
+    orden: number | null
     createdAt: Date | null
   }
 
@@ -1000,6 +1006,8 @@ export namespace Prisma {
     nombre: number
     descripcion: number
     imagenUrl: number
+    esFavoritos: number
+    orden: number
     createdAt: number
     _all: number
   }
@@ -1007,10 +1015,12 @@ export namespace Prisma {
 
   export type PlaylistAvgAggregateInputType = {
     id?: true
+    orden?: true
   }
 
   export type PlaylistSumAggregateInputType = {
     id?: true
+    orden?: true
   }
 
   export type PlaylistMinAggregateInputType = {
@@ -1018,6 +1028,8 @@ export namespace Prisma {
     nombre?: true
     descripcion?: true
     imagenUrl?: true
+    esFavoritos?: true
+    orden?: true
     createdAt?: true
   }
 
@@ -1026,6 +1038,8 @@ export namespace Prisma {
     nombre?: true
     descripcion?: true
     imagenUrl?: true
+    esFavoritos?: true
+    orden?: true
     createdAt?: true
   }
 
@@ -1034,6 +1048,8 @@ export namespace Prisma {
     nombre?: true
     descripcion?: true
     imagenUrl?: true
+    esFavoritos?: true
+    orden?: true
     createdAt?: true
     _all?: true
   }
@@ -1129,6 +1145,8 @@ export namespace Prisma {
     nombre: string
     descripcion: string
     imagenUrl: string
+    esFavoritos: boolean
+    orden: number
     createdAt: Date
     _count: PlaylistCountAggregateOutputType | null
     _avg: PlaylistAvgAggregateOutputType | null
@@ -1156,6 +1174,8 @@ export namespace Prisma {
     nombre?: boolean
     descripcion?: boolean
     imagenUrl?: boolean
+    esFavoritos?: boolean
+    orden?: boolean
     createdAt?: boolean
     canciones?: boolean | Playlist$cancionesArgs<ExtArgs>
     _count?: boolean | PlaylistCountOutputTypeDefaultArgs<ExtArgs>
@@ -1166,6 +1186,8 @@ export namespace Prisma {
     nombre?: boolean
     descripcion?: boolean
     imagenUrl?: boolean
+    esFavoritos?: boolean
+    orden?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["playlist"]>
 
@@ -1174,6 +1196,8 @@ export namespace Prisma {
     nombre?: boolean
     descripcion?: boolean
     imagenUrl?: boolean
+    esFavoritos?: boolean
+    orden?: boolean
     createdAt?: boolean
   }
 
@@ -1193,6 +1217,8 @@ export namespace Prisma {
       nombre: string
       descripcion: string
       imagenUrl: string
+      esFavoritos: boolean
+      orden: number
       createdAt: Date
     }, ExtArgs["result"]["playlist"]>
     composites: {}
@@ -1592,6 +1618,8 @@ export namespace Prisma {
     readonly nombre: FieldRef<"Playlist", 'String'>
     readonly descripcion: FieldRef<"Playlist", 'String'>
     readonly imagenUrl: FieldRef<"Playlist", 'String'>
+    readonly esFavoritos: FieldRef<"Playlist", 'Boolean'>
+    readonly orden: FieldRef<"Playlist", 'Int'>
     readonly createdAt: FieldRef<"Playlist", 'DateTime'>
   }
     
@@ -2975,6 +3003,8 @@ export namespace Prisma {
     nombre: 'nombre',
     descripcion: 'descripcion',
     imagenUrl: 'imagenUrl',
+    esFavoritos: 'esFavoritos',
+    orden: 'orden',
     createdAt: 'createdAt'
   };
 
@@ -3045,6 +3075,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -3083,6 +3120,8 @@ export namespace Prisma {
     nombre?: StringFilter<"Playlist"> | string
     descripcion?: StringFilter<"Playlist"> | string
     imagenUrl?: StringFilter<"Playlist"> | string
+    esFavoritos?: BoolFilter<"Playlist"> | boolean
+    orden?: IntFilter<"Playlist"> | number
     createdAt?: DateTimeFilter<"Playlist"> | Date | string
     canciones?: PlaylistCancionListRelationFilter
   }
@@ -3092,6 +3131,8 @@ export namespace Prisma {
     nombre?: SortOrder
     descripcion?: SortOrder
     imagenUrl?: SortOrder
+    esFavoritos?: SortOrder
+    orden?: SortOrder
     createdAt?: SortOrder
     canciones?: PlaylistCancionOrderByRelationAggregateInput
   }
@@ -3104,6 +3145,8 @@ export namespace Prisma {
     nombre?: StringFilter<"Playlist"> | string
     descripcion?: StringFilter<"Playlist"> | string
     imagenUrl?: StringFilter<"Playlist"> | string
+    esFavoritos?: BoolFilter<"Playlist"> | boolean
+    orden?: IntFilter<"Playlist"> | number
     createdAt?: DateTimeFilter<"Playlist"> | Date | string
     canciones?: PlaylistCancionListRelationFilter
   }, "id">
@@ -3113,6 +3156,8 @@ export namespace Prisma {
     nombre?: SortOrder
     descripcion?: SortOrder
     imagenUrl?: SortOrder
+    esFavoritos?: SortOrder
+    orden?: SortOrder
     createdAt?: SortOrder
     _count?: PlaylistCountOrderByAggregateInput
     _avg?: PlaylistAvgOrderByAggregateInput
@@ -3129,6 +3174,8 @@ export namespace Prisma {
     nombre?: StringWithAggregatesFilter<"Playlist"> | string
     descripcion?: StringWithAggregatesFilter<"Playlist"> | string
     imagenUrl?: StringWithAggregatesFilter<"Playlist"> | string
+    esFavoritos?: BoolWithAggregatesFilter<"Playlist"> | boolean
+    orden?: IntWithAggregatesFilter<"Playlist"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Playlist"> | Date | string
   }
 
@@ -3208,6 +3255,8 @@ export namespace Prisma {
     nombre: string
     descripcion?: string
     imagenUrl?: string
+    esFavoritos?: boolean
+    orden?: number
     createdAt?: Date | string
     canciones?: PlaylistCancionCreateNestedManyWithoutPlaylistInput
   }
@@ -3217,6 +3266,8 @@ export namespace Prisma {
     nombre: string
     descripcion?: string
     imagenUrl?: string
+    esFavoritos?: boolean
+    orden?: number
     createdAt?: Date | string
     canciones?: PlaylistCancionUncheckedCreateNestedManyWithoutPlaylistInput
   }
@@ -3225,6 +3276,8 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
+    esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     canciones?: PlaylistCancionUpdateManyWithoutPlaylistNestedInput
   }
@@ -3234,6 +3287,8 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
+    esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     canciones?: PlaylistCancionUncheckedUpdateManyWithoutPlaylistNestedInput
   }
@@ -3243,6 +3298,8 @@ export namespace Prisma {
     nombre: string
     descripcion?: string
     imagenUrl?: string
+    esFavoritos?: boolean
+    orden?: number
     createdAt?: Date | string
   }
 
@@ -3250,6 +3307,8 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
+    esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -3258,6 +3317,8 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
+    esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -3360,6 +3421,11 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -3386,11 +3452,14 @@ export namespace Prisma {
     nombre?: SortOrder
     descripcion?: SortOrder
     imagenUrl?: SortOrder
+    esFavoritos?: SortOrder
+    orden?: SortOrder
     createdAt?: SortOrder
   }
 
   export type PlaylistAvgOrderByAggregateInput = {
     id?: SortOrder
+    orden?: SortOrder
   }
 
   export type PlaylistMaxOrderByAggregateInput = {
@@ -3398,6 +3467,8 @@ export namespace Prisma {
     nombre?: SortOrder
     descripcion?: SortOrder
     imagenUrl?: SortOrder
+    esFavoritos?: SortOrder
+    orden?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -3406,11 +3477,14 @@ export namespace Prisma {
     nombre?: SortOrder
     descripcion?: SortOrder
     imagenUrl?: SortOrder
+    esFavoritos?: SortOrder
+    orden?: SortOrder
     createdAt?: SortOrder
   }
 
   export type PlaylistSumOrderByAggregateInput = {
     id?: SortOrder
+    orden?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -3445,6 +3519,14 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -3531,6 +3613,18 @@ export namespace Prisma {
     set?: string
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -3547,14 +3641,6 @@ export namespace Prisma {
     update?: PlaylistCancionUpdateWithWhereUniqueWithoutPlaylistInput | PlaylistCancionUpdateWithWhereUniqueWithoutPlaylistInput[]
     updateMany?: PlaylistCancionUpdateManyWithWhereWithoutPlaylistInput | PlaylistCancionUpdateManyWithWhereWithoutPlaylistInput[]
     deleteMany?: PlaylistCancionScalarWhereInput | PlaylistCancionScalarWhereInput[]
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type PlaylistCancionUncheckedUpdateManyWithoutPlaylistNestedInput = {
@@ -3610,6 +3696,11 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -3663,6 +3754,14 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -3742,6 +3841,8 @@ export namespace Prisma {
     nombre: string
     descripcion?: string
     imagenUrl?: string
+    esFavoritos?: boolean
+    orden?: number
     createdAt?: Date | string
   }
 
@@ -3750,6 +3851,8 @@ export namespace Prisma {
     nombre: string
     descripcion?: string
     imagenUrl?: string
+    esFavoritos?: boolean
+    orden?: number
     createdAt?: Date | string
   }
 
@@ -3773,6 +3876,8 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
+    esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -3781,6 +3886,8 @@ export namespace Prisma {
     nombre?: StringFieldUpdateOperationsInput | string
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
+    esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

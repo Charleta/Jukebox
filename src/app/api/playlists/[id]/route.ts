@@ -13,6 +13,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const pl = await prisma.playlist.findUnique({ where: { id: Number(id) } })
+  if (pl?.esFavoritos) return NextResponse.json({ error: 'No se puede eliminar Favoritos' }, { status: 403 })
   await prisma.playlist.delete({ where: { id: Number(id) } })
   return NextResponse.json({ ok: true })
 }

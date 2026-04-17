@@ -1,6 +1,6 @@
 
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { BuscadorArtista } from '@/components/kiosko/BuscadorArtista'
 import { ListaCanciones } from '@/components/kiosko/ListaCanciones'
 import { ColaProximas } from '@/components/kiosko/ColaProximas'
@@ -9,6 +9,7 @@ import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
 import { SpotifyArtist, SpotifyTrack } from '@/types'
 import { SpotifyPlayer } from '@/components/player/SpotifyPlayer'
+import { QRCodeSVG } from 'qrcode.react'
 
 const formatMs = (ms: number) => {
   const s = Math.floor(ms / 1000)
@@ -18,6 +19,15 @@ const formatMs = (ms: number) => {
 }
 
 export default function KioskoPage() {
+  const [splash, setSplash] = useState(true)
+  const [splashFading, setSplashFading] = useState(false)
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setSplashFading(true), 1800)
+    const t2 = setTimeout(() => setSplash(false), 2400)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [])
+
   const { fichas, refetch: refetchFichas } = useFichas()
   const { cola, colaClientes, refetch: refetchCola } = useCola()
   const [artist, setArtist] = useState<SpotifyArtist | null>(null)
@@ -26,6 +36,41 @@ export default function KioskoPage() {
   const [toast, setToast] = useState('')
   const [progreso, setProgreso] = useState(0)
   const [duracion, setDuracion] = useState(0)
+
+  // Config
+  const [maxDurKiosko, setMaxDurKiosko] = useState(300)
+  const [maxDurAdmin, setMaxDurAdmin] = useState(300)
+  const [fichasPack, setFichasPack] = useState(2)
+  const [precioPack, setPrecioPack] = useState(1000)
+
+  // Modal confirmación de canción
+  const [pendingTrack, setPendingTrack] = useState<SpotifyTrack | null>(null)
+
+  // Modal QR — MercadoPago
+  const [qrModal, setQrModal] = useState<{ cantidad: number; total: number } | null>(null)
+  const [qrUrl, setQrUrl] = useState<string | null>(null)
+  const [qrRef, setQrRef] = useState<string | null>(null)
+  const [qrAprobado, setQrAprobado] = useState(false)
+  const [qrError, setQrError] = useState(false)
+  const pollingRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
+  const pollingFailsRef = useRef(0)
+
+
+  useEffect(() => {
+    const loadConfig = () =>
+      fetch('/api/config')
+        .then(r => r.json())
+        .then(data => {
+          setMaxDurKiosko(Number(data.max_duracion_kiosko ?? 300))
+          setMaxDurAdmin(Number(data.max_duracion_admin ?? 300))
+          setFichasPack(Number(data.fichas_pack ?? 2))
+          setPrecioPack(Number(data.precio_pack ?? 1000))
+        })
+        .catch(() => {})
+    loadConfig()
+    const interval = setInterval(loadConfig, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   const pasarSiguiente = async () => {
     setProgreso(0)
@@ -72,8 +117,16 @@ export default function KioskoPage() {
       }))
     )
   }
-  const handleTrackSelect = async (track: SpotifyTrack) => {
+
+  // Abre el modal de confirmación en vez de agregar directo
+  const handleTrackSelect = (track: SpotifyTrack) => {
     if (fichas <= 0) { showToast('❌ SIN FICHAS — PEDILE AL ENCARGADO'); return }
+    setPendingTrack(track)
+  }
+
+  // Confirma y agrega a la cola
+  const confirmTrack = async (track: SpotifyTrack) => {
+    setPendingTrack(null)
     const res = await fetch('/api/cola', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -92,10 +145,64 @@ export default function KioskoPage() {
     }
   }
 
+  const handlePagar = async (cantidad: number, total: number) => {
+    clearInterval(pollingRef.current)
+    pollingFailsRef.current = 0
+    setQrModal({ cantidad, total })
+    setQrUrl(null)
+    setQrRef(null)
+    setQrAprobado(false)
+    setQrError(false)
+    try {
+      const res = await fetch('/api/pagos/crear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cantidad, total }),
+      })
+      if (!res.ok) { setQrError(true); return }
+      const data = await res.json()
+      if (!data.qrUrl) { setQrError(true); return }
+      setQrUrl(data.qrUrl)
+      setQrRef(data.ref)
+      pollingRef.current = setInterval(async () => {
+        try {
+          const r = await fetch(`/api/pagos/estado?ref=${data.ref}&cantidad=${cantidad}`)
+          const json = await r.json()
+          if (json.aprobado) {
+            clearInterval(pollingRef.current)
+            setQrAprobado(true)
+            refetchFichas()
+            setTimeout(() => { setQrModal(null); setQrAprobado(false) }, 2500)
+          }
+        } catch {
+          pollingFailsRef.current += 1
+          if (pollingFailsRef.current >= 5) {
+            clearInterval(pollingRef.current)
+            setQrError(true)
+          }
+        }
+      }, 1500)
+    } catch {
+      setQrError(true)
+    }
+  }
+
   const nowPlaying = colaClientes[0] ?? cola[0] ?? null
+  const maxSegundos = nowPlaying?.tipo === 'admin' ? maxDurAdmin : maxDurKiosko
+  const hasQueue = colaClientes.slice(1).length > 0
 
   return (
     <div className="h-screen overflow-hidden flex bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+
+      {/* Splash screen */}
+      {splash && (
+        <div className={`fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center transition-opacity duration-500 ${splashFading ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="text-yellow-400 text-7xl font-black tracking-wide text-center" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+            Rancho Aparte
+          </div>
+          <div className="text-zinc-600 text-xs tracking-[0.6em] uppercase mt-3">Rockola</div>
+        </div>
+      )}
 
       {/* LEFT */}
       <div className="w-96 flex-shrink-0 flex flex-col bg-zinc-900 border-r border-zinc-800">
@@ -119,15 +226,25 @@ export default function KioskoPage() {
             </div>
             {nowPlaying ? (
               <>
-                <div className="flex items-center gap-3 mb-3">
-                  <img src={nowPlaying.imagenUrl} alt="" className="w-full h-60 rounded object-cover shadow-xl shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-lg leading-tight truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                {hasQueue ? (
+                  <div className="flex items-center gap-3 mb-3">
+                    <img src={nowPlaying.imagenUrl} alt="" className="w-16 h-16 rounded-xl object-cover shadow-lg shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-black leading-tight truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                        {nowPlaying.titulo}
+                      </div>
+                      <div className="text-xs text-zinc-400 truncate mt-0.5">{nowPlaying.artista}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <img src={nowPlaying.imagenUrl} alt="" className="w-full h-52 rounded-xl object-cover shadow-xl mb-3" />
+                    <div className="text-2xl font-black leading-tight truncate mb-0.5" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
                       {nowPlaying.titulo}
                     </div>
-                    <div className="text-xs text-zinc-400 truncate mt-0.5">{nowPlaying.artista}</div>
-                  </div>
-                </div>
+                    <div className="text-xs text-zinc-400 truncate mb-3">{nowPlaying.artista}</div>
+                  </>
+                )}
 
                 {/* Barra de progreso */}
                 {duracion > 0 && (
@@ -156,12 +273,19 @@ export default function KioskoPage() {
 
         <SpotifyPlayer
           spotifyUri={nowPlaying?.spotifyUri ?? null}
+          maxSegundos={maxSegundos}
           onTerminada={pasarSiguiente}
           onProgress={(pos, dur) => { setProgreso(pos); setDuracion(dur) }}
         />
 
         <FichasDisplay fichas={fichas} />
-        <ColaProximas cola={colaClientes.slice(1)} />
+        <ColaProximas
+          cola={colaClientes.slice(1)}
+          fichas={fichas}
+          fichasPack={fichasPack}
+          precioPack={precioPack}
+          onPagar={handlePagar}
+        />
       </div>
 
       {/* RIGHT */}
@@ -196,8 +320,122 @@ export default function KioskoPage() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-6 py-3 rounded font-bold tracking-widest text-sm animate-bounce">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-6 py-3 rounded font-bold tracking-widest text-sm animate-bounce z-40">
           {toast}
+        </div>
+      )}
+
+      {/* Modal confirmación de canción */}
+      {pendingTrack && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-6">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 w-full max-w-sm">
+            <div className="text-xs tracking-widest text-zinc-500 uppercase mb-4">Confirmá tu canción</div>
+            <div className="flex items-center gap-4 mb-6">
+              {pendingTrack.album.images[0]?.url && (
+                <img
+                  src={pendingTrack.album.images[0].url}
+                  alt=""
+                  className="w-20 h-20 rounded-xl object-cover shrink-0 shadow-lg"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-xl font-black leading-tight mb-1" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                  {pendingTrack.name}
+                </div>
+                <div className="text-sm text-zinc-400">
+                  {pendingTrack.artists.map((a: any) => a.name).join(', ')}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-800 rounded-xl px-4 py-3 mb-5 flex items-center justify-between">
+              <span className="text-zinc-400 text-sm">Costo</span>
+              <div className="text-right">
+                <span className="text-yellow-400 font-bold">1 ficha</span>
+                <span className="text-zinc-500 text-xs ml-2">
+                  (quedan {fichas - 1})
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => confirmTrack(pendingTrack)}
+              className="w-full bg-yellow-400 active:bg-yellow-300 text-black font-black py-5 rounded-xl text-2xl mb-3 transition-colors"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+            >
+              ✓ AGREGAR
+            </button>
+            <button
+              onClick={() => setPendingTrack(null)}
+              className="w-full bg-zinc-800 active:bg-zinc-700 text-zinc-300 py-4 rounded-xl text-sm transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal QR — MercadoPago */}
+      {qrModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm px-6">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-sm text-center">
+            {qrAprobado ? (
+              <>
+                <div className="text-6xl mb-4">✓</div>
+                <div className="text-3xl font-black text-green-400 mb-1" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                  ¡PAGO CONFIRMADO!
+                </div>
+                <div className="text-zinc-400 text-sm">{qrModal.cantidad} fichas cargadas</div>
+              </>
+            ) : qrError ? (
+              <>
+                <div className="text-5xl mb-4">⚠️</div>
+                <div className="text-2xl font-black text-red-400 mb-2" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                  ERROR DE PAGO
+                </div>
+                <div className="text-zinc-400 text-sm mb-6">
+                  No se pudo conectar con MercadoPago. Avisale al encargado.
+                </div>
+                <button
+                  onClick={() => { clearInterval(pollingRef.current); setQrModal(null); setQrError(false) }}
+                  className="w-full bg-zinc-800 active:bg-zinc-700 text-zinc-400 py-4 rounded-xl text-sm transition-colors"
+                >
+                  Cerrar
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="text-xs tracking-widest text-zinc-500 uppercase mb-1">Escaneá con MercadoPago</div>
+                <div className="text-yellow-400 text-4xl font-black mb-1" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                  {qrModal.cantidad} fichas
+                </div>
+                <div className="text-zinc-400 text-sm mb-5">
+                  ${qrModal.total.toLocaleString('es-AR')}
+                </div>
+
+                <div className="flex items-center justify-center bg-white rounded-2xl p-4 mb-5 mx-auto w-fit">
+                  {qrUrl
+                    ? <QRCodeSVG value={qrUrl} size={200} />
+                    : <div className="w-[200px] h-[200px] flex items-center justify-center text-zinc-400 text-sm animate-pulse">
+                        Generando QR...
+                      </div>
+                  }
+                </div>
+
+                <div className="flex items-center justify-center gap-1.5 text-xs text-zinc-600 mb-5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-pulse" />
+                  Esperando pago...
+                </div>
+
+                <button
+                  onClick={() => { clearInterval(pollingRef.current); setQrModal(null) }}
+                  className="w-full bg-zinc-800 active:bg-zinc-700 text-zinc-400 py-4 rounded-xl text-sm transition-colors"
+                >
+                  Cancelar
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>

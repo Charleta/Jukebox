@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db'
 export async function GET() {
   const cola = await prisma.cola.findMany({
     orderBy: [
-      { tipo: 'asc' },  // 'admin' > 'cliente' alfabéticamente, pero cliente va primero
+      { tipo: 'desc' },  // 'cliente' > 'admin' → kiosko songs come first
       { orden: 'asc' }
     ]
   })

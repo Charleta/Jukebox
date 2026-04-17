@@ -20,6 +20,11 @@ model AppConfig {
   clave String @unique
   valor String
 }
+model PagoProcesado {
+  ref      String   @id
+  creadoEn DateTime @default(now())
+}
+
 model Cola {
   id         Int      @id @default(autoincrement())
   titulo     String
