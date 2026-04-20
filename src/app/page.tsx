@@ -295,6 +295,7 @@ export default function KioskoPage() {
             onArtistSelect={handleArtistSelect}
             onTrackSelect={handleTrackSelect}
             onInternalPlaylistSelect={handleInternalPlaylistSelect}
+            tieneFichas={fichas > 0}
           />
         </div>
         {artist && (

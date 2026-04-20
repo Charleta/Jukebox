@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { SpotifyArtist, SpotifyTrack } from '@/types'
 import { useKeyboardNav } from '@/hooks/useKeyboardNav'
+import Keyboard from 'react-simple-keyboard'
+import 'react-simple-keyboard/build/css/index.css'
 
 function formatMs(ms: number) {
   const m = Math.floor(ms / 60000)
@@ -47,6 +49,25 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
     setFocused(0)
   }, [artist.id])
 
+  const [showKeyboard, setShowKeyboard] = useState(false)
+  const [hasPhysicalKeyboard, setHasPhysicalKeyboard] = useState(false)
+  const keyboardRef = useRef<any>(null)
+
+  useEffect(() => {
+  const handleKeyDown = () => {
+    setHasPhysicalKeyboard(true)
+    setShowKeyboard(false)
+  }
+  window.addEventListener('keydown', handleKeyDown)
+  return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  const handleKeyboardChange = (input: string) => {
+  setSearch(input)
+  setFocused(0)
+  if (keyboardRef.current) keyboardRef.current.setInput(input)
+}
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header: back + info + buscador */}
@@ -71,11 +92,11 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
             <div className="text-2xl leading-none truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
               {artist.name}
             </div>
-            <div className="text-xs text-zinc-500 mt-0.5">
+            {/* <div className="text-xs text-zinc-500 mt-0.5">
               {filtered.length !== tracks.length
                 ? `${filtered.length} de ${tracks.length} canciones`
                 : `${tracks.length} canciones`}
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -85,14 +106,20 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
             <span className="px-3 text-zinc-500 text-sm">🔍</span>
             <input
               value={search}
+              onFocus={() => { if (!hasPhysicalKeyboard) setShowKeyboard(true) }}
               onChange={e => { setSearch(e.target.value); setFocused(0) }}
               placeholder="Buscar en esta lista..."
               className="flex-1 bg-transparent outline-none text-white text-sm py-2 font-light"
             />
             {search && (
               <button
-                onClick={() => { setSearch(''); setFocused(0) }}
-                className="bg-red-950 active:bg-red-900 hover:bg-red-800 border border-red-900/60 text-red-400 font-black rounded-4xl mr-2 px-3 py-1.5 text-sm transition-colors"
+                  onClick={() => { 
+                    setSearch(''); 
+                    setFocused(0); 
+                    setShowKeyboard(false)
+                    if (keyboardRef.current) keyboardRef.current.setInput('') 
+                  }}                
+                  className="bg-red-950 active:bg-red-900 hover:bg-red-800 border border-red-900/60 text-red-400 font-black rounded-4xl mr-2 px-3 py-1.5 text-sm transition-colors"
               >
                 ✕
               </button>
@@ -134,7 +161,7 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
               </div>
               <div className="text-xs text-zinc-500">{track.artists.map((a: any) => a.name).join(', ')}</div>
             </div>
-            <div className="text-xs text-zinc-500 shrink-0">{formatMs(track.duration_ms)}</div>
+            {/* <div className="text-xs text-zinc-500 shrink-0">{formatMs(track.duration_ms)}</div> */}
             <div className={`w-7 h-7 rounded-full border flex items-center justify-center text-lg shrink-0 transition-all ${
               focused === i ? 'bg-yellow-400 border-yellow-400 text-black' : 'border-zinc-700 text-zinc-600'
             }`}>
@@ -143,7 +170,39 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
           </div>
         ))}
       </div>
+        {showKeyboard && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/98 border-t border-zinc-800 shadow-2xl backdrop-blur">
+          <div className="flex justify-between items-center px-4 pt-3 pb-1">
+            <span className="text-zinc-500 text-xs uppercase tracking-widest">Teclado</span>
+            <button
+              onClick={() => setShowKeyboard(false)}
+              className="text-zinc-500 text-xs bg-zinc-800 active:bg-zinc-700 px-3 py-1.5 rounded-full transition-colors"
+            >
+              Cerrar ✕
+            </button>
+          </div>
+          <Keyboard
+            keyboardRef={r => (keyboardRef.current = r)}
+            onChange={handleKeyboardChange}
+            layout={{
+              default: [
+                'q w e r t y u i o p',
+                'a s d f g h j k l ñ',
+                'z x c v b n m {bksp}',
+                '{space}'
+              ]
+            }}
+            display={{
+              '{bksp}': '⌫',
+              '{space}': 'ESPACIO'
+            }}
+            theme="hg-theme-default hg-layout-default"
+          />
+        </div>
+      )}
 
     </div>
+
+    
   )
 }

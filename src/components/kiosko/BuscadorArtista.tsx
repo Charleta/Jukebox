@@ -15,9 +15,11 @@ interface Props {
   onArtistSelect: (artist: SpotifyArtist) => void
   onTrackSelect: (track: SpotifyTrack) => void
   onInternalPlaylistSelect: (id: number) => void
+  onInternalPlaylistSelect: (id: number) => void
+  tieneFichas: boolean
 }
 
-export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlaylistSelect }: Props) {
+export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlaylistSelect, tieneFichas }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<{ artists: SpotifyArtist[]; tracks: SpotifyTrack[] }>({ artists: [], tracks: [] })
   const [loading, setLoading] = useState(false)
@@ -46,6 +48,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
   }, [])
 
   const search = (q: string) => {
+    if (!tieneFichas) return;
     setQuery(q)
     clearTimeout(debounceRef.current)
     abortRef.current?.abort()
@@ -80,18 +83,28 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="p-6 overflow-y-auto flex-1">
-        <div className="text-xs tracking-widest text-zinc-500 uppercase mb-3">
-          Buscá un artista o canción
+      {/* Indicador visual de bloqueo */}
+        <div className="text-xs tracking-widest uppercase mb-3 flex justify-between">
+          <span className={tieneFichas ? "text-zinc-500" : "text-red-500 font-bold"}>
+            {tieneFichas ? "Buscá un artista o canción" : " SIN FICHAS PARA BUSCAR"}
+          </span>
         </div>
-        <div className="flex items-center bg-zinc-900 border border-zinc-700 rounded focus-within:border-yellow-400 transition-colors">
+
+        {/* <div className="text-xs tracking-widest text-zinc-500 uppercase mb-3">
+          Buscá un artista o canción
+        </div> */}
+
+        <div className={`flex items-center bg-zinc-900 border rounded transition-colors ${
+          !tieneFichas ? 'border-red-900 opacity-50' : 'border-zinc-700 focus-within:border-yellow-400'
+        }`}>
           <span className="px-4 text-zinc-500">🔍</span>
           <input
             value={query}
             onChange={e => search(e.target.value)}
-            onFocus={() => { if (!hasPhysicalKeyboard) setShowKeyboard(true) }}
+            onFocus={() => { if (!hasPhysicalKeyboard && tieneFichas) setShowKeyboard(true) }}
+            disabled={!tieneFichas}
             placeholder="Tocá para buscar..."
             className="flex-1 bg-transparent outline-none text-white text-lg py-3 font-light"
-            readOnly={showKeyboard}
           />
           {loading && <span className="px-4 text-zinc-500 text-sm animate-pulse">...</span>}
           {query && (
@@ -122,7 +135,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
                   )}
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate">{p.nombre}</div>
-                    <div className="text-xs text-zinc-500">{p.canciones.length} canciones</div>
+                    {/* <div className="text-xs text-zinc-500">{p.canciones.length} canciones</div> */}
                   </div>
                 </button>
               ))}
@@ -174,7 +187,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
       </div>
 
       {/* Teclado virtual — fijo al pie de pantalla */}
-      {showKeyboard && (
+      {showKeyboard && tieneFichas &&(
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/98 border-t border-zinc-800 shadow-2xl backdrop-blur">
           <div className="flex justify-between items-center px-4 pt-3 pb-1">
             <span className="text-zinc-500 text-xs uppercase tracking-widest">Teclado</span>

@@ -207,7 +207,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
         setProgreso(data.progress_ms ?? 0)
         setDuracion(data.duration_ms ?? 0)
       }
-    }, 1000)
+    }, 3000)
     return () => clearInterval(interval)
   }, [])
 

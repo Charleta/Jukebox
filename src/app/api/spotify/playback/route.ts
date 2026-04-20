@@ -1,20 +1,34 @@
 import { NextResponse } from 'next/server'
 import { getAccessToken } from '@/lib/spotify'
 
-export async function GET() {
-  const token = await getAccessToken()
-  const res = await fetch('https://api.spotify.com/v1/me/player', {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+let cachedPlayback: any = null
+let playbackCachedAt = 0
 
-  if (res.status === 204 || !res.ok) {
-    return NextResponse.json({ isPlaying: false })
+export async function GET() {
+  // Devuelve caché si tiene menos de 10 segundos
+  if (cachedPlayback && Date.now() - playbackCachedAt < 10000) {
+    return NextResponse.json(cachedPlayback)
   }
 
-  const data = await res.json()
-  return NextResponse.json({
-  isPlaying: data.is_playing ?? false,
-  progress_ms: data.progress_ms ?? 0,
-  duration_ms: data.item?.duration_ms ?? 0,
-})
+  try {
+    const token = await getAccessToken()
+    const res = await fetch('https://api.spotify.com/v1/me/player', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+
+    if (res.status === 204 || !res.ok) {
+      return NextResponse.json({ isPlaying: false })
+    }
+
+    const data = await res.json()
+    cachedPlayback = {
+      isPlaying: data.is_playing ?? false,
+      progress_ms: data.progress_ms ?? 0,
+      duration_ms: data.item?.duration_ms ?? 0,
+    }
+    playbackCachedAt = Date.now()
+    return NextResponse.json(cachedPlayback)
+  } catch {
+    return NextResponse.json({ isPlaying: false })
+  }
 }

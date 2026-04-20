@@ -2,21 +2,28 @@ const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID!
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET!
 const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN!
 
+// ─── Token caché ─────────────────────────────────────────────────────────────
 let cachedToken: string | null = null
 let tokenExpiresAt = 0
 let tokenRefreshPromise: Promise<string> | null = null
 
+// ─── Caché general ───────────────────────────────────────────────────────────
+const searchCache = new Map<string, { data: any; at: number }>()
+const artistCache = new Map<string, { data: any; at: number }>()
+const playlistCache = new Map<string, { data: any; at: number }>()
+const CACHE_TTL = 1000 * 60 * 60 * 24 // 24 horas
+// ─── Fetch con timeout ────────────────────────────────────────────────────────
 function fetchWithTimeout(url: string, options: RequestInit = {}, ms = 8000): Promise<Response> {
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), ms)
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id))
 }
 
+// ─── Token ────────────────────────────────────────────────────────────────────
 export async function getAccessToken(): Promise<string> {
   if (cachedToken && Date.now() < tokenExpiresAt - 60_000) {
     return cachedToken
   }
-  // Mutex: si ya hay un refresh en curso, esperar ese mismo resultado
   if (tokenRefreshPromise) return tokenRefreshPromise
 
   tokenRefreshPromise = (async () => {
@@ -42,7 +49,14 @@ export async function getAccessToken(): Promise<string> {
   return tokenRefreshPromise
 }
 
+// ─── Search ───────────────────────────────────────────────────────────────────
 export async function searchSpotify(query: string) {
+  const key = query.toLowerCase().trim()
+  const cached = searchCache.get(key)
+  if (cached && Date.now() - cached.at < CACHE_TTL) {
+    return cached.data
+  }
+
   const token = await getAccessToken()
   const headers = { Authorization: `Bearer ${token}` }
 
@@ -65,23 +79,40 @@ export async function searchSpotify(query: string) {
 
   const general = await generalRes.json()
   const playlists = await playlistRes.json()
-  return {
+  const result = {
     ...general,
     playlists: playlists.playlists,
   }
+
+  searchCache.set(key, { data: result, at: Date.now() })
+  return result
 }
 
+// ─── Artist top tracks ────────────────────────────────────────────────────────
 export async function getArtistTopTracks(artistId: string) {
+  const cached = artistCache.get(`top-${artistId}`)
+  if (cached && Date.now() - cached.at < CACHE_TTL) {
+    return cached.data
+  }
+
   const token = await getAccessToken()
   const res = await fetchWithTimeout(
     `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=AR`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
   const data = await res.json()
-  return { tracks: data.tracks ?? [] }
+  const result = { tracks: data.tracks ?? [] }
+  artistCache.set(`top-${artistId}`, { data: result, at: Date.now() })
+  return result
 }
 
+// ─── Artist albums + tracks ───────────────────────────────────────────────────
 export async function getArtistAlbums(artistId: string) {
+  const cached = artistCache.get(`albums-${artistId}`)
+  if (cached && Date.now() - cached.at < CACHE_TTL) {
+    return cached.data
+  }
+
   const token = await getAccessToken()
   const headers = { Authorization: `Bearer ${token}` }
 
@@ -119,31 +150,52 @@ export async function getArtistAlbums(artistId: string) {
   const albumTracks = trackArrays.flat()
   const allTracks = [...topTracks, ...albumTracks]
   const seen = new Set<string>()
-  return allTracks.filter(t => {
+  const result = allTracks.filter(t => {
     const key = `${t.name.toLowerCase()}|${t.artists?.[0]?.name?.toLowerCase() ?? ''}`
     if (seen.has(key)) return false
     seen.add(key)
     return true
   })
+
+  artistCache.set(`albums-${artistId}`, { data: result, at: Date.now() })
+  return result
 }
 
+// ─── Playlist tracks ──────────────────────────────────────────────────────────
+export async function getPlaylistTracks(playlistId: string) {
+  const cached = playlistCache.get(playlistId)
+  if (cached && Date.now() - cached.at < CACHE_TTL) {
+    return cached.data
+  }
+
+  const token = await getAccessToken()
+  const res = await fetchWithTimeout(
+    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=AR&limit=50`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  )
+  const data = await res.json()
+  const result = (data.items ?? [])
+    .map((item: any) => item.track)
+    .filter(Boolean)
+
+  playlistCache.set(playlistId, { data: result, at: Date.now() })
+  return result
+}
+
+// ─── Search playlists ─────────────────────────────────────────────────────────
 export async function searchPlaylists(query: string) {
+  const key = `playlist-${query.toLowerCase().trim()}`
+  const cached = searchCache.get(key)
+  if (cached && Date.now() - cached.at < CACHE_TTL) {
+    return cached.data
+  }
+
   const token = await getAccessToken()
   const res = await fetchWithTimeout(
     `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=playlist&limit=6`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
-  return res.json()
-}
-
-export async function getPlaylistTracks(playlistId: string) {
-  const token = await getAccessToken()
-  const res = await fetchWithTimeout(
-    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=AR&limit=10`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  )
-  const data = await res.json()
-  return (data.items ?? [])
-    .map((item: any) => item.track)
-    .filter(Boolean)
+  const result = await res.json()
+  searchCache.set(key, { data: result, at: Date.now() })
+  return result
 }
