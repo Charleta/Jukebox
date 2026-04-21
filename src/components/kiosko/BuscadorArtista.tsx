@@ -15,7 +15,6 @@ interface Props {
   onArtistSelect: (artist: SpotifyArtist) => void
   onTrackSelect: (track: SpotifyTrack) => void
   onInternalPlaylistSelect: (id: number) => void
-  onInternalPlaylistSelect: (id: number) => void
   tieneFichas: boolean
 }
 
@@ -46,6 +45,15 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  useEffect(() => {
+  if (!tieneFichas) {
+    setQuery('')
+    setResults({ artists: [], tracks: [] })
+    setShowKeyboard(false)
+    if (keyboardRef.current) keyboardRef.current.setInput('')
+  }
+}, [tieneFichas])
 
   const search = (q: string) => {
     if (!tieneFichas) return;
@@ -203,6 +211,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
             onChange={handleKeyboardChange}
             layout={{
               default: [
+                '1 2 3 4 5 6 7 8 9 0',
                 'q w e r t y u i o p',
                 'a s d f g h j k l ñ',
                 'z x c v b n m {bksp}',
