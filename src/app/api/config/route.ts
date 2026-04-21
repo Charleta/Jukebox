@@ -7,10 +7,11 @@ export async function GET() {
   const legacy = map.max_duracion // backward compat con clave vieja
 
   return NextResponse.json({
-    max_duracion_kiosko: Number(map.max_duracion_kiosko ?? legacy ?? 300),
-    max_duracion_admin:  Number(map.max_duracion_admin  ?? legacy ?? 300),
-    fichas_pack:         Number(map.fichas_pack ?? 2),
-    precio_pack:         Number(map.precio_pack ?? 1000),
+    max_duracion_kiosko:   Number(map.max_duracion_kiosko ?? legacy ?? 300),
+    max_duracion_admin:    Number(map.max_duracion_admin  ?? legacy ?? 300),
+    fichas_pack:           Number(map.fichas_pack ?? 2),
+    precio_pack:           Number(map.precio_pack ?? 1000),
+    autostart_playlists:   map.autostart_playlists ?? '[]',
   })
 }
 

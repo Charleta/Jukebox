@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { prismaCloud as prisma } from '@/lib/dbCloud'
 
-export async function GET() {
+export async function GET(req: Request) {
+  const soloVisibles = new URL(req.url).searchParams.get('visibles') === 'true'
   const playlists = await prisma.playlist.findMany({
+    where: soloVisibles ? { oculta: false } : undefined,
     include: { canciones: { orderBy: { orden: 'asc' } } },
     orderBy: [{ orden: 'asc' }, { createdAt: 'asc' }],
   })

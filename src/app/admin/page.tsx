@@ -13,7 +13,7 @@ interface PlaylistCancion {
 }
 interface Playlist {
   id: number; nombre: string; descripcion: string
-  imagenUrl: string; esFavoritos: boolean; orden: number; canciones: PlaylistCancion[]
+  imagenUrl: string; esFavoritos: boolean; oculta: boolean; orden: number; canciones: PlaylistCancion[]
 }
 
 function fmtMs(ms: number) {
@@ -156,6 +156,9 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [precioPackInput, setPrecioPackInput] = useState(1000)
   const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
 
+  const [autostartIds, setAutostartIds] = useState<number[]>([])
+  const [autostartModal, setAutostartModal] = useState(false)
+  const [autostartGuardado, setAutostartGuardado] = useState(false)
   const [configMsg, setConfigMsg] = useState('')
   const [adminToast, setAdminToast] = useState('')
   const [dragIndex, setDragIndex] = useState<number | null>(null)
@@ -164,6 +167,8 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [dragSongOver, setDragSongOver] = useState<number | null>(null)
   const [dragPlIndex, setDragPlIndex] = useState<number | null>(null)
   const [dragPlOver, setDragPlOver] = useState<number | null>(null)
+  const [editandoNombre, setEditandoNombre] = useState<number | null>(null)
+  const [nombreEditando, setNombreEditando] = useState('')
 
 const [splash, setSplash] = useState(true)
   const [splashFading, setSplashFading] = useState(false)
@@ -198,6 +203,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
         setMaxDurAdminInput(Math.floor(Number(data.max_duracion_admin ?? 300) / 60))
         setFichasPackInput(Number(data.fichas_pack ?? 2))
         setPrecioPackInput(Number(data.precio_pack ?? 1000))
+        try { setAutostartIds(JSON.parse(data.autostart_playlists ?? '[]')) } catch { }
       })
     const interval = setInterval(async () => {
       const res = await fetch('/api/spotify/playback')
@@ -434,6 +440,45 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids: next.map(p => p.id) }),
     })
+  }
+
+  const renombrarPlaylist = async (id: number, nuevoNombre: string, nombreActual: string) => {
+    const trimmed = nuevoNombre.trim()
+    if (!trimmed || trimmed === nombreActual) { setEditandoNombre(null); return }
+    if (!window.confirm(`¿Renombrar "${nombreActual}" a "${trimmed}"?`)) return
+    await fetch(`/api/playlists/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: trimmed }),
+    })
+    setEditandoNombre(null)
+    cargarPlaylists()
+  }
+
+  const toggleOcultaPlaylist = async (p: Playlist) => {
+    const msg = p.oculta
+      ? `¿Mostrar "${p.nombre}" en el kiosko?`
+      : `¿Ocultar "${p.nombre}"? No aparecerá para los clientes.`
+    if (!window.confirm(msg)) return
+    await fetch(`/api/playlists/${p.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ oculta: !p.oculta }),
+    })
+    cargarPlaylists()
+  }
+
+  const toggleAutostartId = (id: number) =>
+    setAutostartIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+
+  const guardarAutostart = async () => {
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ autostart_playlists: JSON.stringify(autostartIds) }),
+    })
+    setAutostartGuardado(true)
+    setTimeout(() => { setAutostartGuardado(false); setAutostartModal(false) }, 1500)
   }
 
   const moverEnCola = async (fromIndex: number, toIndex: number) => {
@@ -717,34 +762,76 @@ return (
                 setDragPlIndex(null); setDragPlOver(null)
               }}
               className={`border-b border-zinc-800/40 last:border-0 transition-colors ${!playlistActiva && dragPlOver === i ? 'bg-violet-400/5' : ''}`}>
-              <div className="flex items-center gap-3 px-5 py-3.5">
+              <div className="flex items-center gap-2 px-5 py-3.5">
                 {p.esFavoritos
                   ? <div className="w-11 h-11 rounded-lg bg-red-950 flex items-center justify-center text-red-400 shrink-0 text-xl">❤</div>
                   : p.imagenUrl
-                    ? <img src={p.imagenUrl} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0" />
-                    : <div className="w-11 h-11 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-600 shrink-0 text-lg">♪</div>
+                    ? <img src={p.imagenUrl} alt="" className={`w-11 h-11 rounded-lg object-cover shrink-0 ${p.oculta ? 'opacity-40' : ''}`} />
+                    : <div className={`w-11 h-11 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-600 shrink-0 text-lg ${p.oculta ? 'opacity-40' : ''}`}>♪</div>
                 }
-                <button onClick={() => setPlaylistActiva(playlistActiva === p.id ? null : p.id)}
-                  className="flex-1 text-left min-w-0">
-                  <div className="text-sm font-medium truncate flex items-center gap-1.5">
-                    {p.esFavoritos && <span className="text-red-400 text-xs">❤</span>}
-                    {p.nombre}
+
+                {editandoNombre === p.id ? (
+                  <div className="flex-1 flex items-center gap-1.5 min-w-0">
+                    <input
+                      autoFocus
+                      value={nombreEditando}
+                      onChange={e => setNombreEditando(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') renombrarPlaylist(p.id, nombreEditando, p.nombre)
+                        if (e.key === 'Escape') setEditandoNombre(null)
+                      }}
+                      className="flex-1 bg-black/60 border border-violet-500 rounded-lg px-2 py-1 text-sm text-white outline-none min-w-0"
+                    />
+                    <button onClick={() => renombrarPlaylist(p.id, nombreEditando, p.nombre)}
+                      className="text-green-400 active:text-green-300 text-lg shrink-0 font-bold px-1">✓</button>
+                    <button onClick={() => setEditandoNombre(null)}
+                      className="text-zinc-500 active:text-zinc-300 text-base shrink-0 px-1">✗</button>
                   </div>
-                  <div className="text-xs text-zinc-500">{p.canciones.length} canciones</div>
-                </button>
-                {!playlistActiva && (
-                  <span className="text-zinc-700 text-sm cursor-grab shrink-0">⠿</span>
+                ) : (
+                  <button onClick={() => setPlaylistActiva(playlistActiva === p.id ? null : p.id)}
+                    className="flex-1 text-left min-w-0">
+                    <div className={`text-sm font-medium truncate flex items-center gap-1.5 ${p.oculta ? 'text-zinc-500' : ''}`}>
+                      {p.esFavoritos && <span className="text-red-400 text-xs">❤</span>}
+                      {p.nombre}
+                    </div>
+                    <div className="text-xs text-zinc-500">
+                      {p.canciones.length} canciones{p.oculta ? ' · oculta' : ''}
+                    </div>
+                  </button>
                 )}
-                <button onClick={() => reproducirPlaylist(p)}
-                  disabled={cargandoPlaylist === p.id}
-                  className="w-8 h-8 rounded-full bg-yellow-400/10 text-yellow-400 active:bg-yellow-400/20 flex items-center justify-center text-sm shrink-0 disabled:opacity-40 transition-colors">
-                  {cargandoPlaylist === p.id ? '…' : '▶'}
-                </button>
-                {p.esFavoritos
-                  ? <span className="text-zinc-700 text-xl px-1 shrink-0 select-none">❤</span>
-                  : <button onClick={() => eliminarPlaylist(p.id)}
-                      className="text-zinc-700 active:text-red-400 transition-colors text-xl px-1 shrink-0">×</button>
-                }
+
+                {editandoNombre !== p.id && !playlistActiva && (
+                  <>
+                    <span className="text-zinc-700 text-sm cursor-grab shrink-0">⠿</span>
+                    <button onClick={() => toggleOcultaPlaylist(p)}
+                      className={`text-lg shrink-0 px-1 transition-colors active:scale-110 ${p.oculta ? 'text-zinc-600' : 'text-zinc-400'}`}
+                      title={p.oculta ? 'Mostrar en kiosko' : 'Ocultar del kiosko'}>
+                      {p.oculta ? '🙈' : '👁'}
+                    </button>
+                    {!p.esFavoritos && (
+                      <button onClick={() => { setEditandoNombre(p.id); setNombreEditando(p.nombre) }}
+                        className="text-zinc-500 active:text-white text-base shrink-0 px-1 transition-colors"
+                        title="Renombrar">
+                        ✏
+                      </button>
+                    )}
+                  </>
+                )}
+
+                {editandoNombre !== p.id && (
+                  <>
+                    <button onClick={() => reproducirPlaylist(p)}
+                      disabled={cargandoPlaylist === p.id}
+                      className="w-8 h-8 rounded-full bg-yellow-400/10 text-yellow-400 active:bg-yellow-400/20 flex items-center justify-center text-sm shrink-0 disabled:opacity-40 transition-colors">
+                      {cargandoPlaylist === p.id ? '…' : '▶'}
+                    </button>
+                    {p.esFavoritos
+                      ? <span className="text-zinc-700 text-xl px-1 shrink-0 select-none">❤</span>
+                      : <button onClick={() => eliminarPlaylist(p.id)}
+                          className="text-zinc-700 active:text-red-400 transition-colors text-xl px-1 shrink-0">×</button>
+                    }
+                  </>
+                )}
               </div>
               {playlistActiva === p.id && (
                 <div className="px-5 pb-4 bg-black/20">
@@ -893,6 +980,23 @@ return (
             </div>
 
             <div className="h-px bg-zinc-800" />
+
+            <button
+              onClick={() => setAutostartModal(true)}
+              className="w-full flex items-center justify-between p-3.5 rounded-xl bg-zinc-800/60 active:bg-zinc-800 border border-zinc-700/50 transition-colors"
+            >
+              <div className="text-left">
+                <div className="text-sm font-semibold text-white">Listas de Arranque</div>
+                <div className="text-xs text-zinc-500 mt-0.5">
+                  {autostartIds.length === 0
+                    ? 'Ninguna seleccionada'
+                    : `${autostartIds.length} lista${autostartIds.length > 1 ? 's' : ''} seleccionada${autostartIds.length > 1 ? 's' : ''}`}
+                </div>
+              </div>
+              <span className="text-zinc-500 text-lg">›</span>
+            </button>
+
+            <div className="h-px bg-zinc-800" />
             <button onClick={onLogout} className="text-zinc-500 text-sm active:text-red-400 transition-colors">
               Cerrar sesión
             </button>
@@ -901,6 +1005,59 @@ return (
       )}
 
     </div>
+
+    {/* Modal listas de arranque */}
+    {autostartModal && (
+      <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70" onClick={() => !autostartGuardado && setAutostartModal(false)}>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-t-2xl w-full max-w-lg p-5 pb-8" onClick={e => e.stopPropagation()}>
+          {autostartGuardado ? (
+            <div className="flex flex-col items-center justify-center py-8 gap-3">
+              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center text-3xl text-green-400">✓</div>
+              <div className="text-green-400 font-black text-xl" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>GUARDADO</div>
+            </div>
+          ) : (
+            <>
+              <div className="text-xs tracking-widest text-zinc-500 uppercase mb-1">Listas de Arranque</div>
+              <div className="text-sm text-zinc-400 mb-4">Elegí las listas que van a sonar al iniciar, mezcladas</div>
+              {playlists.length === 0 ? (
+                <div className="text-zinc-600 text-sm text-center py-6">No hay listas creadas aún</div>
+              ) : (
+                <div className="space-y-1 max-h-72 overflow-y-auto mb-4">
+                  {playlists.map(pl => (
+                    <label key={pl.id} className="flex items-center gap-3 p-3 rounded-xl active:bg-zinc-800 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={autostartIds.includes(pl.id)}
+                        onChange={() => toggleAutostartId(pl.id)}
+                        className="w-5 h-5 accent-yellow-400 shrink-0"
+                      />
+                      {pl.imagenUrl
+                        ? <img src={pl.imagenUrl} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                        : <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500 shrink-0">♪</div>
+                      }
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{pl.nombre}</div>
+                        <div className="text-xs text-zinc-500">{pl.canciones.length} canciones</div>
+                      </div>
+                      {pl.esFavoritos && <span className="text-red-400 text-xs shrink-0">❤</span>}
+                    </label>
+                  ))}
+                </div>
+              )}
+              <button onClick={guardarAutostart}
+                className="w-full bg-yellow-400 active:bg-yellow-300 text-black font-black py-4 rounded-xl text-lg transition-colors mb-2"
+                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                CONFIRMAR
+              </button>
+              <button onClick={() => setAutostartModal(false)}
+                className="w-full bg-zinc-800 active:bg-zinc-700 text-zinc-400 py-3 rounded-xl text-sm transition-colors">
+                Cancelar
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    )}
 
     {/* Modal guardar en playlist */}
     {guardandoModal && cola[0] && (

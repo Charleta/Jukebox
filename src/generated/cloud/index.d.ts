@@ -987,6 +987,7 @@ export namespace Prisma {
     descripcion: string | null
     imagenUrl: string | null
     esFavoritos: boolean | null
+    oculta: boolean | null
     orden: number | null
     createdAt: Date | null
   }
@@ -997,6 +998,7 @@ export namespace Prisma {
     descripcion: string | null
     imagenUrl: string | null
     esFavoritos: boolean | null
+    oculta: boolean | null
     orden: number | null
     createdAt: Date | null
   }
@@ -1007,6 +1009,7 @@ export namespace Prisma {
     descripcion: number
     imagenUrl: number
     esFavoritos: number
+    oculta: number
     orden: number
     createdAt: number
     _all: number
@@ -1029,6 +1032,7 @@ export namespace Prisma {
     descripcion?: true
     imagenUrl?: true
     esFavoritos?: true
+    oculta?: true
     orden?: true
     createdAt?: true
   }
@@ -1039,6 +1043,7 @@ export namespace Prisma {
     descripcion?: true
     imagenUrl?: true
     esFavoritos?: true
+    oculta?: true
     orden?: true
     createdAt?: true
   }
@@ -1049,6 +1054,7 @@ export namespace Prisma {
     descripcion?: true
     imagenUrl?: true
     esFavoritos?: true
+    oculta?: true
     orden?: true
     createdAt?: true
     _all?: true
@@ -1146,6 +1152,7 @@ export namespace Prisma {
     descripcion: string
     imagenUrl: string
     esFavoritos: boolean
+    oculta: boolean
     orden: number
     createdAt: Date
     _count: PlaylistCountAggregateOutputType | null
@@ -1175,6 +1182,7 @@ export namespace Prisma {
     descripcion?: boolean
     imagenUrl?: boolean
     esFavoritos?: boolean
+    oculta?: boolean
     orden?: boolean
     createdAt?: boolean
     canciones?: boolean | Playlist$cancionesArgs<ExtArgs>
@@ -1187,6 +1195,7 @@ export namespace Prisma {
     descripcion?: boolean
     imagenUrl?: boolean
     esFavoritos?: boolean
+    oculta?: boolean
     orden?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["playlist"]>
@@ -1197,6 +1206,7 @@ export namespace Prisma {
     descripcion?: boolean
     imagenUrl?: boolean
     esFavoritos?: boolean
+    oculta?: boolean
     orden?: boolean
     createdAt?: boolean
   }
@@ -1218,6 +1228,7 @@ export namespace Prisma {
       descripcion: string
       imagenUrl: string
       esFavoritos: boolean
+      oculta: boolean
       orden: number
       createdAt: Date
     }, ExtArgs["result"]["playlist"]>
@@ -1619,6 +1630,7 @@ export namespace Prisma {
     readonly descripcion: FieldRef<"Playlist", 'String'>
     readonly imagenUrl: FieldRef<"Playlist", 'String'>
     readonly esFavoritos: FieldRef<"Playlist", 'Boolean'>
+    readonly oculta: FieldRef<"Playlist", 'Boolean'>
     readonly orden: FieldRef<"Playlist", 'Int'>
     readonly createdAt: FieldRef<"Playlist", 'DateTime'>
   }
@@ -3004,6 +3016,7 @@ export namespace Prisma {
     descripcion: 'descripcion',
     imagenUrl: 'imagenUrl',
     esFavoritos: 'esFavoritos',
+    oculta: 'oculta',
     orden: 'orden',
     createdAt: 'createdAt'
   };
@@ -3121,6 +3134,7 @@ export namespace Prisma {
     descripcion?: StringFilter<"Playlist"> | string
     imagenUrl?: StringFilter<"Playlist"> | string
     esFavoritos?: BoolFilter<"Playlist"> | boolean
+    oculta?: BoolFilter<"Playlist"> | boolean
     orden?: IntFilter<"Playlist"> | number
     createdAt?: DateTimeFilter<"Playlist"> | Date | string
     canciones?: PlaylistCancionListRelationFilter
@@ -3132,6 +3146,7 @@ export namespace Prisma {
     descripcion?: SortOrder
     imagenUrl?: SortOrder
     esFavoritos?: SortOrder
+    oculta?: SortOrder
     orden?: SortOrder
     createdAt?: SortOrder
     canciones?: PlaylistCancionOrderByRelationAggregateInput
@@ -3146,6 +3161,7 @@ export namespace Prisma {
     descripcion?: StringFilter<"Playlist"> | string
     imagenUrl?: StringFilter<"Playlist"> | string
     esFavoritos?: BoolFilter<"Playlist"> | boolean
+    oculta?: BoolFilter<"Playlist"> | boolean
     orden?: IntFilter<"Playlist"> | number
     createdAt?: DateTimeFilter<"Playlist"> | Date | string
     canciones?: PlaylistCancionListRelationFilter
@@ -3157,6 +3173,7 @@ export namespace Prisma {
     descripcion?: SortOrder
     imagenUrl?: SortOrder
     esFavoritos?: SortOrder
+    oculta?: SortOrder
     orden?: SortOrder
     createdAt?: SortOrder
     _count?: PlaylistCountOrderByAggregateInput
@@ -3175,6 +3192,7 @@ export namespace Prisma {
     descripcion?: StringWithAggregatesFilter<"Playlist"> | string
     imagenUrl?: StringWithAggregatesFilter<"Playlist"> | string
     esFavoritos?: BoolWithAggregatesFilter<"Playlist"> | boolean
+    oculta?: BoolWithAggregatesFilter<"Playlist"> | boolean
     orden?: IntWithAggregatesFilter<"Playlist"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Playlist"> | Date | string
   }
@@ -3256,6 +3274,7 @@ export namespace Prisma {
     descripcion?: string
     imagenUrl?: string
     esFavoritos?: boolean
+    oculta?: boolean
     orden?: number
     createdAt?: Date | string
     canciones?: PlaylistCancionCreateNestedManyWithoutPlaylistInput
@@ -3267,6 +3286,7 @@ export namespace Prisma {
     descripcion?: string
     imagenUrl?: string
     esFavoritos?: boolean
+    oculta?: boolean
     orden?: number
     createdAt?: Date | string
     canciones?: PlaylistCancionUncheckedCreateNestedManyWithoutPlaylistInput
@@ -3277,6 +3297,7 @@ export namespace Prisma {
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
     esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    oculta?: BoolFieldUpdateOperationsInput | boolean
     orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     canciones?: PlaylistCancionUpdateManyWithoutPlaylistNestedInput
@@ -3288,6 +3309,7 @@ export namespace Prisma {
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
     esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    oculta?: BoolFieldUpdateOperationsInput | boolean
     orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     canciones?: PlaylistCancionUncheckedUpdateManyWithoutPlaylistNestedInput
@@ -3299,6 +3321,7 @@ export namespace Prisma {
     descripcion?: string
     imagenUrl?: string
     esFavoritos?: boolean
+    oculta?: boolean
     orden?: number
     createdAt?: Date | string
   }
@@ -3308,6 +3331,7 @@ export namespace Prisma {
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
     esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    oculta?: BoolFieldUpdateOperationsInput | boolean
     orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -3318,6 +3342,7 @@ export namespace Prisma {
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
     esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    oculta?: BoolFieldUpdateOperationsInput | boolean
     orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -3453,6 +3478,7 @@ export namespace Prisma {
     descripcion?: SortOrder
     imagenUrl?: SortOrder
     esFavoritos?: SortOrder
+    oculta?: SortOrder
     orden?: SortOrder
     createdAt?: SortOrder
   }
@@ -3468,6 +3494,7 @@ export namespace Prisma {
     descripcion?: SortOrder
     imagenUrl?: SortOrder
     esFavoritos?: SortOrder
+    oculta?: SortOrder
     orden?: SortOrder
     createdAt?: SortOrder
   }
@@ -3478,6 +3505,7 @@ export namespace Prisma {
     descripcion?: SortOrder
     imagenUrl?: SortOrder
     esFavoritos?: SortOrder
+    oculta?: SortOrder
     orden?: SortOrder
     createdAt?: SortOrder
   }
@@ -3842,6 +3870,7 @@ export namespace Prisma {
     descripcion?: string
     imagenUrl?: string
     esFavoritos?: boolean
+    oculta?: boolean
     orden?: number
     createdAt?: Date | string
   }
@@ -3852,6 +3881,7 @@ export namespace Prisma {
     descripcion?: string
     imagenUrl?: string
     esFavoritos?: boolean
+    oculta?: boolean
     orden?: number
     createdAt?: Date | string
   }
@@ -3877,6 +3907,7 @@ export namespace Prisma {
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
     esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    oculta?: BoolFieldUpdateOperationsInput | boolean
     orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -3887,6 +3918,7 @@ export namespace Prisma {
     descripcion?: StringFieldUpdateOperationsInput | string
     imagenUrl?: StringFieldUpdateOperationsInput | string
     esFavoritos?: BoolFieldUpdateOperationsInput | boolean
+    oculta?: BoolFieldUpdateOperationsInput | boolean
     orden?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

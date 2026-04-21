@@ -54,6 +54,9 @@ export default function KioskoPage() {
   const [qrError, setQrError] = useState(false)
   const pollingRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
   const pollingFailsRef = useRef(0)
+  const qrActiveRef = useRef(false)
+  const bgPollingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const autostartDoneRef = useRef(false)
 
 
   useEffect(() => {
@@ -70,6 +73,15 @@ export default function KioskoPage() {
     loadConfig()
     const interval = setInterval(loadConfig, 30000)
     return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    if (autostartDoneRef.current) return
+    autostartDoneRef.current = true
+    fetch('/api/cola/autostart', { method: 'POST' })
+      .then(r => r.json())
+      .then(data => { if (data.added > 0) refetchCola() })
+      .catch(() => {})
   }, [])
 
   const pasarSiguiente = async () => {
@@ -147,7 +159,9 @@ export default function KioskoPage() {
 
   const handlePagar = async (cantidad: number, total: number) => {
     clearInterval(pollingRef.current)
+    clearTimeout(bgPollingTimeoutRef.current)
     pollingFailsRef.current = 0
+    qrActiveRef.current = true
     setQrModal({ cantidad, total })
     setQrUrl(null)
     setQrRef(null)
@@ -170,13 +184,19 @@ export default function KioskoPage() {
           const json = await r.json()
           if (json.aprobado) {
             clearInterval(pollingRef.current)
-            setQrAprobado(true)
+            clearTimeout(bgPollingTimeoutRef.current)
             refetchFichas()
-            setTimeout(() => { setQrModal(null); setQrAprobado(false) }, 2500)
+            if (qrActiveRef.current) {
+              setQrAprobado(true)
+              setTimeout(() => { setQrModal(null); setQrAprobado(false) }, 2500)
+            } else {
+              showToast(`✓ ${cantidad} FICHAS CARGADAS`)
+            }
+            qrActiveRef.current = false
           }
         } catch {
           pollingFailsRef.current += 1
-          if (pollingFailsRef.current >= 5) {
+          if (pollingFailsRef.current >= 5 && qrActiveRef.current) {
             clearInterval(pollingRef.current)
             setQrError(true)
           }
@@ -429,7 +449,11 @@ export default function KioskoPage() {
                 </div>
 
                 <button
-                  onClick={() => { clearInterval(pollingRef.current); setQrModal(null) }}
+                  onClick={() => {
+                    qrActiveRef.current = false
+                    setQrModal(null)
+                    bgPollingTimeoutRef.current = setTimeout(() => clearInterval(pollingRef.current), 5 * 60 * 1000)
+                  }}
                   className="w-full bg-zinc-800 active:bg-zinc-700 text-zinc-400 py-4 rounded-xl text-sm transition-colors"
                 >
                   Cancelar

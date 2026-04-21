@@ -30,7 +30,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
   const keyboardRef = useRef<any>(null)
 
   useEffect(() => {
-    fetch('/api/playlists')
+    fetch('/api/playlists?visibles=true')
       .then(r => r.json())
       .then(data => setInternalPlaylists(data))
       .catch(() => {})
@@ -129,22 +129,20 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
         {!query && internalPlaylists.length > 0 && (
           <div className="mt-5">
             <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Nuestras Listas</div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               {internalPlaylists.filter(p => !p.esFavoritos).map(p => (
                 <button
                   key={p.id}
                   onClick={() => onInternalPlaylistSelect(p.id)}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-yellow-400/30 text-left transition-all"
+                  className="text-left rounded-xl hover:bg-zinc-800 active:bg-zinc-700 transition-colors p-2"
                 >
                   {p.imagenUrl ? (
-                    <img src={p.imagenUrl} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                    <img src={p.imagenUrl} alt="" className="w-full aspect-square rounded-lg object-cover mb-2 shadow-md" />
                   ) : (
-                    <div className="w-12 h-12 rounded bg-zinc-800 flex items-center justify-center text-zinc-500 flex-shrink-0 text-xl">♪</div>
+                    <div className="w-full aspect-square rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500 mb-2 text-4xl shadow-md">♪</div>
                   )}
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium truncate">{p.nombre}</div>
-                    {/* <div className="text-xs text-zinc-500">{p.canciones.length} canciones</div> */}
-                  </div>
+                  <div className="text-sm font-semibold truncate text-white">{p.nombre}</div>
+                  <div className="text-xs text-zinc-400 truncate mt-0.5">{p.canciones.length} canciones</div>
                 </button>
               ))}
             </div>
