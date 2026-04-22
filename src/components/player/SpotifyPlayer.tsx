@@ -18,6 +18,7 @@ interface Props {
 export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress }: Props) {
   const [deviceId, setDeviceId] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false)
   const playerRef = useRef<any>(null)
   const deviceIdRef = useRef<string | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
@@ -119,6 +120,15 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
         console.error('Account error:', message)
       })
 
+      player.addListener('autoplay_failed', () => {
+        console.warn('Autoplay blocked by browser rules')
+        setAutoplayBlocked(true)
+      })
+
+      player.addListener('playback_error', ({ message }: { message: string }) => {
+        console.error('Playback error:', message)
+      })
+
       intervalRef.current = setInterval(async () => {
         if (!playerRef.current) return
         const state = await playerRef.current.getCurrentState()
@@ -168,17 +178,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
     }
   }, [])
 
-  useEffect(() => {
-    spotifyUriRef.current = spotifyUri
-    if (!spotifyUri) {
-      playerRef.current?.pause()
-      return
-    }
-    if (!ready || !deviceId) return
-    playTrack(deviceId, spotifyUri)
-  }, [spotifyUri, ready, deviceId])
-
-  const playTrack = async (devId: string, uri: string) => {
+  async function playTrack(devId: string, uri: string) {
     clearTimeout(maxTimerRef.current)
     clearTimeout(nearEndTimerRef.current)
     terminadaRef.current = false
@@ -196,6 +196,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
       if (!res.ok) {
         const err = await res.json()
         console.error('Play error:', err)
+        if (res.status === 403) setAutoplayBlocked(true)
         if (res.status === 404) {
           initPlayer()
         } else {
@@ -209,6 +210,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
         return
       }
 
+      setAutoplayBlocked(false)
       maxTimerRef.current = setTimeout(() => {
         if (terminadaRef.current) return
         terminadaRef.current = true
@@ -226,5 +228,50 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
     }
   }
 
-  return null
+  async function unlockPlayback() {
+    const player = playerRef.current
+    const currentId = deviceIdRef.current
+    const currentUri = spotifyUriRef.current
+
+    if (!player || !currentId || !currentUri) return
+
+    try {
+      await player.activateElement()
+      setAutoplayBlocked(false)
+      await playTrack(currentId, currentUri)
+    } catch (err) {
+      console.error('Error unlocking playback:', err)
+    }
+  }
+
+  useEffect(() => {
+    spotifyUriRef.current = spotifyUri
+    if (!spotifyUri) {
+      playerRef.current?.pause()
+      return
+    }
+    if (!ready || !deviceId) return
+    playTrack(deviceId, spotifyUri)
+  }, [spotifyUri, ready, deviceId])
+
+  useEffect(() => {
+    const handleFirstGesture = () => {
+      if (!autoplayBlocked) return
+      void unlockPlayback()
+    }
+
+    window.addEventListener('pointerdown', handleFirstGesture, { once: true })
+    window.addEventListener('keydown', handleFirstGesture, { once: true })
+
+    return () => {
+      window.removeEventListener('pointerdown', handleFirstGesture)
+      window.removeEventListener('keydown', handleFirstGesture)
+    }
+  }, [])
+
+  return autoplayBlocked ? (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full border border-yellow-400/40 bg-black/90 px-4 py-2 text-xs tracking-widest text-yellow-400 shadow-lg">
+      TOC&Aacute; LA PANTALLA PARA HABILITAR EL SONIDO
+    </div>
+  ) : null
 }

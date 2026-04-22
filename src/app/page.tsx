@@ -49,7 +49,6 @@ export default function KioskoPage() {
   // Modal QR — MercadoPago
   const [qrModal, setQrModal] = useState<{ cantidad: number; total: number } | null>(null)
   const [qrUrl, setQrUrl] = useState<string | null>(null)
-  const [qrRef, setQrRef] = useState<string | null>(null)
   const [qrAprobado, setQrAprobado] = useState(false)
   const [qrError, setQrError] = useState(false)
   const pollingRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
@@ -130,9 +129,17 @@ export default function KioskoPage() {
     )
   }
 
+  // Volver al inicio cuando se agotan las fichas
+  useEffect(() => {
+    if (fichas <= 0 && artist) {
+      setArtist(null)
+      setTracks([])
+    }
+  }, [fichas])
+
   // Abre el modal de confirmación en vez de agregar directo
   const handleTrackSelect = (track: SpotifyTrack) => {
-    if (fichas <= 0) { showToast('❌ SIN FICHAS — PEDILE AL ENCARGADO'); return }
+    if (fichas <= 0) { showToast('SIN FICHAS — COMPRÁ MÁS'); return }
     setPendingTrack(track)
   }
 
@@ -164,7 +171,6 @@ export default function KioskoPage() {
     qrActiveRef.current = true
     setQrModal({ cantidad, total })
     setQrUrl(null)
-    setQrRef(null)
     setQrAprobado(false)
     setQrError(false)
     try {
@@ -177,7 +183,6 @@ export default function KioskoPage() {
       const data = await res.json()
       if (!data.qrUrl) { setQrError(true); return }
       setQrUrl(data.qrUrl)
-      setQrRef(data.ref)
       pollingRef.current = setInterval(async () => {
         try {
           const r = await fetch(`/api/pagos/estado?ref=${data.ref}&cantidad=${cantidad}`)

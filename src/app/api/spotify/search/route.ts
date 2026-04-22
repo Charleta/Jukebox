@@ -16,7 +16,7 @@ export async function GET(req: Request) {
       const tracks = await getPlaylistTracks(playlistId)
       return NextResponse.json({ tracks })
     }
-    const data = await searchSpotify(q)
+    const data = await searchSpotify(q, searchParams.get('modo') === 'import')
     return NextResponse.json(data)
   } catch (error) {
     console.error('Spotify search error:', error)

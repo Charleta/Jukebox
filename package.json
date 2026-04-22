@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "kiosk": "cmd /c scripts\\kiosk-start.bat",
+    "kiosk:install": "powershell -ExecutionPolicy Bypass -File scripts\\install-kiosk-startup.ps1",
     "lint": "eslint",
     "seed": "ts-node prisma/seed.ts",
     "db:generate": "prisma generate && prisma generate --schema=prisma/cloud/schema.prisma",

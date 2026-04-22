@@ -94,7 +94,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
       {/* Indicador visual de bloqueo */}
         <div className="text-xs tracking-widest uppercase mb-3 flex justify-between">
           <span className={tieneFichas ? "text-zinc-500" : "text-red-500 font-bold"}>
-            {tieneFichas ? "Buscá un artista o canción" : " SIN FICHAS PARA BUSCAR"}
+            {tieneFichas ? "Buscá un artista o canción" : " CARGÁ FICHAS PARA EMPEZAR A SONAR"}
           </span>
         </div>
 
@@ -103,7 +103,7 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
         </div> */}
 
         <div className={`flex items-center bg-zinc-900 border rounded transition-colors ${
-          !tieneFichas ? 'border-red-900 opacity-50' : 'border-zinc-700 focus-within:border-yellow-400'
+          !tieneFichas ? 'border-red-500/30 bg-red-500/5' : 'border-zinc-700 focus-within:border-yellow-400'
         }`}>
           <span className="px-4 text-zinc-500">🔍</span>
           <input
@@ -131,19 +131,34 @@ export function BuscadorArtista({ onArtistSelect, onTrackSelect, onInternalPlayl
             <div className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Nuestras Listas</div>
             <div className="grid grid-cols-4 gap-3">
               {internalPlaylists.filter(p => !p.esFavoritos).map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => onInternalPlaylistSelect(p.id)}
-                  className="text-left rounded-xl hover:bg-zinc-800 active:bg-zinc-700 transition-colors p-2"
-                >
-                  {p.imagenUrl ? (
-                    <img src={p.imagenUrl} alt="" className="w-full aspect-square rounded-lg object-cover mb-2 shadow-md" />
-                  ) : (
-                    <div className="w-full aspect-square rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500 mb-2 text-4xl shadow-md">♪</div>
-                  )}
-                  <div className="text-sm font-semibold truncate text-white">{p.nombre}</div>
-                  <div className="text-xs text-zinc-400 truncate mt-0.5">{p.canciones.length} canciones</div>
-                </button>
+           <button
+  key={p.id}
+  onClick={() => onInternalPlaylistSelect(p.id)}
+  className="group flex flex-col items-start p-3 rounded-xl bg-zinc-900/40 hover:bg-zinc-800 active:scale-95 transition-all"
+>
+  <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg shadow-2xl">
+    {p.imagenUrl ? (
+      <img 
+        src={p.imagenUrl} 
+        alt={p.nombre} 
+        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" 
+      />
+    ) : (
+      <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-zinc-600 text-4xl">♪</div>
+    )}
+    {/* Overlay sutil opcional al hacer hover */}
+    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+  </div>
+  
+  <div className="w-full text-left">
+    <div className="text-[13px] font-bold text-zinc-100 leading-tight line-clamp-2">
+      {p.nombre}
+    </div>
+    <div className="text-[11px] text-zinc-500 mt-1 uppercase tracking-wider pb-3">
+      Playlist
+    </div>
+  </div>
+</button>
               ))}
             </div>
           </div>

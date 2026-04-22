@@ -147,6 +147,7 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [importTexto, setImportTexto] = useState('')
   const [importando, setImportando] = useState(false)
   const [importLog, setImportLog] = useState<{ linea: string; ok: boolean; msg: string }[]>([])
+  const [importCountdown, setImportCountdown] = useState(0)
 
   const [maxDurKiosko, setMaxDurKiosko] = useState(300)
   const [maxDurKioskoInput, setMaxDurKioskoInput] = useState(5)
@@ -355,26 +356,52 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     if (!importPlaylistId) return
     const lineas = importTexto.split('\n').map(l => l.trim()).filter(Boolean)
     if (!lineas.length) return
-    setImportando(true); setImportLog([])
-    for (const linea of lineas) {
-      const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(linea)}`)
-      const data = await res.json()
-      const track = data.tracks?.items?.[0]
-      if (!track) { setImportLog(prev => [...prev, { linea, ok: false, msg: 'No encontrada' }]); continue }
-      await fetch(`/api/playlists/${importPlaylistId}/canciones`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          titulo: track.name,
-          artista: track.artists.map((a: any) => a.name).join(', '),
-          duracion: Math.floor(track.duration_ms / 1000),
-          spotifyUri: track.uri,
-          imagenUrl: track.album.images[0]?.url ?? '',
-        }),
-      })
-      setImportLog(prev => [...prev, { linea, ok: true, msg: `${track.name} — ${track.artists[0].name}` }])
+    setImportando(true)
+    setImportLog([])
+    setImportCountdown(0)
+
+    const LOTE = 20
+    const ESPERA = 60
+
+    for (let i = 0; i < lineas.length; i++) {
+      // Esperar 60s entre lotes (no antes del primero)
+      if (i > 0 && i % LOTE === 0) {
+        for (let s = ESPERA; s > 0; s--) {
+          setImportCountdown(s)
+          await new Promise(r => setTimeout(r, 1000))
+        }
+        setImportCountdown(0)
+      }
+
+      const linea = lineas[i]
+      try {
+        const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(linea)}&modo=import`)
+        const data = await res.json()
+        const track = data.tracks?.items?.[0]
+        if (!track) {
+          setImportLog(prev => [...prev, { linea, ok: false, msg: 'No encontrada' }])
+          continue
+        }
+        await fetch(`/api/playlists/${importPlaylistId}/canciones`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            titulo: track.name,
+            artista: track.artists.map((a: any) => a.name).join(', '),
+            duracion: Math.floor(track.duration_ms / 1000),
+            spotifyUri: track.uri,
+            imagenUrl: track.album.images[0]?.url ?? '',
+          }),
+        })
+        setImportLog(prev => [...prev, { linea, ok: true, msg: `${track.name} — ${track.artists[0].name}` }])
+      } catch {
+        setImportLog(prev => [...prev, { linea, ok: false, msg: 'Error de red' }])
+      }
     }
-    setImportando(false); cargarPlaylists()
+
+    setImportando(false)
+    setImportTexto('')
+    cargarPlaylists()
   }
 
   const shuffleCola = async () => {
@@ -697,8 +724,20 @@ return (
                 disabled={importando || !importPlaylistId || !importTexto.trim()}
                 className="w-full bg-yellow-400 active:bg-yellow-300 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-3 rounded-xl text-sm transition-colors"
                 style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-                {importando ? 'Importando...' : 'IMPORTAR'}
+                {importando
+                  ? importCountdown > 0
+                    ? `Esperando ${importCountdown}s...`
+                    : `Importando ${importLog.length + 1}...`
+                  : 'IMPORTAR'}
               </button>
+              {importCountdown > 0 && (
+                <div className="flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/20 rounded-xl px-3 py-2.5">
+                  <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse shrink-0" />
+                  <span className="text-yellow-400 text-xs font-medium">
+                    Pausa anti-rate limit — continuando en {importCountdown}s
+                  </span>
+                </div>
+              )}
               {importLog.length > 0 && (
                 <div className="space-y-1 max-h-40 overflow-y-auto bg-black/40 rounded-xl p-3">
                   {importLog.map((entry, i) => (

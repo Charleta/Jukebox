@@ -50,8 +50,8 @@ export async function getAccessToken(): Promise<string> {
 }
 
 // ─── Search ───────────────────────────────────────────────────────────────────
-export async function searchSpotify(query: string) {
-  const key = query.toLowerCase().trim()
+export async function searchSpotify(query: string, soloTracks = false) {
+  const key = (soloTracks ? 'import:' : '') + query.toLowerCase().trim()
   const cached = searchCache.get(key)
   if (cached && Date.now() - cached.at < CACHE_TTL) {
     return cached.data
@@ -59,6 +59,20 @@ export async function searchSpotify(query: string) {
 
   const token = await getAccessToken()
   const headers = { Authorization: `Bearer ${token}` }
+
+  if (soloTracks) {
+    const res = await fetchWithTimeout(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=5`,
+      { headers }
+    )
+    if (res.status === 429) {
+      const retryAfter = res.headers.get('Retry-After')
+      throw new Error(`Rate limit. Esperá ${retryAfter ? Number(retryAfter) : 30} segundos.`)
+    }
+    const data = await res.json()
+    searchCache.set(key, { data, at: Date.now() })
+    return data
+  }
 
   const [generalRes, playlistRes] = await Promise.all([
     fetchWithTimeout(
@@ -79,10 +93,7 @@ export async function searchSpotify(query: string) {
 
   const general = await generalRes.json()
   const playlists = await playlistRes.json()
-  const result = {
-    ...general,
-    playlists: playlists.playlists,
-  }
+  const result = { ...general, playlists: playlists.playlists }
 
   searchCache.set(key, { data: result, at: Date.now() })
   return result
