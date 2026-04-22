@@ -21,6 +21,7 @@ const formatMs = (ms: number) => {
 export default function KioskoPage() {
   const [splash, setSplash] = useState(true)
   const [splashFading, setSplashFading] = useState(false)
+  const [playerInstanceKey, setPlayerInstanceKey] = useState(0)
 
   useEffect(() => {
     const t1 = setTimeout(() => setSplashFading(true), 1800)
@@ -56,6 +57,7 @@ export default function KioskoPage() {
   const qrActiveRef = useRef(false)
   const bgPollingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const autostartDoneRef = useRef(false)
+  const lastRecoveryRef = useRef('')
 
 
   useEffect(() => {
@@ -83,16 +85,53 @@ export default function KioskoPage() {
       .catch(() => {})
   }, [])
 
+  const showToast = (msg: string) => {
+    setToast(msg)
+    setTimeout(() => setToast(''), 2500)
+  }
+
+  useEffect(() => {
+    const pollRecovery = async () => {
+      try {
+        const res = await fetch('/api/recovery')
+        if (!res.ok) return
+
+        const data = await res.json()
+        if (!data.command || !data.requestedAt || data.requestedAt === lastRecoveryRef.current) return
+
+        lastRecoveryRef.current = data.requestedAt
+        await fetch('/api/recovery', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requestedAt: data.requestedAt }),
+        }).catch(() => {})
+
+        if (data.command === 'reload-app') {
+          window.location.reload()
+          return
+        }
+
+        if (data.command === 'restart-player') {
+          setProgreso(0)
+          setDuracion(0)
+          setPlayerInstanceKey(prev => prev + 1)
+          showToast('REINICIANDO REPRODUCTOR...')
+        }
+      } catch {
+        // No-op: seguimos con el flujo normal del kiosko.
+      }
+    }
+
+    pollRecovery()
+    const interval = setInterval(pollRecovery, 2500)
+    return () => clearInterval(interval)
+  }, [])
+
   const pasarSiguiente = async () => {
     setProgreso(0)
     setDuracion(0)
     await fetch('/api/cola/siguiente', { method: 'POST' })
     refetchCola()
-  }
-
-  const showToast = (msg: string) => {
-    setToast(msg)
-    setTimeout(() => setToast(''), 2500)
   }
 
   const handleArtistSelect = async (a: SpotifyArtist) => {
@@ -297,6 +336,7 @@ export default function KioskoPage() {
         </div>
 
         <SpotifyPlayer
+          key={playerInstanceKey}
           spotifyUri={nowPlaying?.spotifyUri ?? null}
           maxSegundos={maxSegundos}
           onTerminada={pasarSiguiente}

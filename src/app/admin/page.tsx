@@ -4,6 +4,7 @@ import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
 
 type Role = 'admin' | 'operador'
+type EmergencyAction = 'reload-app' | 'close-kiosk' | 'restart-kiosk'
 
 interface SearchResult { artists: { items: any[] }; tracks: { items: any[] } }
 
@@ -161,6 +162,8 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [autostartModal, setAutostartModal] = useState(false)
   const [autostartGuardado, setAutostartGuardado] = useState(false)
   const [configMsg, setConfigMsg] = useState('')
+  const [maintenanceBusy, setMaintenanceBusy] = useState<string | null>(null)
+  const [pendingEmergencyAction, setPendingEmergencyAction] = useState<EmergencyAction | null>(null)
   const [adminToast, setAdminToast] = useState('')
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [guardandoModal, setGuardandoModal] = useState(false)
@@ -248,6 +251,67 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   const skipNext = async () => {
     await fetch('/api/cola/siguiente', { method: 'POST' })
     refetchCola()
+  }
+
+  const showConfigFeedback = (msg: string) => {
+    setConfigMsg(msg)
+    setTimeout(() => setConfigMsg(''), 2500)
+  }
+
+  const runRecoveryAction = async (action: 'reload-app') => {
+    setMaintenanceBusy(action)
+    try {
+      const res = await fetch('/api/recovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+      if (!res.ok) throw new Error('recovery_failed')
+
+      showConfigFeedback('Recarga enviada al kiosko')
+    } catch {
+      showConfigFeedback('No se pudo enviar la accion')
+    } finally {
+      setMaintenanceBusy(null)
+    }
+  }
+
+  const restartKiosk = async () => {
+    setMaintenanceBusy('restart-kiosk')
+    try {
+      const res = await fetch('/api/admin/kiosk-restart', { method: 'POST' })
+      if (!res.ok) throw new Error('restart_failed')
+      showConfigFeedback('Reinicio completo lanzado')
+    } catch {
+      showConfigFeedback('No se pudo reiniciar el kiosko')
+    } finally {
+      setMaintenanceBusy(null)
+    }
+  }
+
+  const closeKiosk = async () => {
+    setMaintenanceBusy('close-kiosk')
+    try {
+      const res = await fetch('/api/admin/kiosk-close', { method: 'POST' })
+      if (!res.ok) throw new Error('close_failed')
+      showConfigFeedback('Kiosko cerrado')
+    } catch {
+      showConfigFeedback('No se pudo cerrar el kiosko')
+    } finally {
+      setMaintenanceBusy(null)
+    }
+  }
+
+  const confirmEmergencyAction = async () => {
+    if (pendingEmergencyAction === 'reload-app') {
+      await runRecoveryAction('reload-app')
+    } else if (pendingEmergencyAction === 'close-kiosk') {
+      await closeKiosk()
+    } else if (pendingEmergencyAction === 'restart-kiosk') {
+      await restartKiosk()
+    }
+
+    setPendingEmergencyAction(null)
   }
 
   const eliminarDeCola = async (id: number) => {
@@ -962,7 +1026,7 @@ return (
                   const seg = maxDurKioskoInput * 60
                   await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ max_duracion_kiosko: seg }) })
                   setMaxDurKiosko(seg)
-                  setConfigMsg('Guardado'); setTimeout(() => setConfigMsg(''), 2500)
+                  showConfigFeedback('Guardado')
                 }} className="bg-yellow-400 active:bg-yellow-300 text-black font-black px-4 py-2.5 rounded-xl text-sm transition-colors">
                   Guardar
                 </button>
@@ -983,7 +1047,7 @@ return (
                   const seg = maxDurAdminInput * 60
                   await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ max_duracion_admin: seg }) })
                   setMaxDurAdmin(seg)
-                  setConfigMsg('Guardado'); setTimeout(() => setConfigMsg(''), 2500)
+                  showConfigFeedback('Guardado')
                 }} className="bg-yellow-400 active:bg-yellow-300 text-black font-black px-4 py-2.5 rounded-xl text-sm transition-colors">
                   Guardar
                 </button>
@@ -1011,7 +1075,7 @@ return (
               </div>
               <button onClick={async () => {
                 await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fichas_pack: fichasPackInput, precio_pack: precioPackInput }) })
-                setConfigMsg('Guardado'); setTimeout(() => setConfigMsg(''), 2500)
+                showConfigFeedback('Guardado')
               }} className="w-full bg-yellow-400 active:bg-yellow-300 text-black font-black py-3 rounded-xl transition-colors"
                 style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
                 GUARDAR PACK
@@ -1036,8 +1100,61 @@ return (
             </button>
 
             <div className="h-px bg-zinc-800" />
-            <button onClick={onLogout} className="text-zinc-500 text-sm active:text-red-400 transition-colors">
-              Cerrar sesión
+
+            <div>
+              <div className="text-sm font-semibold text-white mb-0.5">Acciones de emergencia</div>
+              <div className="text-xs text-zinc-500 mb-4">Atajos para destrabar el kiosko sin salir del panel admin</div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={() => setPendingEmergencyAction('reload-app')}
+                  disabled={maintenanceBusy !== null}
+                  className="group flex flex-col items-center text-center disabled:opacity-60"
+                >
+                  <span className="w-16 h-16 rounded-full border border-sky-400/30 bg-sky-400/10 text-sky-300 flex items-center justify-center text-2xl transition-colors group-active:bg-sky-400/20">
+                    ↻
+                  </span>
+                  <span className="text-xs font-semibold text-white mt-2">Recargar app</span>
+                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Refresca la pantalla del kiosko</span>
+                </button>
+
+                <button
+                  onClick={() => setPendingEmergencyAction('close-kiosk')}
+                  disabled={maintenanceBusy !== null}
+                  className="group flex flex-col items-center text-center disabled:opacity-60"
+                >
+                  <span className="w-16 h-16 rounded-full border border-yellow-400/30 bg-yellow-400/10 text-yellow-300 flex items-center justify-center text-2xl transition-colors group-active:bg-yellow-400/20">
+                    ♪
+                  </span>
+                  <span className="text-xs font-semibold text-white mt-2">Reinicio total</span>
+                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra Chrome y reabre el kiosk</span>
+                </button>
+
+                <button
+                  onClick={() => setPendingEmergencyAction('close-kiosk')}
+                  disabled={maintenanceBusy !== null}
+                  className="group flex flex-col items-center text-center disabled:opacity-60"
+                >
+                  <span className="w-16 h-16 rounded-full border border-red-400/30 bg-red-400/10 text-red-300 flex items-center justify-center text-2xl transition-colors group-active:bg-red-400/20">
+                    !
+                  </span>
+                  <span className="text-xs font-semibold text-white mt-2">Cerrar kiosko</span>
+                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra Chrome y apaga la PC</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="h-px bg-zinc-800" />
+
+            <button
+              onClick={onLogout}
+              className="w-full flex items-center justify-between p-3.5 rounded-xl bg-zinc-800/40 active:bg-zinc-800 border border-zinc-700/40 transition-colors text-left"
+            >
+              <div>
+                <div className="text-sm font-semibold text-white">Cerrar sesión</div>
+                <div className="text-xs text-zinc-500 mt-0.5">Salir del panel admin</div>
+              </div>
+              <span className="text-zinc-500 text-lg">›</span>
             </button>
           </div>
         </div>
@@ -1122,6 +1239,40 @@ return (
           </div>
           <button onClick={() => setGuardandoModal(false)}
             className="w-full mt-4 bg-zinc-800 active:bg-zinc-700 text-zinc-400 py-3 rounded-xl text-sm transition-colors">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    )}
+
+    {pendingEmergencyAction && (
+      <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70" onClick={() => maintenanceBusy === null && setPendingEmergencyAction(null)}>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-t-2xl w-full max-w-lg p-5 pb-8" onClick={e => e.stopPropagation()}>
+          <div className="text-xs tracking-widest text-zinc-500 uppercase mb-1">Confirmar accion</div>
+          <div className="text-lg font-semibold text-white mb-2">
+            {pendingEmergencyAction === 'reload-app' && 'Recargar la app del kiosko'}
+            {pendingEmergencyAction === 'close-kiosk' && 'Cerrar el kiosko y apagar la PC'}
+            {pendingEmergencyAction === 'restart-kiosk' && 'Reiniciar todo el kiosko'}
+          </div>
+          <div className="text-sm text-zinc-400 mb-5">
+            {pendingEmergencyAction === 'reload-app' && 'Recarga la pagina del kiosko y vuelve a levantar la interfaz visible en pantalla.'}
+            {pendingEmergencyAction === 'close-kiosk' && 'Cierra Chrome del kiosko y apaga la computadora. Usalo solo cuando realmente quieras finalizar todo.'}
+            {pendingEmergencyAction === 'restart-kiosk' && 'Cierra Chrome y lo vuelve a abrir en modo kiosk. Usalo como ultimo recurso.'}
+          </div>
+
+          <button
+            onClick={confirmEmergencyAction}
+            disabled={maintenanceBusy !== null}
+            className="w-full bg-yellow-400 active:bg-yellow-300 text-black font-black py-4 rounded-xl text-lg transition-colors mb-2 disabled:opacity-60"
+            style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+          >
+            {maintenanceBusy !== null ? 'EJECUTANDO...' : 'CONFIRMAR'}
+          </button>
+          <button
+            onClick={() => setPendingEmergencyAction(null)}
+            disabled={maintenanceBusy !== null}
+            className="w-full bg-zinc-800 active:bg-zinc-700 text-zinc-400 py-3 rounded-xl text-sm transition-colors disabled:opacity-60"
+          >
             Cancelar
           </button>
         </div>
