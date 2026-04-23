@@ -38,25 +38,27 @@ async function updateDeviceStatus(deviceId: string, approved?: boolean, revokeSe
   return updated
 }
 
-export async function PATCH(req: Request, { params }: { params: { deviceId: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ deviceId: string }> }) {
   if (!(await isSuperAdmin())) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
+  const { deviceId } = await context.params
   const body = await req.json().catch(() => ({} as { approved?: boolean; revokeSessions?: boolean }))
-  const updated = await updateDeviceStatus(params.deviceId, body.approved, body.revokeSessions === true)
+  const updated = await updateDeviceStatus(deviceId, body.approved, body.revokeSessions === true)
 
   if (!updated) return NextResponse.json({ error: 'Device no encontrado' }, { status: 404 })
 
   return NextResponse.json({ ok: true, device: updated }, { headers: { 'Cache-Control': 'no-store' } })
 }
 
-export async function DELETE(_: Request, { params }: { params: { deviceId: string } }) {
+export async function DELETE(_: Request, context: { params: Promise<{ deviceId: string }> }) {
   if (!(await isSuperAdmin())) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const updated = await updateDeviceStatus(params.deviceId, false, true)
+  const { deviceId } = await context.params
+  const updated = await updateDeviceStatus(deviceId, false, true)
   if (!updated) return NextResponse.json({ error: 'Device no encontrado' }, { status: 404 })
 
   return NextResponse.json({ ok: true, device: updated }, { headers: { 'Cache-Control': 'no-store' } })
