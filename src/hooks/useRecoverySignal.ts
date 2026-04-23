@@ -35,7 +35,7 @@ export function useRecoverySignal() {
     return () => window.clearTimeout(timer)
   }, [])
 
-  useSupabaseTableRefresh('AppConfig', fetchSignal, 2500)
+  useSupabaseTableRefresh('AppConfig', fetchSignal, 3000)
 
   const clearSignal = async (requestedAt: string) => {
     await fetch('/api/recovery', {

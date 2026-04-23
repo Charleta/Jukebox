@@ -20,7 +20,7 @@ export function useFichas() {
     return () => window.clearTimeout(timer)
   }, [])
 
-  useSupabaseTableRefresh('Config', fetchFichas)
+  useSupabaseTableRefresh('Config', fetchFichas, 5000)
 
   return { fichas, fichasHoy, refetch: fetchFichas }
 }

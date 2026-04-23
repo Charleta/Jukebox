@@ -21,6 +21,7 @@ export function useSupabaseTableRefresh(
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient()
+    let interval: ReturnType<typeof setInterval> | undefined
 
     if (supabase) {
       const channel = supabase
@@ -32,17 +33,26 @@ export function useSupabaseTableRefresh(
         )
         .subscribe()
 
+      if (fallbackIntervalMs > 0) {
+        interval = setInterval(() => {
+          void onChangeRef.current()
+        }, fallbackIntervalMs)
+      }
+
       return () => {
+        if (interval) clearInterval(interval)
         void supabase.removeChannel(channel)
       }
     }
 
     if (fallbackIntervalMs <= 0) return
 
-    const interval = setInterval(() => {
+    interval = setInterval(() => {
       void onChangeRef.current()
     }, fallbackIntervalMs)
 
-    return () => clearInterval(interval)
+    return () => {
+      if (interval) clearInterval(interval)
+    }
   }, [fallbackIntervalMs, table])
 }

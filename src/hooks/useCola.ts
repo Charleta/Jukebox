@@ -29,7 +29,7 @@ export function useCola() {
     return () => window.clearTimeout(timer)
   }, [])
 
-  useSupabaseTableRefresh('Cola', fetchCola)
+  useSupabaseTableRefresh('Cola', fetchCola, 5000)
 
   const colaClientes = cola.filter(c => c.tipo === 'cliente')
 

@@ -44,7 +44,7 @@ export function useAppConfig() {
     return () => window.clearTimeout(timer)
   }, [])
 
-  useSupabaseTableRefresh('AppConfig', fetchConfig)
+  useSupabaseTableRefresh('AppConfig', fetchConfig, 15000)
 
   return { ...config, refetch: fetchConfig }
 }
