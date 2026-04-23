@@ -9,6 +9,11 @@ export function useSupabaseTableRefresh(
   fallbackIntervalMs = 0,
 ) {
   const onChangeRef = useRef(onChange)
+  const channelIdRef = useRef(
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2),
+  )
 
   useEffect(() => {
     onChangeRef.current = onChange
@@ -19,7 +24,7 @@ export function useSupabaseTableRefresh(
 
     if (supabase) {
       const channel = supabase
-        .channel(`table-refresh:${table}`)
+        .channel(`table-refresh:${table}:${channelIdRef.current}`)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table },

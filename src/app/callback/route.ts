@@ -7,6 +7,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
   const error = searchParams.get('error')
+  const redirectUri = new URL('/callback', req.url).toString()
 
   if (error || !code) {
     return NextResponse.json({ error: error ?? 'No code received' }, { status: 400 })
@@ -22,7 +23,7 @@ export async function GET(req: Request) {
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: 'http://127.0.0.1:3000/callback',
+      redirect_uri: redirectUri,
     }),
   })
 

@@ -12,12 +12,13 @@ const SCOPES = [
   'playlist-read-collaborative',
 ].join(' ')
 
-export async function GET() {
+export async function GET(req: Request) {
+  const redirectUri = new URL('/callback', req.url).toString()
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: CLIENT_ID,
     scope: SCOPES,
-    redirect_uri: 'http://127.0.0.1:3000/callback',
+    redirect_uri: redirectUri,
   })
 
   return NextResponse.redirect(

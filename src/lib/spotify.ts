@@ -21,6 +21,10 @@ function fetchWithTimeout(url: string, options: RequestInit = {}, ms = 8000): Pr
 
 // ─── Token ────────────────────────────────────────────────────────────────────
 export async function getAccessToken(): Promise<string> {
+  if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+    throw new Error('Faltan variables de entorno de Spotify')
+  }
+
   if (cachedToken && Date.now() < tokenExpiresAt - 60_000) {
     return cachedToken
   }
