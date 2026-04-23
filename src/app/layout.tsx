@@ -9,6 +9,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: 'window.onSpotifyWebPlaybackSDKReady = window.onSpotifyWebPlaybackSDKReady || function () {};' }} />
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
         <script src="https://sdk.scdn.co/spotify-player.js"></script>
