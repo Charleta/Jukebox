@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { JukeboxSyncProvider } from '@/providers/JukeboxSyncProvider'
 
 export const metadata: Metadata = {
   title: 'JukeBox',
@@ -23,7 +24,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="JukeBox Admin" />
 
       </head>
-      <body className="bg-black" style={{ fontFamily: 'DM Sans, sans-serif' }}>{children}</body>
+      <body className="bg-black" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+        <JukeboxSyncProvider>{children}</JukeboxSyncProvider>
+      </body>
     </html>
   )
 }
