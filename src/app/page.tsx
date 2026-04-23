@@ -266,7 +266,7 @@ export default function KioskoPage() {
               <>
                 {hasQueue ? (
                   <div className="flex items-center gap-3 mb-3">
-                    <img src={displayNowPlaying.imagenUrl} alt="" className="w-16 h-16 rounded-xl object-contain bg-zinc-800 shadow-lg shrink-0" />
+                    <img src={displayNowPlaying.imagenUrl} alt="" className="w-16 h-16 rounded-xl object-cover shadow-lg shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="text-lg font-black leading-tight truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
                         {displayNowPlaying.titulo}
@@ -276,7 +276,7 @@ export default function KioskoPage() {
                   </div>
                 ) : (
                   <>
-                    <img src={displayNowPlaying.imagenUrl} alt="" className="w-full h-52 rounded-xl object-contain bg-zinc-800 shadow-xl mb-3" />
+                    <img src={displayNowPlaying.imagenUrl} alt="" className="w-full h-52 rounded-xl object-cover shadow-xl mb-3" />
                     <div className="text-2xl font-black leading-tight truncate mb-0.5" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
                       {displayNowPlaying.titulo}
                     </div>

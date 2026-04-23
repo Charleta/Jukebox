@@ -7,18 +7,20 @@ function hoy() {
 
 export async function GET() {
   const today = hoy()
-  let config = await prismaCloud.config.upsert({
-    where: { id: 1 },
-    update: {},
-    create: { id: 1, fichas: 0, fichasHoy: 0, fechaHoy: today },
-  })
-  // Auto-reset diario
-  if (config.fechaHoy !== today) {
+  const existing = await prismaCloud.config.findUnique({ where: { id: 1 } })
+
+  let config = existing
+  if (!config) {
+    config = await prismaCloud.config.create({
+      data: { id: 1, fichas: 0, fichasHoy: 0, fechaHoy: today },
+    })
+  } else if (config.fechaHoy !== today) {
     config = await prismaCloud.config.update({
       where: { id: 1 },
       data: { fichasHoy: 0, fechaHoy: today },
     })
   }
+
   return NextResponse.json({ fichas: config.fichas, fichasHoy: config.fichasHoy })
 }
 
