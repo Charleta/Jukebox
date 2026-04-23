@@ -75,6 +75,10 @@ export function buildSessionValue(context: JukeboxSessionContext) {
   return `${serialized}.${sign(serialized)}`
 }
 
+export function hashSessionValue(value: string) {
+  return crypto.createHash('sha256').update(value).digest('hex')
+}
+
 export function parseSessionValue(raw: string | undefined | null): JukeboxSessionContext | null {
   if (!raw) return null
 
@@ -107,6 +111,11 @@ export async function readSessionContext() {
   const cookieStore = await cookies()
   const session = cookieStore.get(SESSION_COOKIE)?.value
   return parseSessionValue(session)
+}
+
+export async function readRawSessionCookie() {
+  const cookieStore = await cookies()
+  return cookieStore.get(SESSION_COOKIE)?.value ?? null
 }
 
 export async function readDeviceId() {

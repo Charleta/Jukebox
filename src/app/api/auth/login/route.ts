@@ -1,18 +1,14 @@
 import { NextResponse } from 'next/server'
-import crypto from 'crypto'
 import { prismaCloud } from '@/lib/dbCloud'
 import {
   buildSessionValue,
   createDeviceId,
   getVenueContext,
+  hashSessionValue,
   readDeviceId,
   writeDeviceCookie,
   writeSessionCookie,
 } from '@/lib/jukeboxAuth'
-
-function hashSession(value: string) {
-  return crypto.createHash('sha256').update(value).digest('hex')
-}
 
 export async function POST(req: Request) {
   try {
@@ -78,7 +74,7 @@ export async function POST(req: Request) {
     const sessionValue = buildSessionValue(sessionContext)
     await prismaCloud.deviceSession.create({
       data: {
-        tokenHash: hashSession(sessionValue),
+        tokenHash: hashSessionValue(sessionValue),
         deviceId: device.id,
         venueId: venueRow.id,
         role,
