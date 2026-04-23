@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server'
+import crypto from 'crypto'
 import { prismaCloud } from '@/lib/dbCloud'
-import { createDeviceId, getVenueContext, readDeviceId, writeDeviceCookie, writeSessionCookie } from '@/lib/jukeboxAuth'
+import {
+  buildSessionValue,
+  createDeviceId,
+  getVenueContext,
+  readDeviceId,
+  writeDeviceCookie,
+  writeSessionCookie,
+} from '@/lib/jukeboxAuth'
+
+function hashSession(value: string) {
+  return crypto.createHash('sha256').update(value).digest('hex')
+}
 
 export async function POST(req: Request) {
   try {
@@ -23,27 +35,59 @@ export async function POST(req: Request) {
       create: { slug: venue.venueId, name: venue.venueName, active: true },
     })
 
-    await prismaCloud.device.upsert({
-      where: { fingerprint: deviceId },
-      update: {
+    const existingDevice = await prismaCloud.device.findUnique({ where: { fingerprint: deviceId } })
+    const device = existingDevice
+      ? await prismaCloud.device.update({
+          where: { fingerprint: deviceId },
+          data: {
+            venueId: venueRow.id,
+            name: userAgent,
+            role,
+            approved: role === 'superadmin' ? true : existingDevice.approved,
+            lastSeenAt: new Date(),
+          },
+        })
+      : await prismaCloud.device.create({
+          data: {
+            venueId: venueRow.id,
+            fingerprint: deviceId,
+            name: userAgent,
+            role,
+            approved: role === 'superadmin',
+            lastSeenAt: new Date(),
+          },
+        })
+
+    if (role !== 'superadmin' && !device.approved) {
+      const res = NextResponse.json(
+        {
+          error: 'device_pending',
+          message: 'Dispositivo pendiente de aprobación por superadmin',
+          deviceId,
+          venueId: venue.venueId,
+          venueRowId: venueRow.id,
+          venueSlug: venueRow.slug,
+        },
+        { status: 403 }
+      )
+      if (!existingDeviceId) writeDeviceCookie(res, deviceId)
+      return res
+    }
+
+    const sessionContext = { role: role as 'admin' | 'operador' | 'superadmin', deviceId, venueId: venue.venueId }
+    const sessionValue = buildSessionValue(sessionContext)
+    await prismaCloud.deviceSession.create({
+      data: {
+        tokenHash: hashSession(sessionValue),
+        deviceId: device.id,
         venueId: venueRow.id,
-        name: userAgent,
         role,
-        approved: true,
-        lastSeenAt: new Date(),
-      },
-      create: {
-        venueId: venueRow.id,
-        fingerprint: deviceId,
-        name: userAgent,
-        role,
-        approved: true,
-        lastSeenAt: new Date(),
+        expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000),
       },
     })
 
     const res = NextResponse.json({ role, deviceId, venueId: venue.venueId, venueRowId: venueRow.id, venueSlug: venueRow.slug })
-    writeSessionCookie(res, { role: role as 'admin' | 'operador' | 'superadmin', deviceId, venueId: venue.venueId })
+    writeSessionCookie(res, sessionContext)
     if (!existingDeviceId) writeDeviceCookie(res, deviceId)
     return res
   } catch {

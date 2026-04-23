@@ -4,6 +4,7 @@ import { useAppConfig } from '@/hooks/useAppConfig'
 import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
 import { useSpotifyPlayback } from '@/hooks/useSpotifyPlayback'
+import { SuperadminView } from '@/components/admin/SuperadminView'
 
 type Role = 'admin' | 'operador' | 'superadmin'
 type EmergencyAction = 'reload-app' | 'close-kiosk' | 'restart-kiosk'
@@ -1443,6 +1444,7 @@ export default function AdminPage() {
   const [hydrated, setHydrated] = useState(false)
   const [pin, setPin] = useState('')
   const [error, setError] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -1466,14 +1468,19 @@ export default function AdminPage() {
         const { role } = await res.json()
         setRole(role as Role)
       } else {
+        const data = await res.json().catch(() => ({} as { error?: string; message?: string }))
+        setErrorMsg(data.message || data.error || 'PIN incorrecto')
         setError(true)
         setPin('')
         setTimeout(() => setError(false), 1000)
+        setTimeout(() => setErrorMsg(''), 1500)
       }
     } catch {
+      setErrorMsg('No se pudo iniciar sesión')
       setError(true)
       setPin('')
       setTimeout(() => setError(false), 1000)
+      setTimeout(() => setErrorMsg(''), 1500)
     }
   }
 
@@ -1486,7 +1493,7 @@ export default function AdminPage() {
 
   if (role === 'admin')    return <AdminView onLogout={handleLogout} />
   if (role === 'operador') return <OperadorView onLogout={handleLogout} />
-  if (role === 'superadmin') return <DeveloperView onLogout={handleLogout} />
+  if (role === 'superadmin') return <SuperadminView onLogout={handleLogout} />
 
   return (
     <div className="h-screen bg-black flex items-center justify-center">
@@ -1508,6 +1515,7 @@ export default function AdminPage() {
           className="w-full bg-yellow-400 text-black font-bold py-3 rounded hover:bg-yellow-300 transition-colors">
           ENTRAR
         </button>
+        {errorMsg && <div className="mt-3 text-sm text-red-400 text-center break-words">{errorMsg}</div>}
       </form>
     </div>
   )
