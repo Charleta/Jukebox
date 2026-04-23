@@ -22,8 +22,9 @@ export async function POST(req: Request) {
 
     const venue = getVenueContext()
     const existingDeviceId = await readDeviceId()
-    const deviceId = existingDeviceId ?? createDeviceId()
+    const deviceFingerprint = existingDeviceId ?? createDeviceId()
     const userAgent = req.headers.get('user-agent')?.slice(0, 120) || `${role}-device`
+    const path = '/admin/login'
 
     const venueRow = await prismaCloud.venue.upsert({
       where: { slug: venue.venueId },
@@ -31,10 +32,10 @@ export async function POST(req: Request) {
       create: { slug: venue.venueId, name: venue.venueName, active: true },
     })
 
-    const existingDevice = await prismaCloud.device.findUnique({ where: { fingerprint: deviceId } })
+    const existingDevice = await prismaCloud.device.findUnique({ where: { fingerprint: deviceFingerprint } })
     const device = existingDevice
       ? await prismaCloud.device.update({
-          where: { fingerprint: deviceId },
+          where: { fingerprint: deviceFingerprint },
           data: {
             venueId: venueRow.id,
             name: userAgent,
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
       : await prismaCloud.device.create({
           data: {
             venueId: venueRow.id,
-            fingerprint: deviceId,
+            fingerprint: deviceFingerprint,
             name: userAgent,
             role,
             approved: role === 'superadmin',
@@ -54,23 +55,39 @@ export async function POST(req: Request) {
           },
         })
 
+    const logAttempt = async (result: string, message: string) => {
+      await prismaCloud.accessAttempt.create({
+        data: {
+          venueId: venueRow.id,
+          deviceId: device.id,
+          fingerprint: deviceFingerprint,
+          surface: role ?? 'admin',
+          path,
+          result,
+          message,
+          userAgent,
+        },
+      })
+    }
+
     if (role !== 'superadmin' && !device.approved) {
+      await logAttempt('pending', 'Dispositivo pendiente de aprobación por superadmin')
       const res = NextResponse.json(
         {
           error: 'device_pending',
           message: 'Dispositivo pendiente de aprobación por superadmin',
-          deviceId,
+          deviceId: deviceFingerprint,
           venueId: venue.venueId,
           venueRowId: venueRow.id,
           venueSlug: venueRow.slug,
         },
         { status: 403 }
       )
-      if (!existingDeviceId) writeDeviceCookie(res, deviceId)
+      if (!existingDeviceId) writeDeviceCookie(res, deviceFingerprint)
       return res
     }
 
-    const sessionContext = { role: role as 'admin' | 'operador' | 'superadmin', deviceId, venueId: venue.venueId }
+    const sessionContext = { role: role as 'admin' | 'operador' | 'superadmin', deviceId: deviceFingerprint, venueId: venue.venueId }
     const sessionValue = buildSessionValue(sessionContext)
     await prismaCloud.deviceSession.create({
       data: {
@@ -81,10 +98,11 @@ export async function POST(req: Request) {
         expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000),
       },
     })
+    await logAttempt('ok', 'Login autorizado')
 
-    const res = NextResponse.json({ role, deviceId, venueId: venue.venueId, venueRowId: venueRow.id, venueSlug: venueRow.slug })
+    const res = NextResponse.json({ role, deviceId: deviceFingerprint, venueId: venue.venueId, venueRowId: venueRow.id, venueSlug: venueRow.slug })
     writeSessionCookie(res, sessionContext)
-    if (!existingDeviceId) writeDeviceCookie(res, deviceId)
+    if (!existingDeviceId) writeDeviceCookie(res, deviceFingerprint)
     return res
   } catch {
     return NextResponse.json({ error: 'Error' }, { status: 500 })

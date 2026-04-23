@@ -206,6 +206,19 @@ exports.Prisma.DeviceSessionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AccessAttemptScalarFieldEnum = {
+  id: 'id',
+  venueId: 'venueId',
+  deviceId: 'deviceId',
+  fingerprint: 'fingerprint',
+  surface: 'surface',
+  path: 'path',
+  result: 'result',
+  message: 'message',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -231,7 +244,8 @@ exports.Prisma.ModelName = {
   Cola: 'Cola',
   Venue: 'Venue',
   Device: 'Device',
-  DeviceSession: 'DeviceSession'
+  DeviceSession: 'DeviceSession',
+  AccessAttempt: 'AccessAttempt'
 };
 
 /**

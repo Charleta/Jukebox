@@ -31,8 +31,32 @@ interface DevVenue {
   devices: DevDevice[]
 }
 
+interface DevAttempt {
+  id: string
+  fingerprint: string
+  surface: string
+  path: string
+  result: string
+  message: string
+  userAgent: string
+  createdAt: string
+  device: {
+    id: string
+    name: string
+    fingerprint: string
+    role: string
+    approved: boolean
+  } | null
+  venue: {
+    id: string
+    slug: string
+    name: string
+  }
+}
+
 export function SuperadminView({ onLogout }: { onLogout: () => void }) {
   const [venues, setVenues] = useState<DevVenue[]>([])
+  const [attempts, setAttempts] = useState<DevAttempt[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('')
@@ -47,6 +71,7 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'No autorizado')
       setVenues(data.venues ?? [])
+      setAttempts(data.attempts ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar')
     } finally {
@@ -105,6 +130,23 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
     })
     .filter(item => item.venueMatches || item.devices.length > 0)
 
+  const visibleAttempts = attempts.filter(attempt => {
+    if (!normalizedFilter) return true
+    const haystack = [
+      attempt.surface,
+      attempt.path,
+      attempt.result,
+      attempt.message,
+      attempt.fingerprint,
+      attempt.userAgent,
+      attempt.device?.name ?? '',
+      attempt.device?.role ?? '',
+      attempt.venue.name,
+      attempt.venue.slug,
+    ].join(' ').toLowerCase()
+    return haystack.includes(normalizedFilter)
+  })
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-black text-white px-4 py-5 sm:px-6" style={{ fontFamily: 'DM Sans, sans-serif' }}>
       <div className="mx-auto w-full max-w-5xl space-y-4">
@@ -139,6 +181,75 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
 
         {loading && <div className="text-sm text-zinc-500">Cargando inventario...</div>}
         {error && <div className="break-words text-sm text-red-400">{error}</div>}
+
+        {!loading && !error && (
+          <section className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black leading-none text-yellow-400" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                  Intentos recientes
+                </h2>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Abrir kiosko, admin o login queda registrado aquí, aunque no termine en sesión.
+                </p>
+              </div>
+              <div className="text-xs text-zinc-500">{visibleAttempts.length} eventos</div>
+            </div>
+
+            <div className="mt-4 grid gap-3">
+              {visibleAttempts.slice(0, 12).map(attempt => (
+                <article key={attempt.id} className="w-full min-w-0 overflow-hidden rounded-xl border border-zinc-800 bg-black/40 p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] uppercase tracking-widest text-zinc-300">
+                          {attempt.surface}
+                        </span>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-widest ${
+                          attempt.result === 'ok'
+                            ? 'bg-emerald-500/15 text-emerald-300'
+                            : attempt.result === 'blocked'
+                              ? 'bg-red-500/15 text-red-300'
+                              : 'bg-yellow-500/15 text-yellow-300'
+                        }`}>
+                          {attempt.result}
+                        </span>
+                      </div>
+                      <div className="mt-2 break-words text-sm font-semibold text-white">{attempt.message}</div>
+                      <div className="mt-1 break-all text-xs text-zinc-500">
+                        {attempt.venue.name} · {attempt.path}
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-xs text-zinc-500">
+                      {new Date(attempt.createdAt).toLocaleString('es-AR')}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <div className="min-w-0 rounded-lg bg-zinc-950/60 px-3 py-2 text-xs text-zinc-400">
+                      <span className="mb-1 block text-[10px] uppercase tracking-widest text-zinc-500">Device</span>
+                      {attempt.device ? (
+                        <>
+                          <div className="font-semibold text-zinc-200">{attempt.device.name}</div>
+                          <div className="break-all font-mono text-[11px] text-zinc-500">{attempt.device.fingerprint}</div>
+                        </>
+                      ) : (
+                        <div className="text-zinc-500">Sin device asociado</div>
+                      )}
+                    </div>
+                    <div className="min-w-0 rounded-lg bg-zinc-950/60 px-3 py-2 text-xs text-zinc-400">
+                      <span className="mb-1 block text-[10px] uppercase tracking-widest text-zinc-500">User agent</span>
+                      <div className="break-words">{attempt.userAgent}</div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+              {visibleAttempts.length === 0 && (
+                <div className="text-sm text-zinc-600">No hay intentos que coincidan con el filtro.</div>
+              )}
+            </div>
+          </section>
+        )}
 
         {!loading && !error && visibleVenues.map(venue => (
           <section key={venue.id} className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 sm:p-5">

@@ -1447,6 +1447,14 @@ export default function AdminPage() {
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
+    fetch('/api/dev/checkin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ surface: 'admin', path: '/admin' }),
+    }).catch(() => {})
+  }, [])
+
+  useEffect(() => {
     fetch('/api/auth/me')
       .then(r => r.json())
       .then(({ role }) => {

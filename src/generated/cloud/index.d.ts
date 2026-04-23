@@ -58,6 +58,11 @@ export type Device = $Result.DefaultSelection<Prisma.$DevicePayload>
  * 
  */
 export type DeviceSession = $Result.DefaultSelection<Prisma.$DeviceSessionPayload>
+/**
+ * Model AccessAttempt
+ * 
+ */
+export type AccessAttempt = $Result.DefaultSelection<Prisma.$AccessAttemptPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -271,6 +276,16 @@ export class PrismaClient<
     * ```
     */
   get deviceSession(): Prisma.DeviceSessionDelegate<ExtArgs>;
+
+  /**
+   * `prisma.accessAttempt`: Exposes CRUD operations for the **AccessAttempt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AccessAttempts
+    * const accessAttempts = await prisma.accessAttempt.findMany()
+    * ```
+    */
+  get accessAttempt(): Prisma.AccessAttemptDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -720,7 +735,8 @@ export namespace Prisma {
     Cola: 'Cola',
     Venue: 'Venue',
     Device: 'Device',
-    DeviceSession: 'DeviceSession'
+    DeviceSession: 'DeviceSession',
+    AccessAttempt: 'AccessAttempt'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -736,7 +752,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "playlist" | "playlistCancion" | "config" | "appConfig" | "pagoProcesado" | "cola" | "venue" | "device" | "deviceSession"
+      modelProps: "playlist" | "playlistCancion" | "config" | "appConfig" | "pagoProcesado" | "cola" | "venue" | "device" | "deviceSession" | "accessAttempt"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1370,6 +1386,76 @@ export namespace Prisma {
           }
         }
       }
+      AccessAttempt: {
+        payload: Prisma.$AccessAttemptPayload<ExtArgs>
+        fields: Prisma.AccessAttemptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AccessAttemptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AccessAttemptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload>
+          }
+          findFirst: {
+            args: Prisma.AccessAttemptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AccessAttemptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload>
+          }
+          findMany: {
+            args: Prisma.AccessAttemptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload>[]
+          }
+          create: {
+            args: Prisma.AccessAttemptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload>
+          }
+          createMany: {
+            args: Prisma.AccessAttemptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AccessAttemptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload>[]
+          }
+          delete: {
+            args: Prisma.AccessAttemptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload>
+          }
+          update: {
+            args: Prisma.AccessAttemptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload>
+          }
+          deleteMany: {
+            args: Prisma.AccessAttemptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AccessAttemptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AccessAttemptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccessAttemptPayload>
+          }
+          aggregate: {
+            args: Prisma.AccessAttemptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAccessAttempt>
+          }
+          groupBy: {
+            args: Prisma.AccessAttemptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AccessAttemptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AccessAttemptCountArgs<ExtArgs>
+            result: $Utils.Optional<AccessAttemptCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1564,11 +1650,13 @@ export namespace Prisma {
   export type VenueCountOutputType = {
     devices: number
     sessions: number
+    attempts: number
   }
 
   export type VenueCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     devices?: boolean | VenueCountOutputTypeCountDevicesArgs
     sessions?: boolean | VenueCountOutputTypeCountSessionsArgs
+    attempts?: boolean | VenueCountOutputTypeCountAttemptsArgs
   }
 
   // Custom InputTypes
@@ -1596,6 +1684,13 @@ export namespace Prisma {
     where?: DeviceSessionWhereInput
   }
 
+  /**
+   * VenueCountOutputType without action
+   */
+  export type VenueCountOutputTypeCountAttemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AccessAttemptWhereInput
+  }
+
 
   /**
    * Count Type DeviceCountOutputType
@@ -1603,10 +1698,12 @@ export namespace Prisma {
 
   export type DeviceCountOutputType = {
     sessions: number
+    attempts: number
   }
 
   export type DeviceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | DeviceCountOutputTypeCountSessionsArgs
+    attempts?: boolean | DeviceCountOutputTypeCountAttemptsArgs
   }
 
   // Custom InputTypes
@@ -1625,6 +1722,13 @@ export namespace Prisma {
    */
   export type DeviceCountOutputTypeCountSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DeviceSessionWhereInput
+  }
+
+  /**
+   * DeviceCountOutputType without action
+   */
+  export type DeviceCountOutputTypeCountAttemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AccessAttemptWhereInput
   }
 
 
@@ -7449,6 +7553,7 @@ export namespace Prisma {
     updatedAt?: boolean
     devices?: boolean | Venue$devicesArgs<ExtArgs>
     sessions?: boolean | Venue$sessionsArgs<ExtArgs>
+    attempts?: boolean | Venue$attemptsArgs<ExtArgs>
     _count?: boolean | VenueCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["venue"]>
 
@@ -7473,6 +7578,7 @@ export namespace Prisma {
   export type VenueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     devices?: boolean | Venue$devicesArgs<ExtArgs>
     sessions?: boolean | Venue$sessionsArgs<ExtArgs>
+    attempts?: boolean | Venue$attemptsArgs<ExtArgs>
     _count?: boolean | VenueCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type VenueIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -7482,6 +7588,7 @@ export namespace Prisma {
     objects: {
       devices: Prisma.$DevicePayload<ExtArgs>[]
       sessions: Prisma.$DeviceSessionPayload<ExtArgs>[]
+      attempts: Prisma.$AccessAttemptPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7856,6 +7963,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     devices<T extends Venue$devicesArgs<ExtArgs> = {}>(args?: Subset<T, Venue$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany"> | Null>
     sessions<T extends Venue$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, Venue$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    attempts<T extends Venue$attemptsArgs<ExtArgs> = {}>(args?: Subset<T, Venue$attemptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8245,6 +8353,26 @@ export namespace Prisma {
   }
 
   /**
+   * Venue.attempts
+   */
+  export type Venue$attemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    where?: AccessAttemptWhereInput
+    orderBy?: AccessAttemptOrderByWithRelationInput | AccessAttemptOrderByWithRelationInput[]
+    cursor?: AccessAttemptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AccessAttemptScalarFieldEnum | AccessAttemptScalarFieldEnum[]
+  }
+
+  /**
    * Venue without action
    */
   export type VenueDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8457,6 +8585,7 @@ export namespace Prisma {
     updatedAt?: boolean
     venue?: boolean | VenueDefaultArgs<ExtArgs>
     sessions?: boolean | Device$sessionsArgs<ExtArgs>
+    attempts?: boolean | Device$attemptsArgs<ExtArgs>
     _count?: boolean | DeviceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["device"]>
 
@@ -8488,6 +8617,7 @@ export namespace Prisma {
   export type DeviceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     venue?: boolean | VenueDefaultArgs<ExtArgs>
     sessions?: boolean | Device$sessionsArgs<ExtArgs>
+    attempts?: boolean | Device$attemptsArgs<ExtArgs>
     _count?: boolean | DeviceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DeviceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8499,6 +8629,7 @@ export namespace Prisma {
     objects: {
       venue: Prisma.$VenuePayload<ExtArgs>
       sessions: Prisma.$DeviceSessionPayload<ExtArgs>[]
+      attempts: Prisma.$AccessAttemptPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8876,6 +9007,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     venue<T extends VenueDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VenueDefaultArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     sessions<T extends Device$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, Device$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    attempts<T extends Device$attemptsArgs<ExtArgs> = {}>(args?: Subset<T, Device$attemptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9249,6 +9381,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DeviceSessionScalarFieldEnum | DeviceSessionScalarFieldEnum[]
+  }
+
+  /**
+   * Device.attempts
+   */
+  export type Device$attemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    where?: AccessAttemptWhereInput
+    orderBy?: AccessAttemptOrderByWithRelationInput | AccessAttemptOrderByWithRelationInput[]
+    cursor?: AccessAttemptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AccessAttemptScalarFieldEnum | AccessAttemptScalarFieldEnum[]
   }
 
   /**
@@ -10242,6 +10394,1020 @@ export namespace Prisma {
 
 
   /**
+   * Model AccessAttempt
+   */
+
+  export type AggregateAccessAttempt = {
+    _count: AccessAttemptCountAggregateOutputType | null
+    _min: AccessAttemptMinAggregateOutputType | null
+    _max: AccessAttemptMaxAggregateOutputType | null
+  }
+
+  export type AccessAttemptMinAggregateOutputType = {
+    id: string | null
+    venueId: string | null
+    deviceId: string | null
+    fingerprint: string | null
+    surface: string | null
+    path: string | null
+    result: string | null
+    message: string | null
+    userAgent: string | null
+    createdAt: Date | null
+  }
+
+  export type AccessAttemptMaxAggregateOutputType = {
+    id: string | null
+    venueId: string | null
+    deviceId: string | null
+    fingerprint: string | null
+    surface: string | null
+    path: string | null
+    result: string | null
+    message: string | null
+    userAgent: string | null
+    createdAt: Date | null
+  }
+
+  export type AccessAttemptCountAggregateOutputType = {
+    id: number
+    venueId: number
+    deviceId: number
+    fingerprint: number
+    surface: number
+    path: number
+    result: number
+    message: number
+    userAgent: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AccessAttemptMinAggregateInputType = {
+    id?: true
+    venueId?: true
+    deviceId?: true
+    fingerprint?: true
+    surface?: true
+    path?: true
+    result?: true
+    message?: true
+    userAgent?: true
+    createdAt?: true
+  }
+
+  export type AccessAttemptMaxAggregateInputType = {
+    id?: true
+    venueId?: true
+    deviceId?: true
+    fingerprint?: true
+    surface?: true
+    path?: true
+    result?: true
+    message?: true
+    userAgent?: true
+    createdAt?: true
+  }
+
+  export type AccessAttemptCountAggregateInputType = {
+    id?: true
+    venueId?: true
+    deviceId?: true
+    fingerprint?: true
+    surface?: true
+    path?: true
+    result?: true
+    message?: true
+    userAgent?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AccessAttemptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AccessAttempt to aggregate.
+     */
+    where?: AccessAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccessAttempts to fetch.
+     */
+    orderBy?: AccessAttemptOrderByWithRelationInput | AccessAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AccessAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccessAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccessAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AccessAttempts
+    **/
+    _count?: true | AccessAttemptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AccessAttemptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AccessAttemptMaxAggregateInputType
+  }
+
+  export type GetAccessAttemptAggregateType<T extends AccessAttemptAggregateArgs> = {
+        [P in keyof T & keyof AggregateAccessAttempt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAccessAttempt[P]>
+      : GetScalarType<T[P], AggregateAccessAttempt[P]>
+  }
+
+
+
+
+  export type AccessAttemptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AccessAttemptWhereInput
+    orderBy?: AccessAttemptOrderByWithAggregationInput | AccessAttemptOrderByWithAggregationInput[]
+    by: AccessAttemptScalarFieldEnum[] | AccessAttemptScalarFieldEnum
+    having?: AccessAttemptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AccessAttemptCountAggregateInputType | true
+    _min?: AccessAttemptMinAggregateInputType
+    _max?: AccessAttemptMaxAggregateInputType
+  }
+
+  export type AccessAttemptGroupByOutputType = {
+    id: string
+    venueId: string
+    deviceId: string | null
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message: string
+    userAgent: string
+    createdAt: Date
+    _count: AccessAttemptCountAggregateOutputType | null
+    _min: AccessAttemptMinAggregateOutputType | null
+    _max: AccessAttemptMaxAggregateOutputType | null
+  }
+
+  type GetAccessAttemptGroupByPayload<T extends AccessAttemptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AccessAttemptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AccessAttemptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AccessAttemptGroupByOutputType[P]>
+            : GetScalarType<T[P], AccessAttemptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AccessAttemptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    venueId?: boolean
+    deviceId?: boolean
+    fingerprint?: boolean
+    surface?: boolean
+    path?: boolean
+    result?: boolean
+    message?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+    device?: boolean | AccessAttempt$deviceArgs<ExtArgs>
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accessAttempt"]>
+
+  export type AccessAttemptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    venueId?: boolean
+    deviceId?: boolean
+    fingerprint?: boolean
+    surface?: boolean
+    path?: boolean
+    result?: boolean
+    message?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+    device?: boolean | AccessAttempt$deviceArgs<ExtArgs>
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accessAttempt"]>
+
+  export type AccessAttemptSelectScalar = {
+    id?: boolean
+    venueId?: boolean
+    deviceId?: boolean
+    fingerprint?: boolean
+    surface?: boolean
+    path?: boolean
+    result?: boolean
+    message?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+  }
+
+  export type AccessAttemptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    device?: boolean | AccessAttempt$deviceArgs<ExtArgs>
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }
+  export type AccessAttemptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    device?: boolean | AccessAttempt$deviceArgs<ExtArgs>
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }
+
+  export type $AccessAttemptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AccessAttempt"
+    objects: {
+      device: Prisma.$DevicePayload<ExtArgs> | null
+      venue: Prisma.$VenuePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      venueId: string
+      deviceId: string | null
+      fingerprint: string
+      surface: string
+      path: string
+      result: string
+      message: string
+      userAgent: string
+      createdAt: Date
+    }, ExtArgs["result"]["accessAttempt"]>
+    composites: {}
+  }
+
+  type AccessAttemptGetPayload<S extends boolean | null | undefined | AccessAttemptDefaultArgs> = $Result.GetResult<Prisma.$AccessAttemptPayload, S>
+
+  type AccessAttemptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AccessAttemptFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AccessAttemptCountAggregateInputType | true
+    }
+
+  export interface AccessAttemptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AccessAttempt'], meta: { name: 'AccessAttempt' } }
+    /**
+     * Find zero or one AccessAttempt that matches the filter.
+     * @param {AccessAttemptFindUniqueArgs} args - Arguments to find a AccessAttempt
+     * @example
+     * // Get one AccessAttempt
+     * const accessAttempt = await prisma.accessAttempt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AccessAttemptFindUniqueArgs>(args: SelectSubset<T, AccessAttemptFindUniqueArgs<ExtArgs>>): Prisma__AccessAttemptClient<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AccessAttempt that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AccessAttemptFindUniqueOrThrowArgs} args - Arguments to find a AccessAttempt
+     * @example
+     * // Get one AccessAttempt
+     * const accessAttempt = await prisma.accessAttempt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AccessAttemptFindUniqueOrThrowArgs>(args: SelectSubset<T, AccessAttemptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AccessAttemptClient<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AccessAttempt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccessAttemptFindFirstArgs} args - Arguments to find a AccessAttempt
+     * @example
+     * // Get one AccessAttempt
+     * const accessAttempt = await prisma.accessAttempt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AccessAttemptFindFirstArgs>(args?: SelectSubset<T, AccessAttemptFindFirstArgs<ExtArgs>>): Prisma__AccessAttemptClient<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AccessAttempt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccessAttemptFindFirstOrThrowArgs} args - Arguments to find a AccessAttempt
+     * @example
+     * // Get one AccessAttempt
+     * const accessAttempt = await prisma.accessAttempt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AccessAttemptFindFirstOrThrowArgs>(args?: SelectSubset<T, AccessAttemptFindFirstOrThrowArgs<ExtArgs>>): Prisma__AccessAttemptClient<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AccessAttempts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccessAttemptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AccessAttempts
+     * const accessAttempts = await prisma.accessAttempt.findMany()
+     * 
+     * // Get first 10 AccessAttempts
+     * const accessAttempts = await prisma.accessAttempt.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const accessAttemptWithIdOnly = await prisma.accessAttempt.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AccessAttemptFindManyArgs>(args?: SelectSubset<T, AccessAttemptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AccessAttempt.
+     * @param {AccessAttemptCreateArgs} args - Arguments to create a AccessAttempt.
+     * @example
+     * // Create one AccessAttempt
+     * const AccessAttempt = await prisma.accessAttempt.create({
+     *   data: {
+     *     // ... data to create a AccessAttempt
+     *   }
+     * })
+     * 
+     */
+    create<T extends AccessAttemptCreateArgs>(args: SelectSubset<T, AccessAttemptCreateArgs<ExtArgs>>): Prisma__AccessAttemptClient<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AccessAttempts.
+     * @param {AccessAttemptCreateManyArgs} args - Arguments to create many AccessAttempts.
+     * @example
+     * // Create many AccessAttempts
+     * const accessAttempt = await prisma.accessAttempt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AccessAttemptCreateManyArgs>(args?: SelectSubset<T, AccessAttemptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AccessAttempts and returns the data saved in the database.
+     * @param {AccessAttemptCreateManyAndReturnArgs} args - Arguments to create many AccessAttempts.
+     * @example
+     * // Create many AccessAttempts
+     * const accessAttempt = await prisma.accessAttempt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AccessAttempts and only return the `id`
+     * const accessAttemptWithIdOnly = await prisma.accessAttempt.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AccessAttemptCreateManyAndReturnArgs>(args?: SelectSubset<T, AccessAttemptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AccessAttempt.
+     * @param {AccessAttemptDeleteArgs} args - Arguments to delete one AccessAttempt.
+     * @example
+     * // Delete one AccessAttempt
+     * const AccessAttempt = await prisma.accessAttempt.delete({
+     *   where: {
+     *     // ... filter to delete one AccessAttempt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AccessAttemptDeleteArgs>(args: SelectSubset<T, AccessAttemptDeleteArgs<ExtArgs>>): Prisma__AccessAttemptClient<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AccessAttempt.
+     * @param {AccessAttemptUpdateArgs} args - Arguments to update one AccessAttempt.
+     * @example
+     * // Update one AccessAttempt
+     * const accessAttempt = await prisma.accessAttempt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AccessAttemptUpdateArgs>(args: SelectSubset<T, AccessAttemptUpdateArgs<ExtArgs>>): Prisma__AccessAttemptClient<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AccessAttempts.
+     * @param {AccessAttemptDeleteManyArgs} args - Arguments to filter AccessAttempts to delete.
+     * @example
+     * // Delete a few AccessAttempts
+     * const { count } = await prisma.accessAttempt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AccessAttemptDeleteManyArgs>(args?: SelectSubset<T, AccessAttemptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AccessAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccessAttemptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AccessAttempts
+     * const accessAttempt = await prisma.accessAttempt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AccessAttemptUpdateManyArgs>(args: SelectSubset<T, AccessAttemptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AccessAttempt.
+     * @param {AccessAttemptUpsertArgs} args - Arguments to update or create a AccessAttempt.
+     * @example
+     * // Update or create a AccessAttempt
+     * const accessAttempt = await prisma.accessAttempt.upsert({
+     *   create: {
+     *     // ... data to create a AccessAttempt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AccessAttempt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AccessAttemptUpsertArgs>(args: SelectSubset<T, AccessAttemptUpsertArgs<ExtArgs>>): Prisma__AccessAttemptClient<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AccessAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccessAttemptCountArgs} args - Arguments to filter AccessAttempts to count.
+     * @example
+     * // Count the number of AccessAttempts
+     * const count = await prisma.accessAttempt.count({
+     *   where: {
+     *     // ... the filter for the AccessAttempts we want to count
+     *   }
+     * })
+    **/
+    count<T extends AccessAttemptCountArgs>(
+      args?: Subset<T, AccessAttemptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AccessAttemptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AccessAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccessAttemptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AccessAttemptAggregateArgs>(args: Subset<T, AccessAttemptAggregateArgs>): Prisma.PrismaPromise<GetAccessAttemptAggregateType<T>>
+
+    /**
+     * Group by AccessAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccessAttemptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AccessAttemptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AccessAttemptGroupByArgs['orderBy'] }
+        : { orderBy?: AccessAttemptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AccessAttemptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAccessAttemptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AccessAttempt model
+   */
+  readonly fields: AccessAttemptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AccessAttempt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AccessAttemptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    device<T extends AccessAttempt$deviceArgs<ExtArgs> = {}>(args?: Subset<T, AccessAttempt$deviceArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    venue<T extends VenueDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VenueDefaultArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AccessAttempt model
+   */ 
+  interface AccessAttemptFieldRefs {
+    readonly id: FieldRef<"AccessAttempt", 'String'>
+    readonly venueId: FieldRef<"AccessAttempt", 'String'>
+    readonly deviceId: FieldRef<"AccessAttempt", 'String'>
+    readonly fingerprint: FieldRef<"AccessAttempt", 'String'>
+    readonly surface: FieldRef<"AccessAttempt", 'String'>
+    readonly path: FieldRef<"AccessAttempt", 'String'>
+    readonly result: FieldRef<"AccessAttempt", 'String'>
+    readonly message: FieldRef<"AccessAttempt", 'String'>
+    readonly userAgent: FieldRef<"AccessAttempt", 'String'>
+    readonly createdAt: FieldRef<"AccessAttempt", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AccessAttempt findUnique
+   */
+  export type AccessAttemptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AccessAttempt to fetch.
+     */
+    where: AccessAttemptWhereUniqueInput
+  }
+
+  /**
+   * AccessAttempt findUniqueOrThrow
+   */
+  export type AccessAttemptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AccessAttempt to fetch.
+     */
+    where: AccessAttemptWhereUniqueInput
+  }
+
+  /**
+   * AccessAttempt findFirst
+   */
+  export type AccessAttemptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AccessAttempt to fetch.
+     */
+    where?: AccessAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccessAttempts to fetch.
+     */
+    orderBy?: AccessAttemptOrderByWithRelationInput | AccessAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AccessAttempts.
+     */
+    cursor?: AccessAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccessAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccessAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccessAttempts.
+     */
+    distinct?: AccessAttemptScalarFieldEnum | AccessAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AccessAttempt findFirstOrThrow
+   */
+  export type AccessAttemptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AccessAttempt to fetch.
+     */
+    where?: AccessAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccessAttempts to fetch.
+     */
+    orderBy?: AccessAttemptOrderByWithRelationInput | AccessAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AccessAttempts.
+     */
+    cursor?: AccessAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccessAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccessAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccessAttempts.
+     */
+    distinct?: AccessAttemptScalarFieldEnum | AccessAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AccessAttempt findMany
+   */
+  export type AccessAttemptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which AccessAttempts to fetch.
+     */
+    where?: AccessAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccessAttempts to fetch.
+     */
+    orderBy?: AccessAttemptOrderByWithRelationInput | AccessAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AccessAttempts.
+     */
+    cursor?: AccessAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccessAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccessAttempts.
+     */
+    skip?: number
+    distinct?: AccessAttemptScalarFieldEnum | AccessAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * AccessAttempt create
+   */
+  export type AccessAttemptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AccessAttempt.
+     */
+    data: XOR<AccessAttemptCreateInput, AccessAttemptUncheckedCreateInput>
+  }
+
+  /**
+   * AccessAttempt createMany
+   */
+  export type AccessAttemptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AccessAttempts.
+     */
+    data: AccessAttemptCreateManyInput | AccessAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AccessAttempt createManyAndReturn
+   */
+  export type AccessAttemptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many AccessAttempts.
+     */
+    data: AccessAttemptCreateManyInput | AccessAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AccessAttempt update
+   */
+  export type AccessAttemptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AccessAttempt.
+     */
+    data: XOR<AccessAttemptUpdateInput, AccessAttemptUncheckedUpdateInput>
+    /**
+     * Choose, which AccessAttempt to update.
+     */
+    where: AccessAttemptWhereUniqueInput
+  }
+
+  /**
+   * AccessAttempt updateMany
+   */
+  export type AccessAttemptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AccessAttempts.
+     */
+    data: XOR<AccessAttemptUpdateManyMutationInput, AccessAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which AccessAttempts to update
+     */
+    where?: AccessAttemptWhereInput
+  }
+
+  /**
+   * AccessAttempt upsert
+   */
+  export type AccessAttemptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AccessAttempt to update in case it exists.
+     */
+    where: AccessAttemptWhereUniqueInput
+    /**
+     * In case the AccessAttempt found by the `where` argument doesn't exist, create a new AccessAttempt with this data.
+     */
+    create: XOR<AccessAttemptCreateInput, AccessAttemptUncheckedCreateInput>
+    /**
+     * In case the AccessAttempt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AccessAttemptUpdateInput, AccessAttemptUncheckedUpdateInput>
+  }
+
+  /**
+   * AccessAttempt delete
+   */
+  export type AccessAttemptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+    /**
+     * Filter which AccessAttempt to delete.
+     */
+    where: AccessAttemptWhereUniqueInput
+  }
+
+  /**
+   * AccessAttempt deleteMany
+   */
+  export type AccessAttemptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AccessAttempts to delete
+     */
+    where?: AccessAttemptWhereInput
+  }
+
+  /**
+   * AccessAttempt.device
+   */
+  export type AccessAttempt$deviceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    where?: DeviceWhereInput
+  }
+
+  /**
+   * AccessAttempt without action
+   */
+  export type AccessAttemptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccessAttempt
+     */
+    select?: AccessAttemptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccessAttemptInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -10364,6 +11530,22 @@ export namespace Prisma {
   };
 
   export type DeviceSessionScalarFieldEnum = (typeof DeviceSessionScalarFieldEnum)[keyof typeof DeviceSessionScalarFieldEnum]
+
+
+  export const AccessAttemptScalarFieldEnum: {
+    id: 'id',
+    venueId: 'venueId',
+    deviceId: 'deviceId',
+    fingerprint: 'fingerprint',
+    surface: 'surface',
+    path: 'path',
+    result: 'result',
+    message: 'message',
+    userAgent: 'userAgent',
+    createdAt: 'createdAt'
+  };
+
+  export type AccessAttemptScalarFieldEnum = (typeof AccessAttemptScalarFieldEnum)[keyof typeof AccessAttemptScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -10821,6 +12003,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Venue"> | Date | string
     devices?: DeviceListRelationFilter
     sessions?: DeviceSessionListRelationFilter
+    attempts?: AccessAttemptListRelationFilter
   }
 
   export type VenueOrderByWithRelationInput = {
@@ -10832,6 +12015,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     devices?: DeviceOrderByRelationAggregateInput
     sessions?: DeviceSessionOrderByRelationAggregateInput
+    attempts?: AccessAttemptOrderByRelationAggregateInput
   }
 
   export type VenueWhereUniqueInput = Prisma.AtLeast<{
@@ -10846,6 +12030,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Venue"> | Date | string
     devices?: DeviceListRelationFilter
     sessions?: DeviceSessionListRelationFilter
+    attempts?: AccessAttemptListRelationFilter
   }, "id" | "slug">
 
   export type VenueOrderByWithAggregationInput = {
@@ -10887,6 +12072,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Device"> | Date | string
     venue?: XOR<VenueRelationFilter, VenueWhereInput>
     sessions?: DeviceSessionListRelationFilter
+    attempts?: AccessAttemptListRelationFilter
   }
 
   export type DeviceOrderByWithRelationInput = {
@@ -10901,6 +12087,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     venue?: VenueOrderByWithRelationInput
     sessions?: DeviceSessionOrderByRelationAggregateInput
+    attempts?: AccessAttemptOrderByRelationAggregateInput
   }
 
   export type DeviceWhereUniqueInput = Prisma.AtLeast<{
@@ -10918,6 +12105,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Device"> | Date | string
     venue?: XOR<VenueRelationFilter, VenueWhereInput>
     sessions?: DeviceSessionListRelationFilter
+    attempts?: AccessAttemptListRelationFilter
   }, "id" | "fingerprint">
 
   export type DeviceOrderByWithAggregationInput = {
@@ -11021,6 +12209,89 @@ export namespace Prisma {
     expiresAt?: DateTimeWithAggregatesFilter<"DeviceSession"> | Date | string
     revokedAt?: DateTimeNullableWithAggregatesFilter<"DeviceSession"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"DeviceSession"> | Date | string
+  }
+
+  export type AccessAttemptWhereInput = {
+    AND?: AccessAttemptWhereInput | AccessAttemptWhereInput[]
+    OR?: AccessAttemptWhereInput[]
+    NOT?: AccessAttemptWhereInput | AccessAttemptWhereInput[]
+    id?: StringFilter<"AccessAttempt"> | string
+    venueId?: StringFilter<"AccessAttempt"> | string
+    deviceId?: StringNullableFilter<"AccessAttempt"> | string | null
+    fingerprint?: StringFilter<"AccessAttempt"> | string
+    surface?: StringFilter<"AccessAttempt"> | string
+    path?: StringFilter<"AccessAttempt"> | string
+    result?: StringFilter<"AccessAttempt"> | string
+    message?: StringFilter<"AccessAttempt"> | string
+    userAgent?: StringFilter<"AccessAttempt"> | string
+    createdAt?: DateTimeFilter<"AccessAttempt"> | Date | string
+    device?: XOR<DeviceNullableRelationFilter, DeviceWhereInput> | null
+    venue?: XOR<VenueRelationFilter, VenueWhereInput>
+  }
+
+  export type AccessAttemptOrderByWithRelationInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    deviceId?: SortOrderInput | SortOrder
+    fingerprint?: SortOrder
+    surface?: SortOrder
+    path?: SortOrder
+    result?: SortOrder
+    message?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+    device?: DeviceOrderByWithRelationInput
+    venue?: VenueOrderByWithRelationInput
+  }
+
+  export type AccessAttemptWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AccessAttemptWhereInput | AccessAttemptWhereInput[]
+    OR?: AccessAttemptWhereInput[]
+    NOT?: AccessAttemptWhereInput | AccessAttemptWhereInput[]
+    venueId?: StringFilter<"AccessAttempt"> | string
+    deviceId?: StringNullableFilter<"AccessAttempt"> | string | null
+    fingerprint?: StringFilter<"AccessAttempt"> | string
+    surface?: StringFilter<"AccessAttempt"> | string
+    path?: StringFilter<"AccessAttempt"> | string
+    result?: StringFilter<"AccessAttempt"> | string
+    message?: StringFilter<"AccessAttempt"> | string
+    userAgent?: StringFilter<"AccessAttempt"> | string
+    createdAt?: DateTimeFilter<"AccessAttempt"> | Date | string
+    device?: XOR<DeviceNullableRelationFilter, DeviceWhereInput> | null
+    venue?: XOR<VenueRelationFilter, VenueWhereInput>
+  }, "id">
+
+  export type AccessAttemptOrderByWithAggregationInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    deviceId?: SortOrderInput | SortOrder
+    fingerprint?: SortOrder
+    surface?: SortOrder
+    path?: SortOrder
+    result?: SortOrder
+    message?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+    _count?: AccessAttemptCountOrderByAggregateInput
+    _max?: AccessAttemptMaxOrderByAggregateInput
+    _min?: AccessAttemptMinOrderByAggregateInput
+  }
+
+  export type AccessAttemptScalarWhereWithAggregatesInput = {
+    AND?: AccessAttemptScalarWhereWithAggregatesInput | AccessAttemptScalarWhereWithAggregatesInput[]
+    OR?: AccessAttemptScalarWhereWithAggregatesInput[]
+    NOT?: AccessAttemptScalarWhereWithAggregatesInput | AccessAttemptScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AccessAttempt"> | string
+    venueId?: StringWithAggregatesFilter<"AccessAttempt"> | string
+    deviceId?: StringNullableWithAggregatesFilter<"AccessAttempt"> | string | null
+    fingerprint?: StringWithAggregatesFilter<"AccessAttempt"> | string
+    surface?: StringWithAggregatesFilter<"AccessAttempt"> | string
+    path?: StringWithAggregatesFilter<"AccessAttempt"> | string
+    result?: StringWithAggregatesFilter<"AccessAttempt"> | string
+    message?: StringWithAggregatesFilter<"AccessAttempt"> | string
+    userAgent?: StringWithAggregatesFilter<"AccessAttempt"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AccessAttempt"> | Date | string
   }
 
   export type PlaylistCreateInput = {
@@ -11387,6 +12658,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     devices?: DeviceCreateNestedManyWithoutVenueInput
     sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
+    attempts?: AccessAttemptCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUncheckedCreateInput = {
@@ -11398,6 +12670,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
     sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
+    attempts?: AccessAttemptUncheckedCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUpdateInput = {
@@ -11409,6 +12682,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     devices?: DeviceUpdateManyWithoutVenueNestedInput
     sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
+    attempts?: AccessAttemptUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueUncheckedUpdateInput = {
@@ -11420,6 +12694,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
     sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
+    attempts?: AccessAttemptUncheckedUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueCreateManyInput = {
@@ -11460,6 +12735,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     venue: VenueCreateNestedOneWithoutDevicesInput
     sessions?: DeviceSessionCreateNestedManyWithoutDeviceInput
+    attempts?: AccessAttemptCreateNestedManyWithoutDeviceInput
   }
 
   export type DeviceUncheckedCreateInput = {
@@ -11473,6 +12749,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: DeviceSessionUncheckedCreateNestedManyWithoutDeviceInput
+    attempts?: AccessAttemptUncheckedCreateNestedManyWithoutDeviceInput
   }
 
   export type DeviceUpdateInput = {
@@ -11486,6 +12763,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: VenueUpdateOneRequiredWithoutDevicesNestedInput
     sessions?: DeviceSessionUpdateManyWithoutDeviceNestedInput
+    attempts?: AccessAttemptUpdateManyWithoutDeviceNestedInput
   }
 
   export type DeviceUncheckedUpdateInput = {
@@ -11499,6 +12777,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: DeviceSessionUncheckedUpdateManyWithoutDeviceNestedInput
+    attempts?: AccessAttemptUncheckedUpdateManyWithoutDeviceNestedInput
   }
 
   export type DeviceCreateManyInput = {
@@ -11608,6 +12887,95 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AccessAttemptCreateInput = {
+    id?: string
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
+    createdAt?: Date | string
+    device?: DeviceCreateNestedOneWithoutAttemptsInput
+    venue: VenueCreateNestedOneWithoutAttemptsInput
+  }
+
+  export type AccessAttemptUncheckedCreateInput = {
+    id?: string
+    venueId: string
+    deviceId?: string | null
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
+    createdAt?: Date | string
+  }
+
+  export type AccessAttemptUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    device?: DeviceUpdateOneWithoutAttemptsNestedInput
+    venue?: VenueUpdateOneRequiredWithoutAttemptsNestedInput
+  }
+
+  export type AccessAttemptUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AccessAttemptCreateManyInput = {
+    id?: string
+    venueId: string
+    deviceId?: string | null
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
+    createdAt?: Date | string
+  }
+
+  export type AccessAttemptUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AccessAttemptUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -11948,11 +13316,21 @@ export namespace Prisma {
     none?: DeviceSessionWhereInput
   }
 
+  export type AccessAttemptListRelationFilter = {
+    every?: AccessAttemptWhereInput
+    some?: AccessAttemptWhereInput
+    none?: AccessAttemptWhereInput
+  }
+
   export type DeviceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type DeviceSessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AccessAttemptOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -12092,6 +13470,83 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type DeviceNullableRelationFilter = {
+    is?: DeviceWhereInput | null
+    isNot?: DeviceWhereInput | null
+  }
+
+  export type AccessAttemptCountOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    deviceId?: SortOrder
+    fingerprint?: SortOrder
+    surface?: SortOrder
+    path?: SortOrder
+    result?: SortOrder
+    message?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AccessAttemptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    deviceId?: SortOrder
+    fingerprint?: SortOrder
+    surface?: SortOrder
+    path?: SortOrder
+    result?: SortOrder
+    message?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AccessAttemptMinOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    deviceId?: SortOrder
+    fingerprint?: SortOrder
+    surface?: SortOrder
+    path?: SortOrder
+    result?: SortOrder
+    message?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type PlaylistCancionCreateNestedManyWithoutPlaylistInput = {
     create?: XOR<PlaylistCancionCreateWithoutPlaylistInput, PlaylistCancionUncheckedCreateWithoutPlaylistInput> | PlaylistCancionCreateWithoutPlaylistInput[] | PlaylistCancionUncheckedCreateWithoutPlaylistInput[]
     connectOrCreate?: PlaylistCancionCreateOrConnectWithoutPlaylistInput | PlaylistCancionCreateOrConnectWithoutPlaylistInput[]
@@ -12182,6 +13637,13 @@ export namespace Prisma {
     connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
   }
 
+  export type AccessAttemptCreateNestedManyWithoutVenueInput = {
+    create?: XOR<AccessAttemptCreateWithoutVenueInput, AccessAttemptUncheckedCreateWithoutVenueInput> | AccessAttemptCreateWithoutVenueInput[] | AccessAttemptUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: AccessAttemptCreateOrConnectWithoutVenueInput | AccessAttemptCreateOrConnectWithoutVenueInput[]
+    createMany?: AccessAttemptCreateManyVenueInputEnvelope
+    connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+  }
+
   export type DeviceUncheckedCreateNestedManyWithoutVenueInput = {
     create?: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput> | DeviceCreateWithoutVenueInput[] | DeviceUncheckedCreateWithoutVenueInput[]
     connectOrCreate?: DeviceCreateOrConnectWithoutVenueInput | DeviceCreateOrConnectWithoutVenueInput[]
@@ -12194,6 +13656,13 @@ export namespace Prisma {
     connectOrCreate?: DeviceSessionCreateOrConnectWithoutVenueInput | DeviceSessionCreateOrConnectWithoutVenueInput[]
     createMany?: DeviceSessionCreateManyVenueInputEnvelope
     connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+  }
+
+  export type AccessAttemptUncheckedCreateNestedManyWithoutVenueInput = {
+    create?: XOR<AccessAttemptCreateWithoutVenueInput, AccessAttemptUncheckedCreateWithoutVenueInput> | AccessAttemptCreateWithoutVenueInput[] | AccessAttemptUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: AccessAttemptCreateOrConnectWithoutVenueInput | AccessAttemptCreateOrConnectWithoutVenueInput[]
+    createMany?: AccessAttemptCreateManyVenueInputEnvelope
+    connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
   }
 
   export type DeviceUpdateManyWithoutVenueNestedInput = {
@@ -12224,6 +13693,20 @@ export namespace Prisma {
     deleteMany?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
   }
 
+  export type AccessAttemptUpdateManyWithoutVenueNestedInput = {
+    create?: XOR<AccessAttemptCreateWithoutVenueInput, AccessAttemptUncheckedCreateWithoutVenueInput> | AccessAttemptCreateWithoutVenueInput[] | AccessAttemptUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: AccessAttemptCreateOrConnectWithoutVenueInput | AccessAttemptCreateOrConnectWithoutVenueInput[]
+    upsert?: AccessAttemptUpsertWithWhereUniqueWithoutVenueInput | AccessAttemptUpsertWithWhereUniqueWithoutVenueInput[]
+    createMany?: AccessAttemptCreateManyVenueInputEnvelope
+    set?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    disconnect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    delete?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    update?: AccessAttemptUpdateWithWhereUniqueWithoutVenueInput | AccessAttemptUpdateWithWhereUniqueWithoutVenueInput[]
+    updateMany?: AccessAttemptUpdateManyWithWhereWithoutVenueInput | AccessAttemptUpdateManyWithWhereWithoutVenueInput[]
+    deleteMany?: AccessAttemptScalarWhereInput | AccessAttemptScalarWhereInput[]
+  }
+
   export type DeviceUncheckedUpdateManyWithoutVenueNestedInput = {
     create?: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput> | DeviceCreateWithoutVenueInput[] | DeviceUncheckedCreateWithoutVenueInput[]
     connectOrCreate?: DeviceCreateOrConnectWithoutVenueInput | DeviceCreateOrConnectWithoutVenueInput[]
@@ -12252,6 +13735,20 @@ export namespace Prisma {
     deleteMany?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
   }
 
+  export type AccessAttemptUncheckedUpdateManyWithoutVenueNestedInput = {
+    create?: XOR<AccessAttemptCreateWithoutVenueInput, AccessAttemptUncheckedCreateWithoutVenueInput> | AccessAttemptCreateWithoutVenueInput[] | AccessAttemptUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: AccessAttemptCreateOrConnectWithoutVenueInput | AccessAttemptCreateOrConnectWithoutVenueInput[]
+    upsert?: AccessAttemptUpsertWithWhereUniqueWithoutVenueInput | AccessAttemptUpsertWithWhereUniqueWithoutVenueInput[]
+    createMany?: AccessAttemptCreateManyVenueInputEnvelope
+    set?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    disconnect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    delete?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    update?: AccessAttemptUpdateWithWhereUniqueWithoutVenueInput | AccessAttemptUpdateWithWhereUniqueWithoutVenueInput[]
+    updateMany?: AccessAttemptUpdateManyWithWhereWithoutVenueInput | AccessAttemptUpdateManyWithWhereWithoutVenueInput[]
+    deleteMany?: AccessAttemptScalarWhereInput | AccessAttemptScalarWhereInput[]
+  }
+
   export type VenueCreateNestedOneWithoutDevicesInput = {
     create?: XOR<VenueCreateWithoutDevicesInput, VenueUncheckedCreateWithoutDevicesInput>
     connectOrCreate?: VenueCreateOrConnectWithoutDevicesInput
@@ -12265,11 +13762,25 @@ export namespace Prisma {
     connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
   }
 
+  export type AccessAttemptCreateNestedManyWithoutDeviceInput = {
+    create?: XOR<AccessAttemptCreateWithoutDeviceInput, AccessAttemptUncheckedCreateWithoutDeviceInput> | AccessAttemptCreateWithoutDeviceInput[] | AccessAttemptUncheckedCreateWithoutDeviceInput[]
+    connectOrCreate?: AccessAttemptCreateOrConnectWithoutDeviceInput | AccessAttemptCreateOrConnectWithoutDeviceInput[]
+    createMany?: AccessAttemptCreateManyDeviceInputEnvelope
+    connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+  }
+
   export type DeviceSessionUncheckedCreateNestedManyWithoutDeviceInput = {
     create?: XOR<DeviceSessionCreateWithoutDeviceInput, DeviceSessionUncheckedCreateWithoutDeviceInput> | DeviceSessionCreateWithoutDeviceInput[] | DeviceSessionUncheckedCreateWithoutDeviceInput[]
     connectOrCreate?: DeviceSessionCreateOrConnectWithoutDeviceInput | DeviceSessionCreateOrConnectWithoutDeviceInput[]
     createMany?: DeviceSessionCreateManyDeviceInputEnvelope
     connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+  }
+
+  export type AccessAttemptUncheckedCreateNestedManyWithoutDeviceInput = {
+    create?: XOR<AccessAttemptCreateWithoutDeviceInput, AccessAttemptUncheckedCreateWithoutDeviceInput> | AccessAttemptCreateWithoutDeviceInput[] | AccessAttemptUncheckedCreateWithoutDeviceInput[]
+    connectOrCreate?: AccessAttemptCreateOrConnectWithoutDeviceInput | AccessAttemptCreateOrConnectWithoutDeviceInput[]
+    createMany?: AccessAttemptCreateManyDeviceInputEnvelope
+    connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -12298,6 +13809,20 @@ export namespace Prisma {
     deleteMany?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
   }
 
+  export type AccessAttemptUpdateManyWithoutDeviceNestedInput = {
+    create?: XOR<AccessAttemptCreateWithoutDeviceInput, AccessAttemptUncheckedCreateWithoutDeviceInput> | AccessAttemptCreateWithoutDeviceInput[] | AccessAttemptUncheckedCreateWithoutDeviceInput[]
+    connectOrCreate?: AccessAttemptCreateOrConnectWithoutDeviceInput | AccessAttemptCreateOrConnectWithoutDeviceInput[]
+    upsert?: AccessAttemptUpsertWithWhereUniqueWithoutDeviceInput | AccessAttemptUpsertWithWhereUniqueWithoutDeviceInput[]
+    createMany?: AccessAttemptCreateManyDeviceInputEnvelope
+    set?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    disconnect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    delete?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    update?: AccessAttemptUpdateWithWhereUniqueWithoutDeviceInput | AccessAttemptUpdateWithWhereUniqueWithoutDeviceInput[]
+    updateMany?: AccessAttemptUpdateManyWithWhereWithoutDeviceInput | AccessAttemptUpdateManyWithWhereWithoutDeviceInput[]
+    deleteMany?: AccessAttemptScalarWhereInput | AccessAttemptScalarWhereInput[]
+  }
+
   export type DeviceSessionUncheckedUpdateManyWithoutDeviceNestedInput = {
     create?: XOR<DeviceSessionCreateWithoutDeviceInput, DeviceSessionUncheckedCreateWithoutDeviceInput> | DeviceSessionCreateWithoutDeviceInput[] | DeviceSessionUncheckedCreateWithoutDeviceInput[]
     connectOrCreate?: DeviceSessionCreateOrConnectWithoutDeviceInput | DeviceSessionCreateOrConnectWithoutDeviceInput[]
@@ -12310,6 +13835,20 @@ export namespace Prisma {
     update?: DeviceSessionUpdateWithWhereUniqueWithoutDeviceInput | DeviceSessionUpdateWithWhereUniqueWithoutDeviceInput[]
     updateMany?: DeviceSessionUpdateManyWithWhereWithoutDeviceInput | DeviceSessionUpdateManyWithWhereWithoutDeviceInput[]
     deleteMany?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
+  }
+
+  export type AccessAttemptUncheckedUpdateManyWithoutDeviceNestedInput = {
+    create?: XOR<AccessAttemptCreateWithoutDeviceInput, AccessAttemptUncheckedCreateWithoutDeviceInput> | AccessAttemptCreateWithoutDeviceInput[] | AccessAttemptUncheckedCreateWithoutDeviceInput[]
+    connectOrCreate?: AccessAttemptCreateOrConnectWithoutDeviceInput | AccessAttemptCreateOrConnectWithoutDeviceInput[]
+    upsert?: AccessAttemptUpsertWithWhereUniqueWithoutDeviceInput | AccessAttemptUpsertWithWhereUniqueWithoutDeviceInput[]
+    createMany?: AccessAttemptCreateManyDeviceInputEnvelope
+    set?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    disconnect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    delete?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+    update?: AccessAttemptUpdateWithWhereUniqueWithoutDeviceInput | AccessAttemptUpdateWithWhereUniqueWithoutDeviceInput[]
+    updateMany?: AccessAttemptUpdateManyWithWhereWithoutDeviceInput | AccessAttemptUpdateManyWithWhereWithoutDeviceInput[]
+    deleteMany?: AccessAttemptScalarWhereInput | AccessAttemptScalarWhereInput[]
   }
 
   export type DeviceCreateNestedOneWithoutSessionsInput = {
@@ -12338,6 +13877,40 @@ export namespace Prisma {
     upsert?: VenueUpsertWithoutSessionsInput
     connect?: VenueWhereUniqueInput
     update?: XOR<XOR<VenueUpdateToOneWithWhereWithoutSessionsInput, VenueUpdateWithoutSessionsInput>, VenueUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type DeviceCreateNestedOneWithoutAttemptsInput = {
+    create?: XOR<DeviceCreateWithoutAttemptsInput, DeviceUncheckedCreateWithoutAttemptsInput>
+    connectOrCreate?: DeviceCreateOrConnectWithoutAttemptsInput
+    connect?: DeviceWhereUniqueInput
+  }
+
+  export type VenueCreateNestedOneWithoutAttemptsInput = {
+    create?: XOR<VenueCreateWithoutAttemptsInput, VenueUncheckedCreateWithoutAttemptsInput>
+    connectOrCreate?: VenueCreateOrConnectWithoutAttemptsInput
+    connect?: VenueWhereUniqueInput
+  }
+
+  export type DeviceUpdateOneWithoutAttemptsNestedInput = {
+    create?: XOR<DeviceCreateWithoutAttemptsInput, DeviceUncheckedCreateWithoutAttemptsInput>
+    connectOrCreate?: DeviceCreateOrConnectWithoutAttemptsInput
+    upsert?: DeviceUpsertWithoutAttemptsInput
+    disconnect?: DeviceWhereInput | boolean
+    delete?: DeviceWhereInput | boolean
+    connect?: DeviceWhereUniqueInput
+    update?: XOR<XOR<DeviceUpdateToOneWithWhereWithoutAttemptsInput, DeviceUpdateWithoutAttemptsInput>, DeviceUncheckedUpdateWithoutAttemptsInput>
+  }
+
+  export type VenueUpdateOneRequiredWithoutAttemptsNestedInput = {
+    create?: XOR<VenueCreateWithoutAttemptsInput, VenueUncheckedCreateWithoutAttemptsInput>
+    connectOrCreate?: VenueCreateOrConnectWithoutAttemptsInput
+    upsert?: VenueUpsertWithoutAttemptsInput
+    connect?: VenueWhereUniqueInput
+    update?: XOR<XOR<VenueUpdateToOneWithWhereWithoutAttemptsInput, VenueUpdateWithoutAttemptsInput>, VenueUncheckedUpdateWithoutAttemptsInput>
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -12483,6 +14056,37 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type PlaylistCancionCreateWithoutPlaylistInput = {
     titulo: string
     artista: string
@@ -12610,6 +14214,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: DeviceSessionCreateNestedManyWithoutDeviceInput
+    attempts?: AccessAttemptCreateNestedManyWithoutDeviceInput
   }
 
   export type DeviceUncheckedCreateWithoutVenueInput = {
@@ -12622,6 +14227,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: DeviceSessionUncheckedCreateNestedManyWithoutDeviceInput
+    attempts?: AccessAttemptUncheckedCreateNestedManyWithoutDeviceInput
   }
 
   export type DeviceCreateOrConnectWithoutVenueInput = {
@@ -12661,6 +14267,40 @@ export namespace Prisma {
 
   export type DeviceSessionCreateManyVenueInputEnvelope = {
     data: DeviceSessionCreateManyVenueInput | DeviceSessionCreateManyVenueInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AccessAttemptCreateWithoutVenueInput = {
+    id?: string
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
+    createdAt?: Date | string
+    device?: DeviceCreateNestedOneWithoutAttemptsInput
+  }
+
+  export type AccessAttemptUncheckedCreateWithoutVenueInput = {
+    id?: string
+    deviceId?: string | null
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
+    createdAt?: Date | string
+  }
+
+  export type AccessAttemptCreateOrConnectWithoutVenueInput = {
+    where: AccessAttemptWhereUniqueInput
+    create: XOR<AccessAttemptCreateWithoutVenueInput, AccessAttemptUncheckedCreateWithoutVenueInput>
+  }
+
+  export type AccessAttemptCreateManyVenueInputEnvelope = {
+    data: AccessAttemptCreateManyVenueInput | AccessAttemptCreateManyVenueInput[]
     skipDuplicates?: boolean
   }
 
@@ -12725,6 +14365,38 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"DeviceSession"> | Date | string
   }
 
+  export type AccessAttemptUpsertWithWhereUniqueWithoutVenueInput = {
+    where: AccessAttemptWhereUniqueInput
+    update: XOR<AccessAttemptUpdateWithoutVenueInput, AccessAttemptUncheckedUpdateWithoutVenueInput>
+    create: XOR<AccessAttemptCreateWithoutVenueInput, AccessAttemptUncheckedCreateWithoutVenueInput>
+  }
+
+  export type AccessAttemptUpdateWithWhereUniqueWithoutVenueInput = {
+    where: AccessAttemptWhereUniqueInput
+    data: XOR<AccessAttemptUpdateWithoutVenueInput, AccessAttemptUncheckedUpdateWithoutVenueInput>
+  }
+
+  export type AccessAttemptUpdateManyWithWhereWithoutVenueInput = {
+    where: AccessAttemptScalarWhereInput
+    data: XOR<AccessAttemptUpdateManyMutationInput, AccessAttemptUncheckedUpdateManyWithoutVenueInput>
+  }
+
+  export type AccessAttemptScalarWhereInput = {
+    AND?: AccessAttemptScalarWhereInput | AccessAttemptScalarWhereInput[]
+    OR?: AccessAttemptScalarWhereInput[]
+    NOT?: AccessAttemptScalarWhereInput | AccessAttemptScalarWhereInput[]
+    id?: StringFilter<"AccessAttempt"> | string
+    venueId?: StringFilter<"AccessAttempt"> | string
+    deviceId?: StringNullableFilter<"AccessAttempt"> | string | null
+    fingerprint?: StringFilter<"AccessAttempt"> | string
+    surface?: StringFilter<"AccessAttempt"> | string
+    path?: StringFilter<"AccessAttempt"> | string
+    result?: StringFilter<"AccessAttempt"> | string
+    message?: StringFilter<"AccessAttempt"> | string
+    userAgent?: StringFilter<"AccessAttempt"> | string
+    createdAt?: DateTimeFilter<"AccessAttempt"> | Date | string
+  }
+
   export type VenueCreateWithoutDevicesInput = {
     id?: string
     slug: string
@@ -12733,6 +14405,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
+    attempts?: AccessAttemptCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUncheckedCreateWithoutDevicesInput = {
@@ -12743,6 +14416,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
+    attempts?: AccessAttemptUncheckedCreateNestedManyWithoutVenueInput
   }
 
   export type VenueCreateOrConnectWithoutDevicesInput = {
@@ -12780,6 +14454,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AccessAttemptCreateWithoutDeviceInput = {
+    id?: string
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
+    createdAt?: Date | string
+    venue: VenueCreateNestedOneWithoutAttemptsInput
+  }
+
+  export type AccessAttemptUncheckedCreateWithoutDeviceInput = {
+    id?: string
+    venueId: string
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
+    createdAt?: Date | string
+  }
+
+  export type AccessAttemptCreateOrConnectWithoutDeviceInput = {
+    where: AccessAttemptWhereUniqueInput
+    create: XOR<AccessAttemptCreateWithoutDeviceInput, AccessAttemptUncheckedCreateWithoutDeviceInput>
+  }
+
+  export type AccessAttemptCreateManyDeviceInputEnvelope = {
+    data: AccessAttemptCreateManyDeviceInput | AccessAttemptCreateManyDeviceInput[]
+    skipDuplicates?: boolean
+  }
+
   export type VenueUpsertWithoutDevicesInput = {
     update: XOR<VenueUpdateWithoutDevicesInput, VenueUncheckedUpdateWithoutDevicesInput>
     create: XOR<VenueCreateWithoutDevicesInput, VenueUncheckedCreateWithoutDevicesInput>
@@ -12799,6 +14507,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
+    attempts?: AccessAttemptUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueUncheckedUpdateWithoutDevicesInput = {
@@ -12809,6 +14518,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
+    attempts?: AccessAttemptUncheckedUpdateManyWithoutVenueNestedInput
   }
 
   export type DeviceSessionUpsertWithWhereUniqueWithoutDeviceInput = {
@@ -12827,6 +14537,22 @@ export namespace Prisma {
     data: XOR<DeviceSessionUpdateManyMutationInput, DeviceSessionUncheckedUpdateManyWithoutDeviceInput>
   }
 
+  export type AccessAttemptUpsertWithWhereUniqueWithoutDeviceInput = {
+    where: AccessAttemptWhereUniqueInput
+    update: XOR<AccessAttemptUpdateWithoutDeviceInput, AccessAttemptUncheckedUpdateWithoutDeviceInput>
+    create: XOR<AccessAttemptCreateWithoutDeviceInput, AccessAttemptUncheckedCreateWithoutDeviceInput>
+  }
+
+  export type AccessAttemptUpdateWithWhereUniqueWithoutDeviceInput = {
+    where: AccessAttemptWhereUniqueInput
+    data: XOR<AccessAttemptUpdateWithoutDeviceInput, AccessAttemptUncheckedUpdateWithoutDeviceInput>
+  }
+
+  export type AccessAttemptUpdateManyWithWhereWithoutDeviceInput = {
+    where: AccessAttemptScalarWhereInput
+    data: XOR<AccessAttemptUpdateManyMutationInput, AccessAttemptUncheckedUpdateManyWithoutDeviceInput>
+  }
+
   export type DeviceCreateWithoutSessionsInput = {
     id?: string
     fingerprint: string
@@ -12837,6 +14563,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     venue: VenueCreateNestedOneWithoutDevicesInput
+    attempts?: AccessAttemptCreateNestedManyWithoutDeviceInput
   }
 
   export type DeviceUncheckedCreateWithoutSessionsInput = {
@@ -12849,6 +14576,7 @@ export namespace Prisma {
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    attempts?: AccessAttemptUncheckedCreateNestedManyWithoutDeviceInput
   }
 
   export type DeviceCreateOrConnectWithoutSessionsInput = {
@@ -12864,6 +14592,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     devices?: DeviceCreateNestedManyWithoutVenueInput
+    attempts?: AccessAttemptCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUncheckedCreateWithoutSessionsInput = {
@@ -12874,6 +14603,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
+    attempts?: AccessAttemptUncheckedCreateNestedManyWithoutVenueInput
   }
 
   export type VenueCreateOrConnectWithoutSessionsInput = {
@@ -12902,6 +14632,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: VenueUpdateOneRequiredWithoutDevicesNestedInput
+    attempts?: AccessAttemptUpdateManyWithoutDeviceNestedInput
   }
 
   export type DeviceUncheckedUpdateWithoutSessionsInput = {
@@ -12914,6 +14645,7 @@ export namespace Prisma {
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attempts?: AccessAttemptUncheckedUpdateManyWithoutDeviceNestedInput
   }
 
   export type VenueUpsertWithoutSessionsInput = {
@@ -12935,6 +14667,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     devices?: DeviceUpdateManyWithoutVenueNestedInput
+    attempts?: AccessAttemptUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueUncheckedUpdateWithoutSessionsInput = {
@@ -12945,6 +14678,135 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
+    attempts?: AccessAttemptUncheckedUpdateManyWithoutVenueNestedInput
+  }
+
+  export type DeviceCreateWithoutAttemptsInput = {
+    id?: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    venue: VenueCreateNestedOneWithoutDevicesInput
+    sessions?: DeviceSessionCreateNestedManyWithoutDeviceInput
+  }
+
+  export type DeviceUncheckedCreateWithoutAttemptsInput = {
+    id?: string
+    venueId: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: DeviceSessionUncheckedCreateNestedManyWithoutDeviceInput
+  }
+
+  export type DeviceCreateOrConnectWithoutAttemptsInput = {
+    where: DeviceWhereUniqueInput
+    create: XOR<DeviceCreateWithoutAttemptsInput, DeviceUncheckedCreateWithoutAttemptsInput>
+  }
+
+  export type VenueCreateWithoutAttemptsInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    devices?: DeviceCreateNestedManyWithoutVenueInput
+    sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueUncheckedCreateWithoutAttemptsInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
+    sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueCreateOrConnectWithoutAttemptsInput = {
+    where: VenueWhereUniqueInput
+    create: XOR<VenueCreateWithoutAttemptsInput, VenueUncheckedCreateWithoutAttemptsInput>
+  }
+
+  export type DeviceUpsertWithoutAttemptsInput = {
+    update: XOR<DeviceUpdateWithoutAttemptsInput, DeviceUncheckedUpdateWithoutAttemptsInput>
+    create: XOR<DeviceCreateWithoutAttemptsInput, DeviceUncheckedCreateWithoutAttemptsInput>
+    where?: DeviceWhereInput
+  }
+
+  export type DeviceUpdateToOneWithWhereWithoutAttemptsInput = {
+    where?: DeviceWhereInput
+    data: XOR<DeviceUpdateWithoutAttemptsInput, DeviceUncheckedUpdateWithoutAttemptsInput>
+  }
+
+  export type DeviceUpdateWithoutAttemptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    venue?: VenueUpdateOneRequiredWithoutDevicesNestedInput
+    sessions?: DeviceSessionUpdateManyWithoutDeviceNestedInput
+  }
+
+  export type DeviceUncheckedUpdateWithoutAttemptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: DeviceSessionUncheckedUpdateManyWithoutDeviceNestedInput
+  }
+
+  export type VenueUpsertWithoutAttemptsInput = {
+    update: XOR<VenueUpdateWithoutAttemptsInput, VenueUncheckedUpdateWithoutAttemptsInput>
+    create: XOR<VenueCreateWithoutAttemptsInput, VenueUncheckedCreateWithoutAttemptsInput>
+    where?: VenueWhereInput
+  }
+
+  export type VenueUpdateToOneWithWhereWithoutAttemptsInput = {
+    where?: VenueWhereInput
+    data: XOR<VenueUpdateWithoutAttemptsInput, VenueUncheckedUpdateWithoutAttemptsInput>
+  }
+
+  export type VenueUpdateWithoutAttemptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    devices?: DeviceUpdateManyWithoutVenueNestedInput
+    sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
+  }
+
+  export type VenueUncheckedUpdateWithoutAttemptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
+    sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
   }
 
   export type PlaylistCancionCreateManyPlaylistInput = {
@@ -13007,6 +14869,18 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type AccessAttemptCreateManyVenueInput = {
+    id?: string
+    deviceId?: string | null
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
+    createdAt?: Date | string
+  }
+
   export type DeviceUpdateWithoutVenueInput = {
     id?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
@@ -13017,6 +14891,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: DeviceSessionUpdateManyWithoutDeviceNestedInput
+    attempts?: AccessAttemptUpdateManyWithoutDeviceNestedInput
   }
 
   export type DeviceUncheckedUpdateWithoutVenueInput = {
@@ -13029,6 +14904,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: DeviceSessionUncheckedUpdateManyWithoutDeviceNestedInput
+    attempts?: AccessAttemptUncheckedUpdateManyWithoutDeviceNestedInput
   }
 
   export type DeviceUncheckedUpdateManyWithoutVenueInput = {
@@ -13072,6 +14948,42 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AccessAttemptUpdateWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    device?: DeviceUpdateOneWithoutAttemptsNestedInput
+  }
+
+  export type AccessAttemptUncheckedUpdateWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AccessAttemptUncheckedUpdateManyWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type DeviceSessionCreateManyDeviceInput = {
     id?: string
     tokenHash: string
@@ -13079,6 +14991,18 @@ export namespace Prisma {
     role: string
     expiresAt: Date | string
     revokedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AccessAttemptCreateManyDeviceInput = {
+    id?: string
+    venueId: string
+    fingerprint: string
+    surface: string
+    path: string
+    result: string
+    message?: string
+    userAgent: string
     createdAt?: Date | string
   }
 
@@ -13109,6 +15033,42 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AccessAttemptUpdateWithoutDeviceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    venue?: VenueUpdateOneRequiredWithoutAttemptsNestedInput
+  }
+
+  export type AccessAttemptUncheckedUpdateWithoutDeviceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AccessAttemptUncheckedUpdateManyWithoutDeviceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    surface?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    result?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    userAgent?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -13165,6 +15125,10 @@ export namespace Prisma {
      * @deprecated Use DeviceSessionDefaultArgs instead
      */
     export type DeviceSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DeviceSessionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AccessAttemptDefaultArgs instead
+     */
+    export type AccessAttemptArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AccessAttemptDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

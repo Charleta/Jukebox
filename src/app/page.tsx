@@ -25,12 +25,71 @@ export default function KioskoPage() {
   const [splash, setSplash] = useState(true)
   const [splashFading, setSplashFading] = useState(false)
   const [playerInstanceKey, setPlayerInstanceKey] = useState(0)
+  const [accessState, setAccessState] = useState<'checking' | 'pending' | 'approved' | 'error'>('checking')
+  const [accessMessage, setAccessMessage] = useState('Verificando autorización...')
+  const accessPollRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
 
   useEffect(() => {
     const t1 = setTimeout(() => setSplashFading(true), 1800)
     const t2 = setTimeout(() => setSplash(false), 2400)
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [])
+
+  useEffect(() => {
+    let active = true
+
+    const verify = async () => {
+      try {
+        const res = await fetch('/api/dev/checkin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ surface: 'kiosk', path: '/' }),
+        })
+        const data = await res.json().catch(() => ({} as { result?: string; approved?: boolean; message?: string }))
+        if (!active) return
+        const approved = res.ok && (data.result === 'ok' || data.approved === true)
+        setAccessState(approved ? 'approved' : 'pending')
+        setAccessMessage(
+          approved
+            ? 'Dispositivo autorizado. Ingresando...'
+            : data.message || 'Necesita aprobacion del creador'
+        )
+      } catch {
+        if (!active) return
+        setAccessState('error')
+        setAccessMessage('No se pudo verificar el dispositivo')
+      }
+    }
+
+    void verify()
+
+    return () => {
+      active = false
+      clearInterval(accessPollRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (accessState !== 'pending') {
+      clearInterval(accessPollRef.current)
+      return
+    }
+
+    clearInterval(accessPollRef.current)
+    accessPollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch('/api/dev/checkin', { cache: 'no-store' })
+        const data = await res.json().catch(() => ({} as { approved?: boolean; status?: string }))
+        if (res.ok && data.approved) {
+          setAccessState('approved')
+          setAccessMessage('Dispositivo autorizado. Ingresando...')
+          clearInterval(accessPollRef.current)
+        }
+      } catch {}
+    }, 3500)
+
+    return () => clearInterval(accessPollRef.current)
+  }, [accessState])
 
   const { fichas, refetch: refetchFichas } = useFichas()
   const { cola, colaClientes, refetch: refetchCola } = useCola()
@@ -228,6 +287,40 @@ export default function KioskoPage() {
   const playerSpotifyUri = queueNowPlaying?.spotifyUri ?? null
   const maxSegundos = queueNowPlaying?.tipo === 'admin' ? maxDurAdmin : maxDurKiosko
   const hasQueue = colaClientes.slice(1).length > 0
+
+  if (accessState !== 'approved') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-6 text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+        <div className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 text-center shadow-2xl">
+          <div className="text-xs uppercase tracking-[0.4em] text-yellow-400">Kiosko</div>
+          <h1 className="mt-3 text-4xl font-black leading-none text-yellow-400" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+            Acceso pendiente
+          </h1>
+          <p className="mt-4 text-sm leading-6 text-zinc-300">
+            {accessMessage}
+          </p>
+          <div className="mt-5 rounded-2xl border border-zinc-800 bg-black/50 p-4 text-left text-xs text-zinc-400">
+            <div className="mb-1 uppercase tracking-widest text-zinc-500">Estado</div>
+            <div className={accessState === 'error' ? 'text-red-300' : 'text-yellow-300'}>
+              {accessState === 'checking' && 'Verificando...'}
+              {accessState === 'pending' && 'Esperando aprobación'}
+              {accessState === 'error' && 'Error de verificación'}
+            </div>
+            <div className="mt-3 text-zinc-500">
+              Esta PC quedará autorizada de forma permanente cuando el creador la permita desde superadmin.
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-5 w-full rounded-2xl bg-yellow-400 px-4 py-3 font-black text-black transition-colors active:bg-yellow-300"
+            style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+          >
+            REINTENTAR
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen overflow-hidden flex bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>

@@ -72,6 +72,7 @@ model Venue {
   updatedAt DateTime        @updatedAt
   devices   Device[]
   sessions  DeviceSession[]
+  attempts  AccessAttempt[]
 }
 
 model Device {
@@ -86,6 +87,7 @@ model Device {
   updatedAt   DateTime        @updatedAt
   venue       Venue           @relation(fields: [venueId], references: [id], onDelete: Cascade)
   sessions    DeviceSession[]
+  attempts    AccessAttempt[]
 }
 
 model DeviceSession {
@@ -99,4 +101,19 @@ model DeviceSession {
   createdAt DateTime  @default(now())
   device    Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   venue     Venue     @relation(fields: [venueId], references: [id], onDelete: Cascade)
+}
+
+model AccessAttempt {
+  id          String   @id @default(cuid())
+  venueId     String
+  deviceId    String?
+  fingerprint String
+  surface     String
+  path        String
+  result      String
+  message     String   @default("")
+  userAgent   String
+  createdAt   DateTime @default(now())
+  device      Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  venue       Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
 }
