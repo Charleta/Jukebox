@@ -478,6 +478,12 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     refetchCola()
   }
 
+  const clearCola = async () => {
+    if (!window.confirm('¿Borrar toda la cola de reproducción?')) return
+    await fetch('/api/cola/vaciar', { method: 'POST' })
+    refetchCola()
+  }
+
   const moverCancionPlaylist = async (playlistId: number, from: number, to: number) => {
     if (from === to) return
     const playlist = playlists.find(p => p.id === playlistId)
@@ -703,22 +709,25 @@ return (
 
       {seccion === 'cola' && (
         <div className="bg-gradient-to-b from-sky-950/60 to-zinc-900 rounded-2xl border border-sky-900/30 overflow-hidden shadow-lg">
-          <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
-            <span className="text-xs uppercase tracking-widest text-zinc-400 font-medium">{cola.length} en cola</span>
-            <button
-              onClick={async () => {
-                await fetch('/api/cola/shuffle', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ currentId: cola[0]?.id ?? null }),
-                })
-                refetchCola()
-              }}
-              className="flex items-center gap-1.5 text-xs bg-white/5 active:bg-white/10 border border-white/10 text-zinc-300 px-3 py-1.5 rounded-full transition-colors"
-            >
-              ⇄ Mezclar
-            </button>
-          </div>
+            <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between gap-2">
+              <span className="text-xs uppercase tracking-widest text-zinc-400 font-medium">{cola.length} en cola</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={shuffleCola}
+                  disabled={cola.length < 2}
+                  className="flex items-center gap-1.5 text-xs bg-white/5 active:bg-white/10 border border-white/10 text-zinc-300 px-3 py-1.5 rounded-full transition-colors disabled:opacity-40"
+                >
+                  ⇄ Mezclar
+                </button>
+                <button
+                  onClick={clearCola}
+                  disabled={cola.length === 0}
+                  className="flex items-center gap-1.5 text-xs bg-red-500/10 active:bg-red-500/20 border border-red-500/20 text-red-300 px-3 py-1.5 rounded-full transition-colors disabled:opacity-40"
+                >
+                  ✕ Vaciar
+                </button>
+              </div>
+            </div>
           {cola.length <= 1 && <div className="px-5 py-10 text-zinc-600 text-center text-sm">No hay canciones siguientes</div>}
           {cola.slice(1).map((c, i) => (
             <div key={c.id} draggable
