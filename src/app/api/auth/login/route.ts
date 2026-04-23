@@ -40,7 +40,13 @@ export async function POST(req: Request) {
             venueId: venueRow.id,
             name: userAgent,
             role,
-            approved: role === 'superadmin' ? true : existingDevice.approved,
+            status:
+              role === 'superadmin'
+                ? 'approved'
+                : existingDevice.status === 'blocked'
+                  ? 'pending'
+                  : existingDevice.status || 'pending',
+            approved: role === 'superadmin' ? true : existingDevice.status !== 'blocked' && existingDevice.approved,
             lastSeenAt: new Date(),
           },
         })
@@ -50,6 +56,7 @@ export async function POST(req: Request) {
             fingerprint: deviceFingerprint,
             name: userAgent,
             role,
+            status: role === 'superadmin' ? 'approved' : 'pending',
             approved: role === 'superadmin',
             lastSeenAt: new Date(),
           },

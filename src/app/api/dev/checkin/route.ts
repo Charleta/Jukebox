@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     const existingDevice = await prismaCloud.device.findUnique({
       where: { fingerprint: deviceFingerprint },
-      select: { id: true, approved: true },
+      select: { id: true, approved: true, status: true, alias: true },
     })
 
     const device = existingDevice
@@ -44,7 +44,8 @@ export async function POST(req: Request) {
             venueId: venueRow.id,
             name: userAgent,
             role: surface,
-            approved: existingDevice.approved,
+            status: existingDevice.status === 'blocked' ? 'pending' : existingDevice.status || 'pending',
+            approved: existingDevice.status === 'blocked' ? false : existingDevice.approved,
             lastSeenAt: new Date(),
           },
         })
@@ -53,7 +54,9 @@ export async function POST(req: Request) {
             venueId: venueRow.id,
             fingerprint: deviceFingerprint,
             name: userAgent,
+            alias: '',
             role: surface,
+            status: 'pending',
             approved: false,
             lastSeenAt: new Date(),
           },
@@ -115,7 +118,7 @@ export async function GET() {
 
     return NextResponse.json(
       {
-        status: device.approved ? 'approved' : 'pending',
+        status: device.status === 'approved' ? 'approved' : device.status === 'blocked' ? 'blocked' : 'pending',
         approved: device.approved,
         deviceId: device.id,
         fingerprint: device.fingerprint,

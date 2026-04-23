@@ -16,7 +16,12 @@ async function loadDevice(deviceId: string) {
   })
 }
 
-async function updateDeviceStatus(deviceId: string, approved?: boolean, revokeSessions = false) {
+async function updateDeviceStatus(
+  deviceId: string,
+  approved?: boolean,
+  revokeSessions = false,
+  alias?: string | null
+) {
   const device = await loadDevice(deviceId)
   if (!device) return null
 
@@ -25,6 +30,9 @@ async function updateDeviceStatus(deviceId: string, approved?: boolean, revokeSe
     data: {
       lastSeenAt: new Date(),
       ...(typeof approved === 'boolean' ? { approved } : {}),
+      ...(typeof alias === 'string' ? { alias: alias.trim().slice(0, 60) } : {}),
+      ...(approved === true ? { status: 'approved' } : {}),
+      ...(approved === false && revokeSessions ? { status: 'blocked' } : {}),
     },
   })
 
@@ -44,8 +52,8 @@ export async function PATCH(req: Request, context: { params: Promise<{ deviceId:
   }
 
   const { deviceId } = await context.params
-  const body = await req.json().catch(() => ({} as { approved?: boolean; revokeSessions?: boolean }))
-  const updated = await updateDeviceStatus(deviceId, body.approved, body.revokeSessions === true)
+  const body = await req.json().catch(() => ({} as { approved?: boolean; revokeSessions?: boolean; alias?: string }))
+  const updated = await updateDeviceStatus(deviceId, body.approved, body.revokeSessions === true, body.alias ?? null)
 
   if (!updated) return NextResponse.json({ error: 'Device no encontrado' }, { status: 404 })
 

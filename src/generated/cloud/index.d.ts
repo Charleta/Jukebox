@@ -8402,7 +8402,9 @@ export namespace Prisma {
     venueId: string | null
     fingerprint: string | null
     name: string | null
+    alias: string | null
     role: string | null
+    status: string | null
     approved: boolean | null
     lastSeenAt: Date | null
     createdAt: Date | null
@@ -8414,7 +8416,9 @@ export namespace Prisma {
     venueId: string | null
     fingerprint: string | null
     name: string | null
+    alias: string | null
     role: string | null
+    status: string | null
     approved: boolean | null
     lastSeenAt: Date | null
     createdAt: Date | null
@@ -8426,7 +8430,9 @@ export namespace Prisma {
     venueId: number
     fingerprint: number
     name: number
+    alias: number
     role: number
+    status: number
     approved: number
     lastSeenAt: number
     createdAt: number
@@ -8440,7 +8446,9 @@ export namespace Prisma {
     venueId?: true
     fingerprint?: true
     name?: true
+    alias?: true
     role?: true
+    status?: true
     approved?: true
     lastSeenAt?: true
     createdAt?: true
@@ -8452,7 +8460,9 @@ export namespace Prisma {
     venueId?: true
     fingerprint?: true
     name?: true
+    alias?: true
     role?: true
+    status?: true
     approved?: true
     lastSeenAt?: true
     createdAt?: true
@@ -8464,7 +8474,9 @@ export namespace Prisma {
     venueId?: true
     fingerprint?: true
     name?: true
+    alias?: true
     role?: true
+    status?: true
     approved?: true
     lastSeenAt?: true
     createdAt?: true
@@ -8549,7 +8561,9 @@ export namespace Prisma {
     venueId: string
     fingerprint: string
     name: string
+    alias: string
     role: string
+    status: string
     approved: boolean
     lastSeenAt: Date | null
     createdAt: Date
@@ -8578,7 +8592,9 @@ export namespace Prisma {
     venueId?: boolean
     fingerprint?: boolean
     name?: boolean
+    alias?: boolean
     role?: boolean
+    status?: boolean
     approved?: boolean
     lastSeenAt?: boolean
     createdAt?: boolean
@@ -8594,7 +8610,9 @@ export namespace Prisma {
     venueId?: boolean
     fingerprint?: boolean
     name?: boolean
+    alias?: boolean
     role?: boolean
+    status?: boolean
     approved?: boolean
     lastSeenAt?: boolean
     createdAt?: boolean
@@ -8607,7 +8625,9 @@ export namespace Prisma {
     venueId?: boolean
     fingerprint?: boolean
     name?: boolean
+    alias?: boolean
     role?: boolean
+    status?: boolean
     approved?: boolean
     lastSeenAt?: boolean
     createdAt?: boolean
@@ -8636,7 +8656,9 @@ export namespace Prisma {
       venueId: string
       fingerprint: string
       name: string
+      alias: string
       role: string
+      status: string
       approved: boolean
       lastSeenAt: Date | null
       createdAt: Date
@@ -9041,7 +9063,9 @@ export namespace Prisma {
     readonly venueId: FieldRef<"Device", 'String'>
     readonly fingerprint: FieldRef<"Device", 'String'>
     readonly name: FieldRef<"Device", 'String'>
+    readonly alias: FieldRef<"Device", 'String'>
     readonly role: FieldRef<"Device", 'String'>
+    readonly status: FieldRef<"Device", 'String'>
     readonly approved: FieldRef<"Device", 'Boolean'>
     readonly lastSeenAt: FieldRef<"Device", 'DateTime'>
     readonly createdAt: FieldRef<"Device", 'DateTime'>
@@ -11508,7 +11532,9 @@ export namespace Prisma {
     venueId: 'venueId',
     fingerprint: 'fingerprint',
     name: 'name',
+    alias: 'alias',
     role: 'role',
+    status: 'status',
     approved: 'approved',
     lastSeenAt: 'lastSeenAt',
     createdAt: 'createdAt',
@@ -12065,7 +12091,9 @@ export namespace Prisma {
     venueId?: StringFilter<"Device"> | string
     fingerprint?: StringFilter<"Device"> | string
     name?: StringFilter<"Device"> | string
+    alias?: StringFilter<"Device"> | string
     role?: StringFilter<"Device"> | string
+    status?: StringFilter<"Device"> | string
     approved?: BoolFilter<"Device"> | boolean
     lastSeenAt?: DateTimeNullableFilter<"Device"> | Date | string | null
     createdAt?: DateTimeFilter<"Device"> | Date | string
@@ -12080,7 +12108,9 @@ export namespace Prisma {
     venueId?: SortOrder
     fingerprint?: SortOrder
     name?: SortOrder
+    alias?: SortOrder
     role?: SortOrder
+    status?: SortOrder
     approved?: SortOrder
     lastSeenAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -12098,7 +12128,9 @@ export namespace Prisma {
     NOT?: DeviceWhereInput | DeviceWhereInput[]
     venueId?: StringFilter<"Device"> | string
     name?: StringFilter<"Device"> | string
+    alias?: StringFilter<"Device"> | string
     role?: StringFilter<"Device"> | string
+    status?: StringFilter<"Device"> | string
     approved?: BoolFilter<"Device"> | boolean
     lastSeenAt?: DateTimeNullableFilter<"Device"> | Date | string | null
     createdAt?: DateTimeFilter<"Device"> | Date | string
@@ -12113,7 +12145,9 @@ export namespace Prisma {
     venueId?: SortOrder
     fingerprint?: SortOrder
     name?: SortOrder
+    alias?: SortOrder
     role?: SortOrder
+    status?: SortOrder
     approved?: SortOrder
     lastSeenAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -12131,7 +12165,9 @@ export namespace Prisma {
     venueId?: StringWithAggregatesFilter<"Device"> | string
     fingerprint?: StringWithAggregatesFilter<"Device"> | string
     name?: StringWithAggregatesFilter<"Device"> | string
+    alias?: StringWithAggregatesFilter<"Device"> | string
     role?: StringWithAggregatesFilter<"Device"> | string
+    status?: StringWithAggregatesFilter<"Device"> | string
     approved?: BoolWithAggregatesFilter<"Device"> | boolean
     lastSeenAt?: DateTimeNullableWithAggregatesFilter<"Device"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Device"> | Date | string
@@ -12728,7 +12764,9 @@ export namespace Prisma {
     id?: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -12743,7 +12781,9 @@ export namespace Prisma {
     venueId: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -12756,7 +12796,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12771,7 +12813,9 @@ export namespace Prisma {
     venueId?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12785,7 +12829,9 @@ export namespace Prisma {
     venueId: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -12796,7 +12842,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12808,7 +12856,9 @@ export namespace Prisma {
     venueId?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13387,7 +13437,9 @@ export namespace Prisma {
     venueId?: SortOrder
     fingerprint?: SortOrder
     name?: SortOrder
+    alias?: SortOrder
     role?: SortOrder
+    status?: SortOrder
     approved?: SortOrder
     lastSeenAt?: SortOrder
     createdAt?: SortOrder
@@ -13399,7 +13451,9 @@ export namespace Prisma {
     venueId?: SortOrder
     fingerprint?: SortOrder
     name?: SortOrder
+    alias?: SortOrder
     role?: SortOrder
+    status?: SortOrder
     approved?: SortOrder
     lastSeenAt?: SortOrder
     createdAt?: SortOrder
@@ -13411,7 +13465,9 @@ export namespace Prisma {
     venueId?: SortOrder
     fingerprint?: SortOrder
     name?: SortOrder
+    alias?: SortOrder
     role?: SortOrder
+    status?: SortOrder
     approved?: SortOrder
     lastSeenAt?: SortOrder
     createdAt?: SortOrder
@@ -14208,7 +14264,9 @@ export namespace Prisma {
     id?: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -14221,7 +14279,9 @@ export namespace Prisma {
     id?: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -14328,7 +14388,9 @@ export namespace Prisma {
     venueId?: StringFilter<"Device"> | string
     fingerprint?: StringFilter<"Device"> | string
     name?: StringFilter<"Device"> | string
+    alias?: StringFilter<"Device"> | string
     role?: StringFilter<"Device"> | string
+    status?: StringFilter<"Device"> | string
     approved?: BoolFilter<"Device"> | boolean
     lastSeenAt?: DateTimeNullableFilter<"Device"> | Date | string | null
     createdAt?: DateTimeFilter<"Device"> | Date | string
@@ -14557,7 +14619,9 @@ export namespace Prisma {
     id?: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -14571,7 +14635,9 @@ export namespace Prisma {
     venueId: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -14626,7 +14692,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14640,7 +14708,9 @@ export namespace Prisma {
     venueId?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14685,7 +14755,9 @@ export namespace Prisma {
     id?: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -14699,7 +14771,9 @@ export namespace Prisma {
     venueId: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -14754,7 +14828,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14768,7 +14844,9 @@ export namespace Prisma {
     venueId?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14852,7 +14930,9 @@ export namespace Prisma {
     id?: string
     fingerprint: string
     name: string
+    alias?: string
     role: string
+    status?: string
     approved?: boolean
     lastSeenAt?: Date | string | null
     createdAt?: Date | string
@@ -14885,7 +14965,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14898,7 +14980,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14911,7 +14995,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     fingerprint?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    alias?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     approved?: BoolFieldUpdateOperationsInput | boolean
     lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

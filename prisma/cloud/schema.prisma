@@ -80,7 +80,9 @@ model Device {
   venueId     String
   fingerprint String         @unique
   name        String
+  alias       String         @default("")
   role        String
+  status      String         @default("pending")
   approved    Boolean        @default(false)
   lastSeenAt  DateTime?
   createdAt   DateTime       @default(now())

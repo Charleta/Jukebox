@@ -43,8 +43,10 @@ export async function GET() {
           select: {
             id: true,
             name: true,
+            alias: true,
             fingerprint: true,
             role: true,
+            status: true,
             approved: true,
           },
         },

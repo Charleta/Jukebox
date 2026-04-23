@@ -13,7 +13,9 @@ interface DevDevice {
   id: string
   fingerprint: string
   name: string
+  alias: string
   role: string
+  status: string
   approved: boolean
   lastSeenAt: string | null
   createdAt: string
@@ -43,8 +45,10 @@ interface DevAttempt {
   device: {
     id: string
     name: string
+    alias: string
     fingerprint: string
     role: string
+    status: string
     approved: boolean
   } | null
   venue: {
@@ -60,7 +64,10 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('')
+  const [section, setSection] = useState<'permissions' | 'attempts'>('permissions')
   const [busyDeviceId, setBusyDeviceId] = useState<string | null>(null)
+  const [editingAliasId, setEditingAliasId] = useState<string | null>(null)
+  const [aliasDrafts, setAliasDrafts] = useState<Record<string, string>>({})
   const [toast, setToast] = useState('')
 
   const cargar = async () => {
@@ -108,6 +115,12 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
     }
   }
 
+  const saveAlias = async (device: DevDevice) => {
+    const alias = aliasDrafts[device.id] ?? device.alias ?? ''
+    await updateDevice(device.id, { alias }, 'Nombre visible guardado')
+    setEditingAliasId(null)
+  }
+
   const normalizedFilter = filter.trim().toLowerCase()
   const visibleVenues = venues
     .map(venue => {
@@ -116,10 +129,12 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
         || venue.slug.toLowerCase().includes(normalizedFilter)
 
       const devices = venue.devices.filter(device => {
+        if (device.status === 'blocked') return false
         if (!normalizedFilter) return true
         const haystack = [
-          device.name,
+          device.alias || device.name,
           device.role,
+          device.status,
           device.fingerprint,
           device.approved ? 'aprobado' : 'pendiente',
         ].join(' ').toLowerCase()
@@ -179,10 +194,33 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
           />
         </div>
 
+        <div className="grid grid-cols-2 gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-2">
+          <button
+            onClick={() => setSection('permissions')}
+            className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+              section === 'permissions'
+                ? 'bg-yellow-400 text-black'
+                : 'bg-black/40 text-zinc-300'
+            }`}
+          >
+            Permisos
+          </button>
+          <button
+            onClick={() => setSection('attempts')}
+            className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+              section === 'attempts'
+                ? 'bg-yellow-400 text-black'
+                : 'bg-black/40 text-zinc-300'
+            }`}
+          >
+            Intentos recientes
+          </button>
+        </div>
+
         {loading && <div className="text-sm text-zinc-500">Cargando inventario...</div>}
         {error && <div className="break-words text-sm text-red-400">{error}</div>}
 
-        {!loading && !error && (
+        {!loading && !error && section === 'attempts' && (
           <section className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 sm:p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -196,8 +234,11 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
               <div className="text-xs text-zinc-500">{visibleAttempts.length} eventos</div>
             </div>
 
-            <div className="mt-4 grid gap-3">
-              {visibleAttempts.slice(0, 12).map(attempt => (
+        <div className="mt-4 grid gap-3">
+          <div className="text-xs text-zinc-500">
+            Intentos recientes: cada apertura del kiosko o admin queda registrada. Si el device está bloqueado, desaparecerá de la lista principal hasta que vuelva a intentar entrar.
+          </div>
+          {visibleAttempts.slice(0, 12).map(attempt => (
                 <article key={attempt.id} className="w-full min-w-0 overflow-hidden rounded-xl border border-zinc-800 bg-black/40 p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0 flex-1">
@@ -230,7 +271,8 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
                       <span className="mb-1 block text-[10px] uppercase tracking-widest text-zinc-500">Device</span>
                       {attempt.device ? (
                         <>
-                          <div className="font-semibold text-zinc-200">{attempt.device.name}</div>
+                          <div className="font-semibold text-zinc-200">{attempt.device.alias || attempt.device.name}</div>
+                          <div className="text-[11px] text-zinc-500">{attempt.device.name}</div>
                           <div className="break-all font-mono text-[11px] text-zinc-500">{attempt.device.fingerprint}</div>
                         </>
                       ) : (
@@ -251,7 +293,7 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
           </section>
         )}
 
-        {!loading && !error && visibleVenues.map(venue => (
+        {!loading && !error && section === 'permissions' && visibleVenues.map(venue => (
           <section key={venue.id} className="w-full overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/70 p-4 sm:p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
@@ -271,13 +313,66 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
                   <div className="flex flex-col gap-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <div className="break-words text-sm font-semibold leading-tight sm:text-base">{device.name}</div>
+                        <div className="break-words text-sm font-semibold leading-tight sm:text-base">
+                          {device.alias || device.name}
+                        </div>
                         <div className="mt-1 break-all font-mono text-xs leading-4 text-zinc-500">
                           {device.role} · {device.fingerprint}
                         </div>
                       </div>
-                      <div className={`shrink-0 rounded-full px-2 py-1 text-xs ${device.approved ? 'bg-emerald-500/15 text-emerald-300' : 'bg-yellow-500/15 text-yellow-300'}`}>
-                        {device.approved ? 'Aprobado' : 'Pendiente'}
+                      <div className={`shrink-0 rounded-full px-2 py-1 text-xs ${
+                        device.status === 'blocked'
+                          ? 'bg-red-500/15 text-red-300'
+                          : device.approved
+                            ? 'bg-emerald-500/15 text-emerald-300'
+                            : 'bg-yellow-500/15 text-yellow-300'
+                      }`}>
+                        {device.status === 'blocked' ? 'Bloqueado' : device.approved ? 'Aprobado' : 'Pendiente'}
+                      </div>
+                    </div>
+
+                    <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                      <div className="min-w-0 rounded-lg bg-zinc-950/60 px-3 py-2 text-xs text-zinc-400">
+                        <span className="mb-1 block text-[10px] uppercase tracking-widest text-zinc-500">Nombre visible</span>
+                        {editingAliasId === device.id ? (
+                          <input
+                            value={aliasDrafts[device.id] ?? device.alias ?? ''}
+                            onChange={e => setAliasDrafts(prev => ({ ...prev, [device.id]: e.target.value }))}
+                            placeholder="Ej: Kiosko barra / Celular Juan"
+                            className="w-full rounded-lg border border-zinc-700 bg-black/60 px-3 py-2 text-sm text-white outline-none focus:border-yellow-400"
+                          />
+                        ) : (
+                          <div className="text-sm text-zinc-200">{device.alias || 'Sin nombre visible'}</div>
+                        )}
+                      </div>
+                      <div className="flex items-end gap-2">
+                        {editingAliasId === device.id ? (
+                          <>
+                            <button
+                              onClick={() => saveAlias(device)}
+                              disabled={busyDeviceId === device.id}
+                              className="rounded-xl bg-yellow-400 px-3 py-2.5 text-xs font-bold text-black disabled:opacity-50"
+                            >
+                              Guardar
+                            </button>
+                            <button
+                              onClick={() => setEditingAliasId(null)}
+                              className="rounded-xl border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-xs font-semibold text-zinc-200"
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setEditingAliasId(device.id)
+                              setAliasDrafts(prev => ({ ...prev, [device.id]: device.alias || '' }))
+                            }}
+                            className="rounded-xl border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-xs font-semibold text-zinc-200"
+                          >
+                            Renombrar
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -292,7 +387,7 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
                       </div>
                       <div className="min-w-0 rounded-lg bg-zinc-950/60 px-3 py-2 text-xs break-words text-zinc-400">
                         <span className="mb-1 block text-[10px] uppercase tracking-widest text-zinc-500">Estado</span>
-                        {device.approved ? 'Permitido' : 'Pendiente de aprobación'}
+                        {device.status === 'blocked' ? 'Bloqueado' : device.approved ? 'Permitido' : 'Pendiente de aprobación'}
                       </div>
                     </div>
 
@@ -348,9 +443,15 @@ export function SuperadminView({ onLogout }: { onLogout: () => void }) {
           </section>
         ))}
 
-        {!loading && !error && visibleVenues.length === 0 && (
+        {!loading && !error && section === 'permissions' && visibleVenues.length === 0 && (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-6 text-sm text-zinc-500">
             No hay resultados para ese filtro.
+          </div>
+        )}
+
+        {!loading && !error && section === 'attempts' && visibleAttempts.length === 0 && (
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-6 text-sm text-zinc-500">
+            No hay intentos que coincidan con el filtro.
           </div>
         )}
       </div>
