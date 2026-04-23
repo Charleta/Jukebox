@@ -217,16 +217,16 @@ export default function KioskoPage() {
   }
 
   const queueNowPlaying = colaClientes[0] ?? cola[0] ?? null
-  const nowPlaying = playback.track
+  const displayNowPlaying = playback.track
     ? {
         ...(queueNowPlaying ?? {}),
         titulo: playback.track.title || queueNowPlaying?.titulo || '',
         artista: playback.track.artist || queueNowPlaying?.artista || '',
         imagenUrl: playback.track.imageUrl || queueNowPlaying?.imagenUrl || '',
-        spotifyUri: playback.track.uri || queueNowPlaying?.spotifyUri || null,
       }
     : queueNowPlaying
-  const maxSegundos = nowPlaying?.tipo === 'admin' ? maxDurAdmin : maxDurKiosko
+  const playerSpotifyUri = queueNowPlaying?.spotifyUri ?? null
+  const maxSegundos = queueNowPlaying?.tipo === 'admin' ? maxDurAdmin : maxDurKiosko
   const hasQueue = colaClientes.slice(1).length > 0
 
   return (
@@ -246,11 +246,11 @@ export default function KioskoPage() {
       <div className="w-96 flex-shrink-0 flex flex-col bg-zinc-900 border-r border-zinc-800">
         {/* Now playing */}
         <div className="relative overflow-hidden flex-shrink-0">
-          {nowPlaying && (
+          {displayNowPlaying && (
             <div
               className="absolute inset-0 scale-110"
               style={{
-                backgroundImage: `url(${nowPlaying.imagenUrl})`,
+                backgroundImage: `url(${displayNowPlaying.imagenUrl})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 filter: 'blur(40px) brightness(0.25)',
@@ -262,25 +262,25 @@ export default function KioskoPage() {
               <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
               SONANDO AHORA
             </div>
-            {nowPlaying ? (
+            {displayNowPlaying ? (
               <>
                 {hasQueue ? (
                   <div className="flex items-center gap-3 mb-3">
-                    <img src={nowPlaying.imagenUrl} alt="" className="w-16 h-16 rounded-xl object-cover shadow-lg shrink-0" />
+                    <img src={displayNowPlaying.imagenUrl} alt="" className="w-16 h-16 rounded-xl object-cover shadow-lg shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="text-lg font-black leading-tight truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-                        {nowPlaying.titulo}
+                        {displayNowPlaying.titulo}
                       </div>
-                      <div className="text-xs text-zinc-400 truncate mt-0.5">{nowPlaying.artista}</div>
+                      <div className="text-xs text-zinc-400 truncate mt-0.5">{displayNowPlaying.artista}</div>
                     </div>
                   </div>
                 ) : (
                   <>
-                    <img src={nowPlaying.imagenUrl} alt="" className="w-full h-52 rounded-xl object-cover shadow-xl mb-3" />
+                    <img src={displayNowPlaying.imagenUrl} alt="" className="w-full h-52 rounded-xl object-cover shadow-xl mb-3" />
                     <div className="text-2xl font-black leading-tight truncate mb-0.5" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-                      {nowPlaying.titulo}
+                      {displayNowPlaying.titulo}
                     </div>
-                    <div className="text-xs text-zinc-400 truncate mb-3">{nowPlaying.artista}</div>
+                    <div className="text-xs text-zinc-400 truncate mb-3">{displayNowPlaying.artista}</div>
                   </>
                 )}
 
@@ -311,7 +311,7 @@ export default function KioskoPage() {
 
         <SpotifyPlayer
           key={playerInstanceKey}
-          spotifyUri={nowPlaying?.spotifyUri ?? null}
+          spotifyUri={playerSpotifyUri}
           maxSegundos={maxSegundos}
           onTerminada={pasarSiguiente}
           onProgress={() => {}}
