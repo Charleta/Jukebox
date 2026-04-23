@@ -85,7 +85,7 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
             <img
               src={artist.images[0].url}
               alt={artist.name}
-              className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400 shrink-0"
+              className="w-12 h-12 rounded-full object-contain bg-zinc-900 border-2 border-yellow-400 shrink-0"
             />
           )}
           <div className="flex-1 min-w-0">
@@ -152,7 +152,7 @@ export function ListaCanciones({ artist, tracks, focused, setFocused, onAdd, onB
             <img
               src={track.album.images[0]?.url}
               alt=""
-              className="w-11 h-11 rounded object-cover shrink-0 bg-zinc-800"
+              className="w-11 h-11 rounded object-contain shrink-0 bg-zinc-800"
               onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden' }}
             />
             <div className="flex-1 min-w-0">

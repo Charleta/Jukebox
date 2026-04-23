@@ -37,7 +37,7 @@ export function ColaProximas({ cola, fichas, fichasPack, precioPack, onPagar }: 
             {cola.map((c, i) => (
               <div key={c.id} className="flex items-center gap-3 px-6 py-2.5 border-b border-zinc-800/50">
                 <span className="text-zinc-600 text-xs w-4 text-right">{i + 1}</span>
-                <img src={c.imagenUrl} alt="" className="w-9 h-9 rounded object-cover" />
+                <img src={c.imagenUrl} alt="" className="w-9 h-9 rounded object-contain bg-zinc-800" />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium truncate">{c.titulo}</div>
                   <div className="text-xs text-zinc-500">{c.artista}</div>
