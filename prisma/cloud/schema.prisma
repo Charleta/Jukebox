@@ -33,7 +33,6 @@ model PlaylistCancion {
   playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
 }
 
-
 model Config {
   id        Int    @id @default(1)
   fichas    Int    @default(0)
@@ -62,4 +61,42 @@ model Cola {
   orden      Int
   tipo       String   @default("cliente")
   createdAt  DateTime @default(now())
+}
+
+model Venue {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  devices   Device[]
+  sessions  DeviceSession[]
+}
+
+model Device {
+  id          String         @id @default(cuid())
+  venueId     String
+  fingerprint String         @unique
+  name        String
+  role        String
+  approved    Boolean        @default(false)
+  lastSeenAt  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  venue       Venue         @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  sessions    DeviceSession[]
+}
+
+model DeviceSession {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  deviceId  String
+  venueId   String
+  role      String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  device    Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  venue     Venue     @relation(fields: [venueId], references: [id], onDelete: Cascade)
 }

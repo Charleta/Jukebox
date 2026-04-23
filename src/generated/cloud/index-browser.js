@@ -174,6 +174,38 @@ exports.Prisma.ColaScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.VenueScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DeviceScalarFieldEnum = {
+  id: 'id',
+  venueId: 'venueId',
+  fingerprint: 'fingerprint',
+  name: 'name',
+  role: 'role',
+  approved: 'approved',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DeviceSessionScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  deviceId: 'deviceId',
+  venueId: 'venueId',
+  role: 'role',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -184,6 +216,11 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 
 exports.Prisma.ModelName = {
   Playlist: 'Playlist',
@@ -191,7 +228,10 @@ exports.Prisma.ModelName = {
   Config: 'Config',
   AppConfig: 'AppConfig',
   PagoProcesado: 'PagoProcesado',
-  Cola: 'Cola'
+  Cola: 'Cola',
+  Venue: 'Venue',
+  Device: 'Device',
+  DeviceSession: 'DeviceSession'
 };
 
 /**

@@ -43,6 +43,21 @@ export type PagoProcesado = $Result.DefaultSelection<Prisma.$PagoProcesadoPayloa
  * 
  */
 export type Cola = $Result.DefaultSelection<Prisma.$ColaPayload>
+/**
+ * Model Venue
+ * 
+ */
+export type Venue = $Result.DefaultSelection<Prisma.$VenuePayload>
+/**
+ * Model Device
+ * 
+ */
+export type Device = $Result.DefaultSelection<Prisma.$DevicePayload>
+/**
+ * Model DeviceSession
+ * 
+ */
+export type DeviceSession = $Result.DefaultSelection<Prisma.$DeviceSessionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -226,6 +241,36 @@ export class PrismaClient<
     * ```
     */
   get cola(): Prisma.ColaDelegate<ExtArgs>;
+
+  /**
+   * `prisma.venue`: Exposes CRUD operations for the **Venue** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Venues
+    * const venues = await prisma.venue.findMany()
+    * ```
+    */
+  get venue(): Prisma.VenueDelegate<ExtArgs>;
+
+  /**
+   * `prisma.device`: Exposes CRUD operations for the **Device** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Devices
+    * const devices = await prisma.device.findMany()
+    * ```
+    */
+  get device(): Prisma.DeviceDelegate<ExtArgs>;
+
+  /**
+   * `prisma.deviceSession`: Exposes CRUD operations for the **DeviceSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DeviceSessions
+    * const deviceSessions = await prisma.deviceSession.findMany()
+    * ```
+    */
+  get deviceSession(): Prisma.DeviceSessionDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -672,7 +717,10 @@ export namespace Prisma {
     Config: 'Config',
     AppConfig: 'AppConfig',
     PagoProcesado: 'PagoProcesado',
-    Cola: 'Cola'
+    Cola: 'Cola',
+    Venue: 'Venue',
+    Device: 'Device',
+    DeviceSession: 'DeviceSession'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -688,7 +736,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "playlist" | "playlistCancion" | "config" | "appConfig" | "pagoProcesado" | "cola"
+      modelProps: "playlist" | "playlistCancion" | "config" | "appConfig" | "pagoProcesado" | "cola" | "venue" | "device" | "deviceSession"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1112,6 +1160,216 @@ export namespace Prisma {
           }
         }
       }
+      Venue: {
+        payload: Prisma.$VenuePayload<ExtArgs>
+        fields: Prisma.VenueFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VenueFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VenueFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload>
+          }
+          findFirst: {
+            args: Prisma.VenueFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VenueFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload>
+          }
+          findMany: {
+            args: Prisma.VenueFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload>[]
+          }
+          create: {
+            args: Prisma.VenueCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload>
+          }
+          createMany: {
+            args: Prisma.VenueCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.VenueCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload>[]
+          }
+          delete: {
+            args: Prisma.VenueDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload>
+          }
+          update: {
+            args: Prisma.VenueUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload>
+          }
+          deleteMany: {
+            args: Prisma.VenueDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VenueUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.VenueUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VenuePayload>
+          }
+          aggregate: {
+            args: Prisma.VenueAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVenue>
+          }
+          groupBy: {
+            args: Prisma.VenueGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VenueGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VenueCountArgs<ExtArgs>
+            result: $Utils.Optional<VenueCountAggregateOutputType> | number
+          }
+        }
+      }
+      Device: {
+        payload: Prisma.$DevicePayload<ExtArgs>
+        fields: Prisma.DeviceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeviceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeviceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload>
+          }
+          findFirst: {
+            args: Prisma.DeviceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeviceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload>
+          }
+          findMany: {
+            args: Prisma.DeviceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload>[]
+          }
+          create: {
+            args: Prisma.DeviceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload>
+          }
+          createMany: {
+            args: Prisma.DeviceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DeviceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload>[]
+          }
+          delete: {
+            args: Prisma.DeviceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload>
+          }
+          update: {
+            args: Prisma.DeviceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload>
+          }
+          deleteMany: {
+            args: Prisma.DeviceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeviceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DeviceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DevicePayload>
+          }
+          aggregate: {
+            args: Prisma.DeviceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDevice>
+          }
+          groupBy: {
+            args: Prisma.DeviceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeviceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeviceCountArgs<ExtArgs>
+            result: $Utils.Optional<DeviceCountAggregateOutputType> | number
+          }
+        }
+      }
+      DeviceSession: {
+        payload: Prisma.$DeviceSessionPayload<ExtArgs>
+        fields: Prisma.DeviceSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeviceSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeviceSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.DeviceSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeviceSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload>
+          }
+          findMany: {
+            args: Prisma.DeviceSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload>[]
+          }
+          create: {
+            args: Prisma.DeviceSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload>
+          }
+          createMany: {
+            args: Prisma.DeviceSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DeviceSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.DeviceSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload>
+          }
+          update: {
+            args: Prisma.DeviceSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.DeviceSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeviceSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DeviceSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.DeviceSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeviceSession>
+          }
+          groupBy: {
+            args: Prisma.DeviceSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeviceSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeviceSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<DeviceSessionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1296,6 +1554,77 @@ export namespace Prisma {
    */
   export type PlaylistCountOutputTypeCountCancionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PlaylistCancionWhereInput
+  }
+
+
+  /**
+   * Count Type VenueCountOutputType
+   */
+
+  export type VenueCountOutputType = {
+    devices: number
+    sessions: number
+  }
+
+  export type VenueCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    devices?: boolean | VenueCountOutputTypeCountDevicesArgs
+    sessions?: boolean | VenueCountOutputTypeCountSessionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * VenueCountOutputType without action
+   */
+  export type VenueCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VenueCountOutputType
+     */
+    select?: VenueCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * VenueCountOutputType without action
+   */
+  export type VenueCountOutputTypeCountDevicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceWhereInput
+  }
+
+  /**
+   * VenueCountOutputType without action
+   */
+  export type VenueCountOutputTypeCountSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceSessionWhereInput
+  }
+
+
+  /**
+   * Count Type DeviceCountOutputType
+   */
+
+  export type DeviceCountOutputType = {
+    sessions: number
+  }
+
+  export type DeviceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sessions?: boolean | DeviceCountOutputTypeCountSessionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DeviceCountOutputType without action
+   */
+  export type DeviceCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceCountOutputType
+     */
+    select?: DeviceCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DeviceCountOutputType without action
+   */
+  export type DeviceCountOutputTypeCountSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceSessionWhereInput
   }
 
 
@@ -6947,6 +7276,2972 @@ export namespace Prisma {
 
 
   /**
+   * Model Venue
+   */
+
+  export type AggregateVenue = {
+    _count: VenueCountAggregateOutputType | null
+    _min: VenueMinAggregateOutputType | null
+    _max: VenueMaxAggregateOutputType | null
+  }
+
+  export type VenueMinAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    name: string | null
+    active: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type VenueMaxAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    name: string | null
+    active: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type VenueCountAggregateOutputType = {
+    id: number
+    slug: number
+    name: number
+    active: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type VenueMinAggregateInputType = {
+    id?: true
+    slug?: true
+    name?: true
+    active?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type VenueMaxAggregateInputType = {
+    id?: true
+    slug?: true
+    name?: true
+    active?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type VenueCountAggregateInputType = {
+    id?: true
+    slug?: true
+    name?: true
+    active?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type VenueAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Venue to aggregate.
+     */
+    where?: VenueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Venues to fetch.
+     */
+    orderBy?: VenueOrderByWithRelationInput | VenueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VenueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Venues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Venues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Venues
+    **/
+    _count?: true | VenueCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VenueMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VenueMaxAggregateInputType
+  }
+
+  export type GetVenueAggregateType<T extends VenueAggregateArgs> = {
+        [P in keyof T & keyof AggregateVenue]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVenue[P]>
+      : GetScalarType<T[P], AggregateVenue[P]>
+  }
+
+
+
+
+  export type VenueGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VenueWhereInput
+    orderBy?: VenueOrderByWithAggregationInput | VenueOrderByWithAggregationInput[]
+    by: VenueScalarFieldEnum[] | VenueScalarFieldEnum
+    having?: VenueScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VenueCountAggregateInputType | true
+    _min?: VenueMinAggregateInputType
+    _max?: VenueMaxAggregateInputType
+  }
+
+  export type VenueGroupByOutputType = {
+    id: string
+    slug: string
+    name: string
+    active: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: VenueCountAggregateOutputType | null
+    _min: VenueMinAggregateOutputType | null
+    _max: VenueMaxAggregateOutputType | null
+  }
+
+  type GetVenueGroupByPayload<T extends VenueGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VenueGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VenueGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VenueGroupByOutputType[P]>
+            : GetScalarType<T[P], VenueGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VenueSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    name?: boolean
+    active?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    devices?: boolean | Venue$devicesArgs<ExtArgs>
+    sessions?: boolean | Venue$sessionsArgs<ExtArgs>
+    _count?: boolean | VenueCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["venue"]>
+
+  export type VenueSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    name?: boolean
+    active?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["venue"]>
+
+  export type VenueSelectScalar = {
+    id?: boolean
+    slug?: boolean
+    name?: boolean
+    active?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type VenueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    devices?: boolean | Venue$devicesArgs<ExtArgs>
+    sessions?: boolean | Venue$sessionsArgs<ExtArgs>
+    _count?: boolean | VenueCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type VenueIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $VenuePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Venue"
+    objects: {
+      devices: Prisma.$DevicePayload<ExtArgs>[]
+      sessions: Prisma.$DeviceSessionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      slug: string
+      name: string
+      active: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["venue"]>
+    composites: {}
+  }
+
+  type VenueGetPayload<S extends boolean | null | undefined | VenueDefaultArgs> = $Result.GetResult<Prisma.$VenuePayload, S>
+
+  type VenueCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<VenueFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: VenueCountAggregateInputType | true
+    }
+
+  export interface VenueDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Venue'], meta: { name: 'Venue' } }
+    /**
+     * Find zero or one Venue that matches the filter.
+     * @param {VenueFindUniqueArgs} args - Arguments to find a Venue
+     * @example
+     * // Get one Venue
+     * const venue = await prisma.venue.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VenueFindUniqueArgs>(args: SelectSubset<T, VenueFindUniqueArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Venue that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {VenueFindUniqueOrThrowArgs} args - Arguments to find a Venue
+     * @example
+     * // Get one Venue
+     * const venue = await prisma.venue.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VenueFindUniqueOrThrowArgs>(args: SelectSubset<T, VenueFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Venue that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VenueFindFirstArgs} args - Arguments to find a Venue
+     * @example
+     * // Get one Venue
+     * const venue = await prisma.venue.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VenueFindFirstArgs>(args?: SelectSubset<T, VenueFindFirstArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Venue that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VenueFindFirstOrThrowArgs} args - Arguments to find a Venue
+     * @example
+     * // Get one Venue
+     * const venue = await prisma.venue.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VenueFindFirstOrThrowArgs>(args?: SelectSubset<T, VenueFindFirstOrThrowArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Venues that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VenueFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Venues
+     * const venues = await prisma.venue.findMany()
+     * 
+     * // Get first 10 Venues
+     * const venues = await prisma.venue.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const venueWithIdOnly = await prisma.venue.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends VenueFindManyArgs>(args?: SelectSubset<T, VenueFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Venue.
+     * @param {VenueCreateArgs} args - Arguments to create a Venue.
+     * @example
+     * // Create one Venue
+     * const Venue = await prisma.venue.create({
+     *   data: {
+     *     // ... data to create a Venue
+     *   }
+     * })
+     * 
+     */
+    create<T extends VenueCreateArgs>(args: SelectSubset<T, VenueCreateArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Venues.
+     * @param {VenueCreateManyArgs} args - Arguments to create many Venues.
+     * @example
+     * // Create many Venues
+     * const venue = await prisma.venue.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VenueCreateManyArgs>(args?: SelectSubset<T, VenueCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Venues and returns the data saved in the database.
+     * @param {VenueCreateManyAndReturnArgs} args - Arguments to create many Venues.
+     * @example
+     * // Create many Venues
+     * const venue = await prisma.venue.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Venues and only return the `id`
+     * const venueWithIdOnly = await prisma.venue.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends VenueCreateManyAndReturnArgs>(args?: SelectSubset<T, VenueCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Venue.
+     * @param {VenueDeleteArgs} args - Arguments to delete one Venue.
+     * @example
+     * // Delete one Venue
+     * const Venue = await prisma.venue.delete({
+     *   where: {
+     *     // ... filter to delete one Venue
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VenueDeleteArgs>(args: SelectSubset<T, VenueDeleteArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Venue.
+     * @param {VenueUpdateArgs} args - Arguments to update one Venue.
+     * @example
+     * // Update one Venue
+     * const venue = await prisma.venue.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VenueUpdateArgs>(args: SelectSubset<T, VenueUpdateArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Venues.
+     * @param {VenueDeleteManyArgs} args - Arguments to filter Venues to delete.
+     * @example
+     * // Delete a few Venues
+     * const { count } = await prisma.venue.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VenueDeleteManyArgs>(args?: SelectSubset<T, VenueDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Venues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VenueUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Venues
+     * const venue = await prisma.venue.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VenueUpdateManyArgs>(args: SelectSubset<T, VenueUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Venue.
+     * @param {VenueUpsertArgs} args - Arguments to update or create a Venue.
+     * @example
+     * // Update or create a Venue
+     * const venue = await prisma.venue.upsert({
+     *   create: {
+     *     // ... data to create a Venue
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Venue we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VenueUpsertArgs>(args: SelectSubset<T, VenueUpsertArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Venues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VenueCountArgs} args - Arguments to filter Venues to count.
+     * @example
+     * // Count the number of Venues
+     * const count = await prisma.venue.count({
+     *   where: {
+     *     // ... the filter for the Venues we want to count
+     *   }
+     * })
+    **/
+    count<T extends VenueCountArgs>(
+      args?: Subset<T, VenueCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VenueCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Venue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VenueAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VenueAggregateArgs>(args: Subset<T, VenueAggregateArgs>): Prisma.PrismaPromise<GetVenueAggregateType<T>>
+
+    /**
+     * Group by Venue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VenueGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VenueGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VenueGroupByArgs['orderBy'] }
+        : { orderBy?: VenueGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VenueGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVenueGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Venue model
+   */
+  readonly fields: VenueFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Venue.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VenueClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    devices<T extends Venue$devicesArgs<ExtArgs> = {}>(args?: Subset<T, Venue$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany"> | Null>
+    sessions<T extends Venue$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, Venue$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Venue model
+   */ 
+  interface VenueFieldRefs {
+    readonly id: FieldRef<"Venue", 'String'>
+    readonly slug: FieldRef<"Venue", 'String'>
+    readonly name: FieldRef<"Venue", 'String'>
+    readonly active: FieldRef<"Venue", 'Boolean'>
+    readonly createdAt: FieldRef<"Venue", 'DateTime'>
+    readonly updatedAt: FieldRef<"Venue", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Venue findUnique
+   */
+  export type VenueFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * Filter, which Venue to fetch.
+     */
+    where: VenueWhereUniqueInput
+  }
+
+  /**
+   * Venue findUniqueOrThrow
+   */
+  export type VenueFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * Filter, which Venue to fetch.
+     */
+    where: VenueWhereUniqueInput
+  }
+
+  /**
+   * Venue findFirst
+   */
+  export type VenueFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * Filter, which Venue to fetch.
+     */
+    where?: VenueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Venues to fetch.
+     */
+    orderBy?: VenueOrderByWithRelationInput | VenueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Venues.
+     */
+    cursor?: VenueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Venues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Venues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Venues.
+     */
+    distinct?: VenueScalarFieldEnum | VenueScalarFieldEnum[]
+  }
+
+  /**
+   * Venue findFirstOrThrow
+   */
+  export type VenueFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * Filter, which Venue to fetch.
+     */
+    where?: VenueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Venues to fetch.
+     */
+    orderBy?: VenueOrderByWithRelationInput | VenueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Venues.
+     */
+    cursor?: VenueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Venues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Venues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Venues.
+     */
+    distinct?: VenueScalarFieldEnum | VenueScalarFieldEnum[]
+  }
+
+  /**
+   * Venue findMany
+   */
+  export type VenueFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * Filter, which Venues to fetch.
+     */
+    where?: VenueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Venues to fetch.
+     */
+    orderBy?: VenueOrderByWithRelationInput | VenueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Venues.
+     */
+    cursor?: VenueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Venues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Venues.
+     */
+    skip?: number
+    distinct?: VenueScalarFieldEnum | VenueScalarFieldEnum[]
+  }
+
+  /**
+   * Venue create
+   */
+  export type VenueCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Venue.
+     */
+    data: XOR<VenueCreateInput, VenueUncheckedCreateInput>
+  }
+
+  /**
+   * Venue createMany
+   */
+  export type VenueCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Venues.
+     */
+    data: VenueCreateManyInput | VenueCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Venue createManyAndReturn
+   */
+  export type VenueCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Venues.
+     */
+    data: VenueCreateManyInput | VenueCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Venue update
+   */
+  export type VenueUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Venue.
+     */
+    data: XOR<VenueUpdateInput, VenueUncheckedUpdateInput>
+    /**
+     * Choose, which Venue to update.
+     */
+    where: VenueWhereUniqueInput
+  }
+
+  /**
+   * Venue updateMany
+   */
+  export type VenueUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Venues.
+     */
+    data: XOR<VenueUpdateManyMutationInput, VenueUncheckedUpdateManyInput>
+    /**
+     * Filter which Venues to update
+     */
+    where?: VenueWhereInput
+  }
+
+  /**
+   * Venue upsert
+   */
+  export type VenueUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Venue to update in case it exists.
+     */
+    where: VenueWhereUniqueInput
+    /**
+     * In case the Venue found by the `where` argument doesn't exist, create a new Venue with this data.
+     */
+    create: XOR<VenueCreateInput, VenueUncheckedCreateInput>
+    /**
+     * In case the Venue was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VenueUpdateInput, VenueUncheckedUpdateInput>
+  }
+
+  /**
+   * Venue delete
+   */
+  export type VenueDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+    /**
+     * Filter which Venue to delete.
+     */
+    where: VenueWhereUniqueInput
+  }
+
+  /**
+   * Venue deleteMany
+   */
+  export type VenueDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Venues to delete
+     */
+    where?: VenueWhereInput
+  }
+
+  /**
+   * Venue.devices
+   */
+  export type Venue$devicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    where?: DeviceWhereInput
+    orderBy?: DeviceOrderByWithRelationInput | DeviceOrderByWithRelationInput[]
+    cursor?: DeviceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DeviceScalarFieldEnum | DeviceScalarFieldEnum[]
+  }
+
+  /**
+   * Venue.sessions
+   */
+  export type Venue$sessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    where?: DeviceSessionWhereInput
+    orderBy?: DeviceSessionOrderByWithRelationInput | DeviceSessionOrderByWithRelationInput[]
+    cursor?: DeviceSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DeviceSessionScalarFieldEnum | DeviceSessionScalarFieldEnum[]
+  }
+
+  /**
+   * Venue without action
+   */
+  export type VenueDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Venue
+     */
+    select?: VenueSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VenueInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Device
+   */
+
+  export type AggregateDevice = {
+    _count: DeviceCountAggregateOutputType | null
+    _min: DeviceMinAggregateOutputType | null
+    _max: DeviceMaxAggregateOutputType | null
+  }
+
+  export type DeviceMinAggregateOutputType = {
+    id: string | null
+    venueId: string | null
+    fingerprint: string | null
+    name: string | null
+    role: string | null
+    approved: boolean | null
+    lastSeenAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DeviceMaxAggregateOutputType = {
+    id: string | null
+    venueId: string | null
+    fingerprint: string | null
+    name: string | null
+    role: string | null
+    approved: boolean | null
+    lastSeenAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DeviceCountAggregateOutputType = {
+    id: number
+    venueId: number
+    fingerprint: number
+    name: number
+    role: number
+    approved: number
+    lastSeenAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DeviceMinAggregateInputType = {
+    id?: true
+    venueId?: true
+    fingerprint?: true
+    name?: true
+    role?: true
+    approved?: true
+    lastSeenAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DeviceMaxAggregateInputType = {
+    id?: true
+    venueId?: true
+    fingerprint?: true
+    name?: true
+    role?: true
+    approved?: true
+    lastSeenAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DeviceCountAggregateInputType = {
+    id?: true
+    venueId?: true
+    fingerprint?: true
+    name?: true
+    role?: true
+    approved?: true
+    lastSeenAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DeviceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Device to aggregate.
+     */
+    where?: DeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Devices to fetch.
+     */
+    orderBy?: DeviceOrderByWithRelationInput | DeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Devices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Devices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Devices
+    **/
+    _count?: true | DeviceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeviceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeviceMaxAggregateInputType
+  }
+
+  export type GetDeviceAggregateType<T extends DeviceAggregateArgs> = {
+        [P in keyof T & keyof AggregateDevice]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDevice[P]>
+      : GetScalarType<T[P], AggregateDevice[P]>
+  }
+
+
+
+
+  export type DeviceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceWhereInput
+    orderBy?: DeviceOrderByWithAggregationInput | DeviceOrderByWithAggregationInput[]
+    by: DeviceScalarFieldEnum[] | DeviceScalarFieldEnum
+    having?: DeviceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeviceCountAggregateInputType | true
+    _min?: DeviceMinAggregateInputType
+    _max?: DeviceMaxAggregateInputType
+  }
+
+  export type DeviceGroupByOutputType = {
+    id: string
+    venueId: string
+    fingerprint: string
+    name: string
+    role: string
+    approved: boolean
+    lastSeenAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DeviceCountAggregateOutputType | null
+    _min: DeviceMinAggregateOutputType | null
+    _max: DeviceMaxAggregateOutputType | null
+  }
+
+  type GetDeviceGroupByPayload<T extends DeviceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeviceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeviceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeviceGroupByOutputType[P]>
+            : GetScalarType<T[P], DeviceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeviceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    venueId?: boolean
+    fingerprint?: boolean
+    name?: boolean
+    role?: boolean
+    approved?: boolean
+    lastSeenAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+    sessions?: boolean | Device$sessionsArgs<ExtArgs>
+    _count?: boolean | DeviceCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["device"]>
+
+  export type DeviceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    venueId?: boolean
+    fingerprint?: boolean
+    name?: boolean
+    role?: boolean
+    approved?: boolean
+    lastSeenAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["device"]>
+
+  export type DeviceSelectScalar = {
+    id?: boolean
+    venueId?: boolean
+    fingerprint?: boolean
+    name?: boolean
+    role?: boolean
+    approved?: boolean
+    lastSeenAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DeviceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+    sessions?: boolean | Device$sessionsArgs<ExtArgs>
+    _count?: boolean | DeviceCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DeviceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }
+
+  export type $DevicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Device"
+    objects: {
+      venue: Prisma.$VenuePayload<ExtArgs>
+      sessions: Prisma.$DeviceSessionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      venueId: string
+      fingerprint: string
+      name: string
+      role: string
+      approved: boolean
+      lastSeenAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["device"]>
+    composites: {}
+  }
+
+  type DeviceGetPayload<S extends boolean | null | undefined | DeviceDefaultArgs> = $Result.GetResult<Prisma.$DevicePayload, S>
+
+  type DeviceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DeviceFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DeviceCountAggregateInputType | true
+    }
+
+  export interface DeviceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Device'], meta: { name: 'Device' } }
+    /**
+     * Find zero or one Device that matches the filter.
+     * @param {DeviceFindUniqueArgs} args - Arguments to find a Device
+     * @example
+     * // Get one Device
+     * const device = await prisma.device.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeviceFindUniqueArgs>(args: SelectSubset<T, DeviceFindUniqueArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Device that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {DeviceFindUniqueOrThrowArgs} args - Arguments to find a Device
+     * @example
+     * // Get one Device
+     * const device = await prisma.device.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeviceFindUniqueOrThrowArgs>(args: SelectSubset<T, DeviceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Device that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceFindFirstArgs} args - Arguments to find a Device
+     * @example
+     * // Get one Device
+     * const device = await prisma.device.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeviceFindFirstArgs>(args?: SelectSubset<T, DeviceFindFirstArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Device that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceFindFirstOrThrowArgs} args - Arguments to find a Device
+     * @example
+     * // Get one Device
+     * const device = await prisma.device.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeviceFindFirstOrThrowArgs>(args?: SelectSubset<T, DeviceFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Devices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Devices
+     * const devices = await prisma.device.findMany()
+     * 
+     * // Get first 10 Devices
+     * const devices = await prisma.device.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const deviceWithIdOnly = await prisma.device.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DeviceFindManyArgs>(args?: SelectSubset<T, DeviceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Device.
+     * @param {DeviceCreateArgs} args - Arguments to create a Device.
+     * @example
+     * // Create one Device
+     * const Device = await prisma.device.create({
+     *   data: {
+     *     // ... data to create a Device
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeviceCreateArgs>(args: SelectSubset<T, DeviceCreateArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Devices.
+     * @param {DeviceCreateManyArgs} args - Arguments to create many Devices.
+     * @example
+     * // Create many Devices
+     * const device = await prisma.device.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeviceCreateManyArgs>(args?: SelectSubset<T, DeviceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Devices and returns the data saved in the database.
+     * @param {DeviceCreateManyAndReturnArgs} args - Arguments to create many Devices.
+     * @example
+     * // Create many Devices
+     * const device = await prisma.device.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Devices and only return the `id`
+     * const deviceWithIdOnly = await prisma.device.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DeviceCreateManyAndReturnArgs>(args?: SelectSubset<T, DeviceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Device.
+     * @param {DeviceDeleteArgs} args - Arguments to delete one Device.
+     * @example
+     * // Delete one Device
+     * const Device = await prisma.device.delete({
+     *   where: {
+     *     // ... filter to delete one Device
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeviceDeleteArgs>(args: SelectSubset<T, DeviceDeleteArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Device.
+     * @param {DeviceUpdateArgs} args - Arguments to update one Device.
+     * @example
+     * // Update one Device
+     * const device = await prisma.device.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeviceUpdateArgs>(args: SelectSubset<T, DeviceUpdateArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Devices.
+     * @param {DeviceDeleteManyArgs} args - Arguments to filter Devices to delete.
+     * @example
+     * // Delete a few Devices
+     * const { count } = await prisma.device.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeviceDeleteManyArgs>(args?: SelectSubset<T, DeviceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Devices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Devices
+     * const device = await prisma.device.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeviceUpdateManyArgs>(args: SelectSubset<T, DeviceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Device.
+     * @param {DeviceUpsertArgs} args - Arguments to update or create a Device.
+     * @example
+     * // Update or create a Device
+     * const device = await prisma.device.upsert({
+     *   create: {
+     *     // ... data to create a Device
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Device we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeviceUpsertArgs>(args: SelectSubset<T, DeviceUpsertArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Devices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceCountArgs} args - Arguments to filter Devices to count.
+     * @example
+     * // Count the number of Devices
+     * const count = await prisma.device.count({
+     *   where: {
+     *     // ... the filter for the Devices we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeviceCountArgs>(
+      args?: Subset<T, DeviceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeviceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Device.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeviceAggregateArgs>(args: Subset<T, DeviceAggregateArgs>): Prisma.PrismaPromise<GetDeviceAggregateType<T>>
+
+    /**
+     * Group by Device.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeviceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeviceGroupByArgs['orderBy'] }
+        : { orderBy?: DeviceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeviceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeviceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Device model
+   */
+  readonly fields: DeviceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Device.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeviceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    venue<T extends VenueDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VenueDefaultArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    sessions<T extends Device$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, Device$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Device model
+   */ 
+  interface DeviceFieldRefs {
+    readonly id: FieldRef<"Device", 'String'>
+    readonly venueId: FieldRef<"Device", 'String'>
+    readonly fingerprint: FieldRef<"Device", 'String'>
+    readonly name: FieldRef<"Device", 'String'>
+    readonly role: FieldRef<"Device", 'String'>
+    readonly approved: FieldRef<"Device", 'Boolean'>
+    readonly lastSeenAt: FieldRef<"Device", 'DateTime'>
+    readonly createdAt: FieldRef<"Device", 'DateTime'>
+    readonly updatedAt: FieldRef<"Device", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Device findUnique
+   */
+  export type DeviceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which Device to fetch.
+     */
+    where: DeviceWhereUniqueInput
+  }
+
+  /**
+   * Device findUniqueOrThrow
+   */
+  export type DeviceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which Device to fetch.
+     */
+    where: DeviceWhereUniqueInput
+  }
+
+  /**
+   * Device findFirst
+   */
+  export type DeviceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which Device to fetch.
+     */
+    where?: DeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Devices to fetch.
+     */
+    orderBy?: DeviceOrderByWithRelationInput | DeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Devices.
+     */
+    cursor?: DeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Devices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Devices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Devices.
+     */
+    distinct?: DeviceScalarFieldEnum | DeviceScalarFieldEnum[]
+  }
+
+  /**
+   * Device findFirstOrThrow
+   */
+  export type DeviceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which Device to fetch.
+     */
+    where?: DeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Devices to fetch.
+     */
+    orderBy?: DeviceOrderByWithRelationInput | DeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Devices.
+     */
+    cursor?: DeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Devices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Devices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Devices.
+     */
+    distinct?: DeviceScalarFieldEnum | DeviceScalarFieldEnum[]
+  }
+
+  /**
+   * Device findMany
+   */
+  export type DeviceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which Devices to fetch.
+     */
+    where?: DeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Devices to fetch.
+     */
+    orderBy?: DeviceOrderByWithRelationInput | DeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Devices.
+     */
+    cursor?: DeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Devices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Devices.
+     */
+    skip?: number
+    distinct?: DeviceScalarFieldEnum | DeviceScalarFieldEnum[]
+  }
+
+  /**
+   * Device create
+   */
+  export type DeviceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Device.
+     */
+    data: XOR<DeviceCreateInput, DeviceUncheckedCreateInput>
+  }
+
+  /**
+   * Device createMany
+   */
+  export type DeviceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Devices.
+     */
+    data: DeviceCreateManyInput | DeviceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Device createManyAndReturn
+   */
+  export type DeviceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Devices.
+     */
+    data: DeviceCreateManyInput | DeviceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Device update
+   */
+  export type DeviceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Device.
+     */
+    data: XOR<DeviceUpdateInput, DeviceUncheckedUpdateInput>
+    /**
+     * Choose, which Device to update.
+     */
+    where: DeviceWhereUniqueInput
+  }
+
+  /**
+   * Device updateMany
+   */
+  export type DeviceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Devices.
+     */
+    data: XOR<DeviceUpdateManyMutationInput, DeviceUncheckedUpdateManyInput>
+    /**
+     * Filter which Devices to update
+     */
+    where?: DeviceWhereInput
+  }
+
+  /**
+   * Device upsert
+   */
+  export type DeviceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Device to update in case it exists.
+     */
+    where: DeviceWhereUniqueInput
+    /**
+     * In case the Device found by the `where` argument doesn't exist, create a new Device with this data.
+     */
+    create: XOR<DeviceCreateInput, DeviceUncheckedCreateInput>
+    /**
+     * In case the Device was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeviceUpdateInput, DeviceUncheckedUpdateInput>
+  }
+
+  /**
+   * Device delete
+   */
+  export type DeviceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    /**
+     * Filter which Device to delete.
+     */
+    where: DeviceWhereUniqueInput
+  }
+
+  /**
+   * Device deleteMany
+   */
+  export type DeviceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Devices to delete
+     */
+    where?: DeviceWhereInput
+  }
+
+  /**
+   * Device.sessions
+   */
+  export type Device$sessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    where?: DeviceSessionWhereInput
+    orderBy?: DeviceSessionOrderByWithRelationInput | DeviceSessionOrderByWithRelationInput[]
+    cursor?: DeviceSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DeviceSessionScalarFieldEnum | DeviceSessionScalarFieldEnum[]
+  }
+
+  /**
+   * Device without action
+   */
+  export type DeviceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DeviceSession
+   */
+
+  export type AggregateDeviceSession = {
+    _count: DeviceSessionCountAggregateOutputType | null
+    _min: DeviceSessionMinAggregateOutputType | null
+    _max: DeviceSessionMaxAggregateOutputType | null
+  }
+
+  export type DeviceSessionMinAggregateOutputType = {
+    id: string | null
+    tokenHash: string | null
+    deviceId: string | null
+    venueId: string | null
+    role: string | null
+    expiresAt: Date | null
+    revokedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type DeviceSessionMaxAggregateOutputType = {
+    id: string | null
+    tokenHash: string | null
+    deviceId: string | null
+    venueId: string | null
+    role: string | null
+    expiresAt: Date | null
+    revokedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type DeviceSessionCountAggregateOutputType = {
+    id: number
+    tokenHash: number
+    deviceId: number
+    venueId: number
+    role: number
+    expiresAt: number
+    revokedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type DeviceSessionMinAggregateInputType = {
+    id?: true
+    tokenHash?: true
+    deviceId?: true
+    venueId?: true
+    role?: true
+    expiresAt?: true
+    revokedAt?: true
+    createdAt?: true
+  }
+
+  export type DeviceSessionMaxAggregateInputType = {
+    id?: true
+    tokenHash?: true
+    deviceId?: true
+    venueId?: true
+    role?: true
+    expiresAt?: true
+    revokedAt?: true
+    createdAt?: true
+  }
+
+  export type DeviceSessionCountAggregateInputType = {
+    id?: true
+    tokenHash?: true
+    deviceId?: true
+    venueId?: true
+    role?: true
+    expiresAt?: true
+    revokedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type DeviceSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceSession to aggregate.
+     */
+    where?: DeviceSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceSessions to fetch.
+     */
+    orderBy?: DeviceSessionOrderByWithRelationInput | DeviceSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeviceSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DeviceSessions
+    **/
+    _count?: true | DeviceSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeviceSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeviceSessionMaxAggregateInputType
+  }
+
+  export type GetDeviceSessionAggregateType<T extends DeviceSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeviceSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeviceSession[P]>
+      : GetScalarType<T[P], AggregateDeviceSession[P]>
+  }
+
+
+
+
+  export type DeviceSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceSessionWhereInput
+    orderBy?: DeviceSessionOrderByWithAggregationInput | DeviceSessionOrderByWithAggregationInput[]
+    by: DeviceSessionScalarFieldEnum[] | DeviceSessionScalarFieldEnum
+    having?: DeviceSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeviceSessionCountAggregateInputType | true
+    _min?: DeviceSessionMinAggregateInputType
+    _max?: DeviceSessionMaxAggregateInputType
+  }
+
+  export type DeviceSessionGroupByOutputType = {
+    id: string
+    tokenHash: string
+    deviceId: string
+    venueId: string
+    role: string
+    expiresAt: Date
+    revokedAt: Date | null
+    createdAt: Date
+    _count: DeviceSessionCountAggregateOutputType | null
+    _min: DeviceSessionMinAggregateOutputType | null
+    _max: DeviceSessionMaxAggregateOutputType | null
+  }
+
+  type GetDeviceSessionGroupByPayload<T extends DeviceSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeviceSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeviceSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeviceSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], DeviceSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeviceSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tokenHash?: boolean
+    deviceId?: boolean
+    venueId?: boolean
+    role?: boolean
+    expiresAt?: boolean
+    revokedAt?: boolean
+    createdAt?: boolean
+    device?: boolean | DeviceDefaultArgs<ExtArgs>
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["deviceSession"]>
+
+  export type DeviceSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tokenHash?: boolean
+    deviceId?: boolean
+    venueId?: boolean
+    role?: boolean
+    expiresAt?: boolean
+    revokedAt?: boolean
+    createdAt?: boolean
+    device?: boolean | DeviceDefaultArgs<ExtArgs>
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["deviceSession"]>
+
+  export type DeviceSessionSelectScalar = {
+    id?: boolean
+    tokenHash?: boolean
+    deviceId?: boolean
+    venueId?: boolean
+    role?: boolean
+    expiresAt?: boolean
+    revokedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type DeviceSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    device?: boolean | DeviceDefaultArgs<ExtArgs>
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }
+  export type DeviceSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    device?: boolean | DeviceDefaultArgs<ExtArgs>
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }
+
+  export type $DeviceSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DeviceSession"
+    objects: {
+      device: Prisma.$DevicePayload<ExtArgs>
+      venue: Prisma.$VenuePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tokenHash: string
+      deviceId: string
+      venueId: string
+      role: string
+      expiresAt: Date
+      revokedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["deviceSession"]>
+    composites: {}
+  }
+
+  type DeviceSessionGetPayload<S extends boolean | null | undefined | DeviceSessionDefaultArgs> = $Result.GetResult<Prisma.$DeviceSessionPayload, S>
+
+  type DeviceSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DeviceSessionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DeviceSessionCountAggregateInputType | true
+    }
+
+  export interface DeviceSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DeviceSession'], meta: { name: 'DeviceSession' } }
+    /**
+     * Find zero or one DeviceSession that matches the filter.
+     * @param {DeviceSessionFindUniqueArgs} args - Arguments to find a DeviceSession
+     * @example
+     * // Get one DeviceSession
+     * const deviceSession = await prisma.deviceSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeviceSessionFindUniqueArgs>(args: SelectSubset<T, DeviceSessionFindUniqueArgs<ExtArgs>>): Prisma__DeviceSessionClient<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one DeviceSession that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {DeviceSessionFindUniqueOrThrowArgs} args - Arguments to find a DeviceSession
+     * @example
+     * // Get one DeviceSession
+     * const deviceSession = await prisma.deviceSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeviceSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, DeviceSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeviceSessionClient<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first DeviceSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceSessionFindFirstArgs} args - Arguments to find a DeviceSession
+     * @example
+     * // Get one DeviceSession
+     * const deviceSession = await prisma.deviceSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeviceSessionFindFirstArgs>(args?: SelectSubset<T, DeviceSessionFindFirstArgs<ExtArgs>>): Prisma__DeviceSessionClient<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first DeviceSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceSessionFindFirstOrThrowArgs} args - Arguments to find a DeviceSession
+     * @example
+     * // Get one DeviceSession
+     * const deviceSession = await prisma.deviceSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeviceSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, DeviceSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeviceSessionClient<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more DeviceSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DeviceSessions
+     * const deviceSessions = await prisma.deviceSession.findMany()
+     * 
+     * // Get first 10 DeviceSessions
+     * const deviceSessions = await prisma.deviceSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const deviceSessionWithIdOnly = await prisma.deviceSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DeviceSessionFindManyArgs>(args?: SelectSubset<T, DeviceSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a DeviceSession.
+     * @param {DeviceSessionCreateArgs} args - Arguments to create a DeviceSession.
+     * @example
+     * // Create one DeviceSession
+     * const DeviceSession = await prisma.deviceSession.create({
+     *   data: {
+     *     // ... data to create a DeviceSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeviceSessionCreateArgs>(args: SelectSubset<T, DeviceSessionCreateArgs<ExtArgs>>): Prisma__DeviceSessionClient<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many DeviceSessions.
+     * @param {DeviceSessionCreateManyArgs} args - Arguments to create many DeviceSessions.
+     * @example
+     * // Create many DeviceSessions
+     * const deviceSession = await prisma.deviceSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeviceSessionCreateManyArgs>(args?: SelectSubset<T, DeviceSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DeviceSessions and returns the data saved in the database.
+     * @param {DeviceSessionCreateManyAndReturnArgs} args - Arguments to create many DeviceSessions.
+     * @example
+     * // Create many DeviceSessions
+     * const deviceSession = await prisma.deviceSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DeviceSessions and only return the `id`
+     * const deviceSessionWithIdOnly = await prisma.deviceSession.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DeviceSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, DeviceSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a DeviceSession.
+     * @param {DeviceSessionDeleteArgs} args - Arguments to delete one DeviceSession.
+     * @example
+     * // Delete one DeviceSession
+     * const DeviceSession = await prisma.deviceSession.delete({
+     *   where: {
+     *     // ... filter to delete one DeviceSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeviceSessionDeleteArgs>(args: SelectSubset<T, DeviceSessionDeleteArgs<ExtArgs>>): Prisma__DeviceSessionClient<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one DeviceSession.
+     * @param {DeviceSessionUpdateArgs} args - Arguments to update one DeviceSession.
+     * @example
+     * // Update one DeviceSession
+     * const deviceSession = await prisma.deviceSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeviceSessionUpdateArgs>(args: SelectSubset<T, DeviceSessionUpdateArgs<ExtArgs>>): Prisma__DeviceSessionClient<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more DeviceSessions.
+     * @param {DeviceSessionDeleteManyArgs} args - Arguments to filter DeviceSessions to delete.
+     * @example
+     * // Delete a few DeviceSessions
+     * const { count } = await prisma.deviceSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeviceSessionDeleteManyArgs>(args?: SelectSubset<T, DeviceSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeviceSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DeviceSessions
+     * const deviceSession = await prisma.deviceSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeviceSessionUpdateManyArgs>(args: SelectSubset<T, DeviceSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DeviceSession.
+     * @param {DeviceSessionUpsertArgs} args - Arguments to update or create a DeviceSession.
+     * @example
+     * // Update or create a DeviceSession
+     * const deviceSession = await prisma.deviceSession.upsert({
+     *   create: {
+     *     // ... data to create a DeviceSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DeviceSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeviceSessionUpsertArgs>(args: SelectSubset<T, DeviceSessionUpsertArgs<ExtArgs>>): Prisma__DeviceSessionClient<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of DeviceSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceSessionCountArgs} args - Arguments to filter DeviceSessions to count.
+     * @example
+     * // Count the number of DeviceSessions
+     * const count = await prisma.deviceSession.count({
+     *   where: {
+     *     // ... the filter for the DeviceSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeviceSessionCountArgs>(
+      args?: Subset<T, DeviceSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeviceSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DeviceSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeviceSessionAggregateArgs>(args: Subset<T, DeviceSessionAggregateArgs>): Prisma.PrismaPromise<GetDeviceSessionAggregateType<T>>
+
+    /**
+     * Group by DeviceSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeviceSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeviceSessionGroupByArgs['orderBy'] }
+        : { orderBy?: DeviceSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeviceSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeviceSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DeviceSession model
+   */
+  readonly fields: DeviceSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DeviceSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeviceSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    device<T extends DeviceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DeviceDefaultArgs<ExtArgs>>): Prisma__DeviceClient<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    venue<T extends VenueDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VenueDefaultArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DeviceSession model
+   */ 
+  interface DeviceSessionFieldRefs {
+    readonly id: FieldRef<"DeviceSession", 'String'>
+    readonly tokenHash: FieldRef<"DeviceSession", 'String'>
+    readonly deviceId: FieldRef<"DeviceSession", 'String'>
+    readonly venueId: FieldRef<"DeviceSession", 'String'>
+    readonly role: FieldRef<"DeviceSession", 'String'>
+    readonly expiresAt: FieldRef<"DeviceSession", 'DateTime'>
+    readonly revokedAt: FieldRef<"DeviceSession", 'DateTime'>
+    readonly createdAt: FieldRef<"DeviceSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DeviceSession findUnique
+   */
+  export type DeviceSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceSession to fetch.
+     */
+    where: DeviceSessionWhereUniqueInput
+  }
+
+  /**
+   * DeviceSession findUniqueOrThrow
+   */
+  export type DeviceSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceSession to fetch.
+     */
+    where: DeviceSessionWhereUniqueInput
+  }
+
+  /**
+   * DeviceSession findFirst
+   */
+  export type DeviceSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceSession to fetch.
+     */
+    where?: DeviceSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceSessions to fetch.
+     */
+    orderBy?: DeviceSessionOrderByWithRelationInput | DeviceSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceSessions.
+     */
+    cursor?: DeviceSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceSessions.
+     */
+    distinct?: DeviceSessionScalarFieldEnum | DeviceSessionScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceSession findFirstOrThrow
+   */
+  export type DeviceSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceSession to fetch.
+     */
+    where?: DeviceSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceSessions to fetch.
+     */
+    orderBy?: DeviceSessionOrderByWithRelationInput | DeviceSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceSessions.
+     */
+    cursor?: DeviceSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceSessions.
+     */
+    distinct?: DeviceSessionScalarFieldEnum | DeviceSessionScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceSession findMany
+   */
+  export type DeviceSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceSessions to fetch.
+     */
+    where?: DeviceSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceSessions to fetch.
+     */
+    orderBy?: DeviceSessionOrderByWithRelationInput | DeviceSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DeviceSessions.
+     */
+    cursor?: DeviceSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceSessions.
+     */
+    skip?: number
+    distinct?: DeviceSessionScalarFieldEnum | DeviceSessionScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceSession create
+   */
+  export type DeviceSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DeviceSession.
+     */
+    data: XOR<DeviceSessionCreateInput, DeviceSessionUncheckedCreateInput>
+  }
+
+  /**
+   * DeviceSession createMany
+   */
+  export type DeviceSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DeviceSessions.
+     */
+    data: DeviceSessionCreateManyInput | DeviceSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DeviceSession createManyAndReturn
+   */
+  export type DeviceSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many DeviceSessions.
+     */
+    data: DeviceSessionCreateManyInput | DeviceSessionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DeviceSession update
+   */
+  export type DeviceSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DeviceSession.
+     */
+    data: XOR<DeviceSessionUpdateInput, DeviceSessionUncheckedUpdateInput>
+    /**
+     * Choose, which DeviceSession to update.
+     */
+    where: DeviceSessionWhereUniqueInput
+  }
+
+  /**
+   * DeviceSession updateMany
+   */
+  export type DeviceSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DeviceSessions.
+     */
+    data: XOR<DeviceSessionUpdateManyMutationInput, DeviceSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which DeviceSessions to update
+     */
+    where?: DeviceSessionWhereInput
+  }
+
+  /**
+   * DeviceSession upsert
+   */
+  export type DeviceSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DeviceSession to update in case it exists.
+     */
+    where: DeviceSessionWhereUniqueInput
+    /**
+     * In case the DeviceSession found by the `where` argument doesn't exist, create a new DeviceSession with this data.
+     */
+    create: XOR<DeviceSessionCreateInput, DeviceSessionUncheckedCreateInput>
+    /**
+     * In case the DeviceSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeviceSessionUpdateInput, DeviceSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * DeviceSession delete
+   */
+  export type DeviceSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+    /**
+     * Filter which DeviceSession to delete.
+     */
+    where: DeviceSessionWhereUniqueInput
+  }
+
+  /**
+   * DeviceSession deleteMany
+   */
+  export type DeviceSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceSessions to delete
+     */
+    where?: DeviceSessionWhereInput
+  }
+
+  /**
+   * DeviceSession without action
+   */
+  export type DeviceSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceSession
+     */
+    select?: DeviceSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -7030,6 +10325,47 @@ export namespace Prisma {
   export type ColaScalarFieldEnum = (typeof ColaScalarFieldEnum)[keyof typeof ColaScalarFieldEnum]
 
 
+  export const VenueScalarFieldEnum: {
+    id: 'id',
+    slug: 'slug',
+    name: 'name',
+    active: 'active',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type VenueScalarFieldEnum = (typeof VenueScalarFieldEnum)[keyof typeof VenueScalarFieldEnum]
+
+
+  export const DeviceScalarFieldEnum: {
+    id: 'id',
+    venueId: 'venueId',
+    fingerprint: 'fingerprint',
+    name: 'name',
+    role: 'role',
+    approved: 'approved',
+    lastSeenAt: 'lastSeenAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DeviceScalarFieldEnum = (typeof DeviceScalarFieldEnum)[keyof typeof DeviceScalarFieldEnum]
+
+
+  export const DeviceSessionScalarFieldEnum: {
+    id: 'id',
+    tokenHash: 'tokenHash',
+    deviceId: 'deviceId',
+    venueId: 'venueId',
+    role: 'role',
+    expiresAt: 'expiresAt',
+    revokedAt: 'revokedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type DeviceSessionScalarFieldEnum = (typeof DeviceSessionScalarFieldEnum)[keyof typeof DeviceSessionScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -7044,6 +10380,14 @@ export namespace Prisma {
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -7465,6 +10809,220 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Cola"> | Date | string
   }
 
+  export type VenueWhereInput = {
+    AND?: VenueWhereInput | VenueWhereInput[]
+    OR?: VenueWhereInput[]
+    NOT?: VenueWhereInput | VenueWhereInput[]
+    id?: StringFilter<"Venue"> | string
+    slug?: StringFilter<"Venue"> | string
+    name?: StringFilter<"Venue"> | string
+    active?: BoolFilter<"Venue"> | boolean
+    createdAt?: DateTimeFilter<"Venue"> | Date | string
+    updatedAt?: DateTimeFilter<"Venue"> | Date | string
+    devices?: DeviceListRelationFilter
+    sessions?: DeviceSessionListRelationFilter
+  }
+
+  export type VenueOrderByWithRelationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    devices?: DeviceOrderByRelationAggregateInput
+    sessions?: DeviceSessionOrderByRelationAggregateInput
+  }
+
+  export type VenueWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    slug?: string
+    AND?: VenueWhereInput | VenueWhereInput[]
+    OR?: VenueWhereInput[]
+    NOT?: VenueWhereInput | VenueWhereInput[]
+    name?: StringFilter<"Venue"> | string
+    active?: BoolFilter<"Venue"> | boolean
+    createdAt?: DateTimeFilter<"Venue"> | Date | string
+    updatedAt?: DateTimeFilter<"Venue"> | Date | string
+    devices?: DeviceListRelationFilter
+    sessions?: DeviceSessionListRelationFilter
+  }, "id" | "slug">
+
+  export type VenueOrderByWithAggregationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: VenueCountOrderByAggregateInput
+    _max?: VenueMaxOrderByAggregateInput
+    _min?: VenueMinOrderByAggregateInput
+  }
+
+  export type VenueScalarWhereWithAggregatesInput = {
+    AND?: VenueScalarWhereWithAggregatesInput | VenueScalarWhereWithAggregatesInput[]
+    OR?: VenueScalarWhereWithAggregatesInput[]
+    NOT?: VenueScalarWhereWithAggregatesInput | VenueScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Venue"> | string
+    slug?: StringWithAggregatesFilter<"Venue"> | string
+    name?: StringWithAggregatesFilter<"Venue"> | string
+    active?: BoolWithAggregatesFilter<"Venue"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Venue"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Venue"> | Date | string
+  }
+
+  export type DeviceWhereInput = {
+    AND?: DeviceWhereInput | DeviceWhereInput[]
+    OR?: DeviceWhereInput[]
+    NOT?: DeviceWhereInput | DeviceWhereInput[]
+    id?: StringFilter<"Device"> | string
+    venueId?: StringFilter<"Device"> | string
+    fingerprint?: StringFilter<"Device"> | string
+    name?: StringFilter<"Device"> | string
+    role?: StringFilter<"Device"> | string
+    approved?: BoolFilter<"Device"> | boolean
+    lastSeenAt?: DateTimeNullableFilter<"Device"> | Date | string | null
+    createdAt?: DateTimeFilter<"Device"> | Date | string
+    updatedAt?: DateTimeFilter<"Device"> | Date | string
+    venue?: XOR<VenueRelationFilter, VenueWhereInput>
+    sessions?: DeviceSessionListRelationFilter
+  }
+
+  export type DeviceOrderByWithRelationInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    fingerprint?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    approved?: SortOrder
+    lastSeenAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    venue?: VenueOrderByWithRelationInput
+    sessions?: DeviceSessionOrderByRelationAggregateInput
+  }
+
+  export type DeviceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    fingerprint?: string
+    AND?: DeviceWhereInput | DeviceWhereInput[]
+    OR?: DeviceWhereInput[]
+    NOT?: DeviceWhereInput | DeviceWhereInput[]
+    venueId?: StringFilter<"Device"> | string
+    name?: StringFilter<"Device"> | string
+    role?: StringFilter<"Device"> | string
+    approved?: BoolFilter<"Device"> | boolean
+    lastSeenAt?: DateTimeNullableFilter<"Device"> | Date | string | null
+    createdAt?: DateTimeFilter<"Device"> | Date | string
+    updatedAt?: DateTimeFilter<"Device"> | Date | string
+    venue?: XOR<VenueRelationFilter, VenueWhereInput>
+    sessions?: DeviceSessionListRelationFilter
+  }, "id" | "fingerprint">
+
+  export type DeviceOrderByWithAggregationInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    fingerprint?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    approved?: SortOrder
+    lastSeenAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DeviceCountOrderByAggregateInput
+    _max?: DeviceMaxOrderByAggregateInput
+    _min?: DeviceMinOrderByAggregateInput
+  }
+
+  export type DeviceScalarWhereWithAggregatesInput = {
+    AND?: DeviceScalarWhereWithAggregatesInput | DeviceScalarWhereWithAggregatesInput[]
+    OR?: DeviceScalarWhereWithAggregatesInput[]
+    NOT?: DeviceScalarWhereWithAggregatesInput | DeviceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Device"> | string
+    venueId?: StringWithAggregatesFilter<"Device"> | string
+    fingerprint?: StringWithAggregatesFilter<"Device"> | string
+    name?: StringWithAggregatesFilter<"Device"> | string
+    role?: StringWithAggregatesFilter<"Device"> | string
+    approved?: BoolWithAggregatesFilter<"Device"> | boolean
+    lastSeenAt?: DateTimeNullableWithAggregatesFilter<"Device"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Device"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Device"> | Date | string
+  }
+
+  export type DeviceSessionWhereInput = {
+    AND?: DeviceSessionWhereInput | DeviceSessionWhereInput[]
+    OR?: DeviceSessionWhereInput[]
+    NOT?: DeviceSessionWhereInput | DeviceSessionWhereInput[]
+    id?: StringFilter<"DeviceSession"> | string
+    tokenHash?: StringFilter<"DeviceSession"> | string
+    deviceId?: StringFilter<"DeviceSession"> | string
+    venueId?: StringFilter<"DeviceSession"> | string
+    role?: StringFilter<"DeviceSession"> | string
+    expiresAt?: DateTimeFilter<"DeviceSession"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"DeviceSession"> | Date | string | null
+    createdAt?: DateTimeFilter<"DeviceSession"> | Date | string
+    device?: XOR<DeviceRelationFilter, DeviceWhereInput>
+    venue?: XOR<VenueRelationFilter, VenueWhereInput>
+  }
+
+  export type DeviceSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    tokenHash?: SortOrder
+    deviceId?: SortOrder
+    venueId?: SortOrder
+    role?: SortOrder
+    expiresAt?: SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    device?: DeviceOrderByWithRelationInput
+    venue?: VenueOrderByWithRelationInput
+  }
+
+  export type DeviceSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tokenHash?: string
+    AND?: DeviceSessionWhereInput | DeviceSessionWhereInput[]
+    OR?: DeviceSessionWhereInput[]
+    NOT?: DeviceSessionWhereInput | DeviceSessionWhereInput[]
+    deviceId?: StringFilter<"DeviceSession"> | string
+    venueId?: StringFilter<"DeviceSession"> | string
+    role?: StringFilter<"DeviceSession"> | string
+    expiresAt?: DateTimeFilter<"DeviceSession"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"DeviceSession"> | Date | string | null
+    createdAt?: DateTimeFilter<"DeviceSession"> | Date | string
+    device?: XOR<DeviceRelationFilter, DeviceWhereInput>
+    venue?: XOR<VenueRelationFilter, VenueWhereInput>
+  }, "id" | "tokenHash">
+
+  export type DeviceSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    tokenHash?: SortOrder
+    deviceId?: SortOrder
+    venueId?: SortOrder
+    role?: SortOrder
+    expiresAt?: SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: DeviceSessionCountOrderByAggregateInput
+    _max?: DeviceSessionMaxOrderByAggregateInput
+    _min?: DeviceSessionMinOrderByAggregateInput
+  }
+
+  export type DeviceSessionScalarWhereWithAggregatesInput = {
+    AND?: DeviceSessionScalarWhereWithAggregatesInput | DeviceSessionScalarWhereWithAggregatesInput[]
+    OR?: DeviceSessionScalarWhereWithAggregatesInput[]
+    NOT?: DeviceSessionScalarWhereWithAggregatesInput | DeviceSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DeviceSession"> | string
+    tokenHash?: StringWithAggregatesFilter<"DeviceSession"> | string
+    deviceId?: StringWithAggregatesFilter<"DeviceSession"> | string
+    venueId?: StringWithAggregatesFilter<"DeviceSession"> | string
+    role?: StringWithAggregatesFilter<"DeviceSession"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"DeviceSession"> | Date | string
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"DeviceSession"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DeviceSession"> | Date | string
+  }
+
   export type PlaylistCreateInput = {
     nombre: string
     descripcion?: string
@@ -7820,6 +11378,239 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type VenueCreateInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    devices?: DeviceCreateNestedManyWithoutVenueInput
+    sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueUncheckedCreateInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
+    sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    devices?: DeviceUpdateManyWithoutVenueNestedInput
+    sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
+  }
+
+  export type VenueUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
+    sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
+  }
+
+  export type VenueCreateManyInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type VenueUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VenueUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceCreateInput = {
+    id?: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    venue: VenueCreateNestedOneWithoutDevicesInput
+    sessions?: DeviceSessionCreateNestedManyWithoutDeviceInput
+  }
+
+  export type DeviceUncheckedCreateInput = {
+    id?: string
+    venueId: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: DeviceSessionUncheckedCreateNestedManyWithoutDeviceInput
+  }
+
+  export type DeviceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    venue?: VenueUpdateOneRequiredWithoutDevicesNestedInput
+    sessions?: DeviceSessionUpdateManyWithoutDeviceNestedInput
+  }
+
+  export type DeviceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: DeviceSessionUncheckedUpdateManyWithoutDeviceNestedInput
+  }
+
+  export type DeviceCreateManyInput = {
+    id?: string
+    venueId: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeviceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceSessionCreateInput = {
+    id?: string
+    tokenHash: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    device: DeviceCreateNestedOneWithoutSessionsInput
+    venue: VenueCreateNestedOneWithoutSessionsInput
+  }
+
+  export type DeviceSessionUncheckedCreateInput = {
+    id?: string
+    tokenHash: string
+    deviceId: string
+    venueId: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DeviceSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    device?: DeviceUpdateOneRequiredWithoutSessionsNestedInput
+    venue?: VenueUpdateOneRequiredWithoutSessionsNestedInput
+  }
+
+  export type DeviceSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceSessionCreateManyInput = {
+    id?: string
+    tokenHash: string
+    deviceId: string
+    venueId: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DeviceSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -8145,6 +11936,162 @@ export namespace Prisma {
     orden?: SortOrder
   }
 
+  export type DeviceListRelationFilter = {
+    every?: DeviceWhereInput
+    some?: DeviceWhereInput
+    none?: DeviceWhereInput
+  }
+
+  export type DeviceSessionListRelationFilter = {
+    every?: DeviceSessionWhereInput
+    some?: DeviceSessionWhereInput
+    none?: DeviceSessionWhereInput
+  }
+
+  export type DeviceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DeviceSessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type VenueCountOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type VenueMaxOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type VenueMinOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type VenueRelationFilter = {
+    is?: VenueWhereInput
+    isNot?: VenueWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type DeviceCountOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    fingerprint?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    approved?: SortOrder
+    lastSeenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DeviceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    fingerprint?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    approved?: SortOrder
+    lastSeenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DeviceMinOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    fingerprint?: SortOrder
+    name?: SortOrder
+    role?: SortOrder
+    approved?: SortOrder
+    lastSeenAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type DeviceRelationFilter = {
+    is?: DeviceWhereInput
+    isNot?: DeviceWhereInput
+  }
+
+  export type DeviceSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    tokenHash?: SortOrder
+    deviceId?: SortOrder
+    venueId?: SortOrder
+    role?: SortOrder
+    expiresAt?: SortOrder
+    revokedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DeviceSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tokenHash?: SortOrder
+    deviceId?: SortOrder
+    venueId?: SortOrder
+    role?: SortOrder
+    expiresAt?: SortOrder
+    revokedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DeviceSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    tokenHash?: SortOrder
+    deviceId?: SortOrder
+    venueId?: SortOrder
+    role?: SortOrder
+    expiresAt?: SortOrder
+    revokedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type PlaylistCancionCreateNestedManyWithoutPlaylistInput = {
     create?: XOR<PlaylistCancionCreateWithoutPlaylistInput, PlaylistCancionUncheckedCreateWithoutPlaylistInput> | PlaylistCancionCreateWithoutPlaylistInput[] | PlaylistCancionUncheckedCreateWithoutPlaylistInput[]
     connectOrCreate?: PlaylistCancionCreateOrConnectWithoutPlaylistInput | PlaylistCancionCreateOrConnectWithoutPlaylistInput[]
@@ -8219,6 +12166,178 @@ export namespace Prisma {
     upsert?: PlaylistUpsertWithoutCancionesInput
     connect?: PlaylistWhereUniqueInput
     update?: XOR<XOR<PlaylistUpdateToOneWithWhereWithoutCancionesInput, PlaylistUpdateWithoutCancionesInput>, PlaylistUncheckedUpdateWithoutCancionesInput>
+  }
+
+  export type DeviceCreateNestedManyWithoutVenueInput = {
+    create?: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput> | DeviceCreateWithoutVenueInput[] | DeviceUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: DeviceCreateOrConnectWithoutVenueInput | DeviceCreateOrConnectWithoutVenueInput[]
+    createMany?: DeviceCreateManyVenueInputEnvelope
+    connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+  }
+
+  export type DeviceSessionCreateNestedManyWithoutVenueInput = {
+    create?: XOR<DeviceSessionCreateWithoutVenueInput, DeviceSessionUncheckedCreateWithoutVenueInput> | DeviceSessionCreateWithoutVenueInput[] | DeviceSessionUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: DeviceSessionCreateOrConnectWithoutVenueInput | DeviceSessionCreateOrConnectWithoutVenueInput[]
+    createMany?: DeviceSessionCreateManyVenueInputEnvelope
+    connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+  }
+
+  export type DeviceUncheckedCreateNestedManyWithoutVenueInput = {
+    create?: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput> | DeviceCreateWithoutVenueInput[] | DeviceUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: DeviceCreateOrConnectWithoutVenueInput | DeviceCreateOrConnectWithoutVenueInput[]
+    createMany?: DeviceCreateManyVenueInputEnvelope
+    connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+  }
+
+  export type DeviceSessionUncheckedCreateNestedManyWithoutVenueInput = {
+    create?: XOR<DeviceSessionCreateWithoutVenueInput, DeviceSessionUncheckedCreateWithoutVenueInput> | DeviceSessionCreateWithoutVenueInput[] | DeviceSessionUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: DeviceSessionCreateOrConnectWithoutVenueInput | DeviceSessionCreateOrConnectWithoutVenueInput[]
+    createMany?: DeviceSessionCreateManyVenueInputEnvelope
+    connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+  }
+
+  export type DeviceUpdateManyWithoutVenueNestedInput = {
+    create?: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput> | DeviceCreateWithoutVenueInput[] | DeviceUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: DeviceCreateOrConnectWithoutVenueInput | DeviceCreateOrConnectWithoutVenueInput[]
+    upsert?: DeviceUpsertWithWhereUniqueWithoutVenueInput | DeviceUpsertWithWhereUniqueWithoutVenueInput[]
+    createMany?: DeviceCreateManyVenueInputEnvelope
+    set?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    disconnect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    delete?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    update?: DeviceUpdateWithWhereUniqueWithoutVenueInput | DeviceUpdateWithWhereUniqueWithoutVenueInput[]
+    updateMany?: DeviceUpdateManyWithWhereWithoutVenueInput | DeviceUpdateManyWithWhereWithoutVenueInput[]
+    deleteMany?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
+  }
+
+  export type DeviceSessionUpdateManyWithoutVenueNestedInput = {
+    create?: XOR<DeviceSessionCreateWithoutVenueInput, DeviceSessionUncheckedCreateWithoutVenueInput> | DeviceSessionCreateWithoutVenueInput[] | DeviceSessionUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: DeviceSessionCreateOrConnectWithoutVenueInput | DeviceSessionCreateOrConnectWithoutVenueInput[]
+    upsert?: DeviceSessionUpsertWithWhereUniqueWithoutVenueInput | DeviceSessionUpsertWithWhereUniqueWithoutVenueInput[]
+    createMany?: DeviceSessionCreateManyVenueInputEnvelope
+    set?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    disconnect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    delete?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    update?: DeviceSessionUpdateWithWhereUniqueWithoutVenueInput | DeviceSessionUpdateWithWhereUniqueWithoutVenueInput[]
+    updateMany?: DeviceSessionUpdateManyWithWhereWithoutVenueInput | DeviceSessionUpdateManyWithWhereWithoutVenueInput[]
+    deleteMany?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
+  }
+
+  export type DeviceUncheckedUpdateManyWithoutVenueNestedInput = {
+    create?: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput> | DeviceCreateWithoutVenueInput[] | DeviceUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: DeviceCreateOrConnectWithoutVenueInput | DeviceCreateOrConnectWithoutVenueInput[]
+    upsert?: DeviceUpsertWithWhereUniqueWithoutVenueInput | DeviceUpsertWithWhereUniqueWithoutVenueInput[]
+    createMany?: DeviceCreateManyVenueInputEnvelope
+    set?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    disconnect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    delete?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    update?: DeviceUpdateWithWhereUniqueWithoutVenueInput | DeviceUpdateWithWhereUniqueWithoutVenueInput[]
+    updateMany?: DeviceUpdateManyWithWhereWithoutVenueInput | DeviceUpdateManyWithWhereWithoutVenueInput[]
+    deleteMany?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
+  }
+
+  export type DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput = {
+    create?: XOR<DeviceSessionCreateWithoutVenueInput, DeviceSessionUncheckedCreateWithoutVenueInput> | DeviceSessionCreateWithoutVenueInput[] | DeviceSessionUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: DeviceSessionCreateOrConnectWithoutVenueInput | DeviceSessionCreateOrConnectWithoutVenueInput[]
+    upsert?: DeviceSessionUpsertWithWhereUniqueWithoutVenueInput | DeviceSessionUpsertWithWhereUniqueWithoutVenueInput[]
+    createMany?: DeviceSessionCreateManyVenueInputEnvelope
+    set?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    disconnect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    delete?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    update?: DeviceSessionUpdateWithWhereUniqueWithoutVenueInput | DeviceSessionUpdateWithWhereUniqueWithoutVenueInput[]
+    updateMany?: DeviceSessionUpdateManyWithWhereWithoutVenueInput | DeviceSessionUpdateManyWithWhereWithoutVenueInput[]
+    deleteMany?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
+  }
+
+  export type VenueCreateNestedOneWithoutDevicesInput = {
+    create?: XOR<VenueCreateWithoutDevicesInput, VenueUncheckedCreateWithoutDevicesInput>
+    connectOrCreate?: VenueCreateOrConnectWithoutDevicesInput
+    connect?: VenueWhereUniqueInput
+  }
+
+  export type DeviceSessionCreateNestedManyWithoutDeviceInput = {
+    create?: XOR<DeviceSessionCreateWithoutDeviceInput, DeviceSessionUncheckedCreateWithoutDeviceInput> | DeviceSessionCreateWithoutDeviceInput[] | DeviceSessionUncheckedCreateWithoutDeviceInput[]
+    connectOrCreate?: DeviceSessionCreateOrConnectWithoutDeviceInput | DeviceSessionCreateOrConnectWithoutDeviceInput[]
+    createMany?: DeviceSessionCreateManyDeviceInputEnvelope
+    connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+  }
+
+  export type DeviceSessionUncheckedCreateNestedManyWithoutDeviceInput = {
+    create?: XOR<DeviceSessionCreateWithoutDeviceInput, DeviceSessionUncheckedCreateWithoutDeviceInput> | DeviceSessionCreateWithoutDeviceInput[] | DeviceSessionUncheckedCreateWithoutDeviceInput[]
+    connectOrCreate?: DeviceSessionCreateOrConnectWithoutDeviceInput | DeviceSessionCreateOrConnectWithoutDeviceInput[]
+    createMany?: DeviceSessionCreateManyDeviceInputEnvelope
+    connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type VenueUpdateOneRequiredWithoutDevicesNestedInput = {
+    create?: XOR<VenueCreateWithoutDevicesInput, VenueUncheckedCreateWithoutDevicesInput>
+    connectOrCreate?: VenueCreateOrConnectWithoutDevicesInput
+    upsert?: VenueUpsertWithoutDevicesInput
+    connect?: VenueWhereUniqueInput
+    update?: XOR<XOR<VenueUpdateToOneWithWhereWithoutDevicesInput, VenueUpdateWithoutDevicesInput>, VenueUncheckedUpdateWithoutDevicesInput>
+  }
+
+  export type DeviceSessionUpdateManyWithoutDeviceNestedInput = {
+    create?: XOR<DeviceSessionCreateWithoutDeviceInput, DeviceSessionUncheckedCreateWithoutDeviceInput> | DeviceSessionCreateWithoutDeviceInput[] | DeviceSessionUncheckedCreateWithoutDeviceInput[]
+    connectOrCreate?: DeviceSessionCreateOrConnectWithoutDeviceInput | DeviceSessionCreateOrConnectWithoutDeviceInput[]
+    upsert?: DeviceSessionUpsertWithWhereUniqueWithoutDeviceInput | DeviceSessionUpsertWithWhereUniqueWithoutDeviceInput[]
+    createMany?: DeviceSessionCreateManyDeviceInputEnvelope
+    set?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    disconnect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    delete?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    update?: DeviceSessionUpdateWithWhereUniqueWithoutDeviceInput | DeviceSessionUpdateWithWhereUniqueWithoutDeviceInput[]
+    updateMany?: DeviceSessionUpdateManyWithWhereWithoutDeviceInput | DeviceSessionUpdateManyWithWhereWithoutDeviceInput[]
+    deleteMany?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
+  }
+
+  export type DeviceSessionUncheckedUpdateManyWithoutDeviceNestedInput = {
+    create?: XOR<DeviceSessionCreateWithoutDeviceInput, DeviceSessionUncheckedCreateWithoutDeviceInput> | DeviceSessionCreateWithoutDeviceInput[] | DeviceSessionUncheckedCreateWithoutDeviceInput[]
+    connectOrCreate?: DeviceSessionCreateOrConnectWithoutDeviceInput | DeviceSessionCreateOrConnectWithoutDeviceInput[]
+    upsert?: DeviceSessionUpsertWithWhereUniqueWithoutDeviceInput | DeviceSessionUpsertWithWhereUniqueWithoutDeviceInput[]
+    createMany?: DeviceSessionCreateManyDeviceInputEnvelope
+    set?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    disconnect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    delete?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    connect?: DeviceSessionWhereUniqueInput | DeviceSessionWhereUniqueInput[]
+    update?: DeviceSessionUpdateWithWhereUniqueWithoutDeviceInput | DeviceSessionUpdateWithWhereUniqueWithoutDeviceInput[]
+    updateMany?: DeviceSessionUpdateManyWithWhereWithoutDeviceInput | DeviceSessionUpdateManyWithWhereWithoutDeviceInput[]
+    deleteMany?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
+  }
+
+  export type DeviceCreateNestedOneWithoutSessionsInput = {
+    create?: XOR<DeviceCreateWithoutSessionsInput, DeviceUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: DeviceCreateOrConnectWithoutSessionsInput
+    connect?: DeviceWhereUniqueInput
+  }
+
+  export type VenueCreateNestedOneWithoutSessionsInput = {
+    create?: XOR<VenueCreateWithoutSessionsInput, VenueUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: VenueCreateOrConnectWithoutSessionsInput
+    connect?: VenueWhereUniqueInput
+  }
+
+  export type DeviceUpdateOneRequiredWithoutSessionsNestedInput = {
+    create?: XOR<DeviceCreateWithoutSessionsInput, DeviceUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: DeviceCreateOrConnectWithoutSessionsInput
+    upsert?: DeviceUpsertWithoutSessionsInput
+    connect?: DeviceWhereUniqueInput
+    update?: XOR<XOR<DeviceUpdateToOneWithWhereWithoutSessionsInput, DeviceUpdateWithoutSessionsInput>, DeviceUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type VenueUpdateOneRequiredWithoutSessionsNestedInput = {
+    create?: XOR<VenueCreateWithoutSessionsInput, VenueUncheckedCreateWithoutSessionsInput>
+    connectOrCreate?: VenueCreateOrConnectWithoutSessionsInput
+    upsert?: VenueUpsertWithoutSessionsInput
+    connect?: VenueWhereUniqueInput
+    update?: XOR<XOR<VenueUpdateToOneWithWhereWithoutSessionsInput, VenueUpdateWithoutSessionsInput>, VenueUncheckedUpdateWithoutSessionsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -8326,6 +12445,42 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type PlaylistCancionCreateWithoutPlaylistInput = {
@@ -8445,6 +12600,353 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DeviceCreateWithoutVenueInput = {
+    id?: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: DeviceSessionCreateNestedManyWithoutDeviceInput
+  }
+
+  export type DeviceUncheckedCreateWithoutVenueInput = {
+    id?: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: DeviceSessionUncheckedCreateNestedManyWithoutDeviceInput
+  }
+
+  export type DeviceCreateOrConnectWithoutVenueInput = {
+    where: DeviceWhereUniqueInput
+    create: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput>
+  }
+
+  export type DeviceCreateManyVenueInputEnvelope = {
+    data: DeviceCreateManyVenueInput | DeviceCreateManyVenueInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DeviceSessionCreateWithoutVenueInput = {
+    id?: string
+    tokenHash: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    device: DeviceCreateNestedOneWithoutSessionsInput
+  }
+
+  export type DeviceSessionUncheckedCreateWithoutVenueInput = {
+    id?: string
+    tokenHash: string
+    deviceId: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DeviceSessionCreateOrConnectWithoutVenueInput = {
+    where: DeviceSessionWhereUniqueInput
+    create: XOR<DeviceSessionCreateWithoutVenueInput, DeviceSessionUncheckedCreateWithoutVenueInput>
+  }
+
+  export type DeviceSessionCreateManyVenueInputEnvelope = {
+    data: DeviceSessionCreateManyVenueInput | DeviceSessionCreateManyVenueInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DeviceUpsertWithWhereUniqueWithoutVenueInput = {
+    where: DeviceWhereUniqueInput
+    update: XOR<DeviceUpdateWithoutVenueInput, DeviceUncheckedUpdateWithoutVenueInput>
+    create: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput>
+  }
+
+  export type DeviceUpdateWithWhereUniqueWithoutVenueInput = {
+    where: DeviceWhereUniqueInput
+    data: XOR<DeviceUpdateWithoutVenueInput, DeviceUncheckedUpdateWithoutVenueInput>
+  }
+
+  export type DeviceUpdateManyWithWhereWithoutVenueInput = {
+    where: DeviceScalarWhereInput
+    data: XOR<DeviceUpdateManyMutationInput, DeviceUncheckedUpdateManyWithoutVenueInput>
+  }
+
+  export type DeviceScalarWhereInput = {
+    AND?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
+    OR?: DeviceScalarWhereInput[]
+    NOT?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
+    id?: StringFilter<"Device"> | string
+    venueId?: StringFilter<"Device"> | string
+    fingerprint?: StringFilter<"Device"> | string
+    name?: StringFilter<"Device"> | string
+    role?: StringFilter<"Device"> | string
+    approved?: BoolFilter<"Device"> | boolean
+    lastSeenAt?: DateTimeNullableFilter<"Device"> | Date | string | null
+    createdAt?: DateTimeFilter<"Device"> | Date | string
+    updatedAt?: DateTimeFilter<"Device"> | Date | string
+  }
+
+  export type DeviceSessionUpsertWithWhereUniqueWithoutVenueInput = {
+    where: DeviceSessionWhereUniqueInput
+    update: XOR<DeviceSessionUpdateWithoutVenueInput, DeviceSessionUncheckedUpdateWithoutVenueInput>
+    create: XOR<DeviceSessionCreateWithoutVenueInput, DeviceSessionUncheckedCreateWithoutVenueInput>
+  }
+
+  export type DeviceSessionUpdateWithWhereUniqueWithoutVenueInput = {
+    where: DeviceSessionWhereUniqueInput
+    data: XOR<DeviceSessionUpdateWithoutVenueInput, DeviceSessionUncheckedUpdateWithoutVenueInput>
+  }
+
+  export type DeviceSessionUpdateManyWithWhereWithoutVenueInput = {
+    where: DeviceSessionScalarWhereInput
+    data: XOR<DeviceSessionUpdateManyMutationInput, DeviceSessionUncheckedUpdateManyWithoutVenueInput>
+  }
+
+  export type DeviceSessionScalarWhereInput = {
+    AND?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
+    OR?: DeviceSessionScalarWhereInput[]
+    NOT?: DeviceSessionScalarWhereInput | DeviceSessionScalarWhereInput[]
+    id?: StringFilter<"DeviceSession"> | string
+    tokenHash?: StringFilter<"DeviceSession"> | string
+    deviceId?: StringFilter<"DeviceSession"> | string
+    venueId?: StringFilter<"DeviceSession"> | string
+    role?: StringFilter<"DeviceSession"> | string
+    expiresAt?: DateTimeFilter<"DeviceSession"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"DeviceSession"> | Date | string | null
+    createdAt?: DateTimeFilter<"DeviceSession"> | Date | string
+  }
+
+  export type VenueCreateWithoutDevicesInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueUncheckedCreateWithoutDevicesInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueCreateOrConnectWithoutDevicesInput = {
+    where: VenueWhereUniqueInput
+    create: XOR<VenueCreateWithoutDevicesInput, VenueUncheckedCreateWithoutDevicesInput>
+  }
+
+  export type DeviceSessionCreateWithoutDeviceInput = {
+    id?: string
+    tokenHash: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+    venue: VenueCreateNestedOneWithoutSessionsInput
+  }
+
+  export type DeviceSessionUncheckedCreateWithoutDeviceInput = {
+    id?: string
+    tokenHash: string
+    venueId: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DeviceSessionCreateOrConnectWithoutDeviceInput = {
+    where: DeviceSessionWhereUniqueInput
+    create: XOR<DeviceSessionCreateWithoutDeviceInput, DeviceSessionUncheckedCreateWithoutDeviceInput>
+  }
+
+  export type DeviceSessionCreateManyDeviceInputEnvelope = {
+    data: DeviceSessionCreateManyDeviceInput | DeviceSessionCreateManyDeviceInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type VenueUpsertWithoutDevicesInput = {
+    update: XOR<VenueUpdateWithoutDevicesInput, VenueUncheckedUpdateWithoutDevicesInput>
+    create: XOR<VenueCreateWithoutDevicesInput, VenueUncheckedCreateWithoutDevicesInput>
+    where?: VenueWhereInput
+  }
+
+  export type VenueUpdateToOneWithWhereWithoutDevicesInput = {
+    where?: VenueWhereInput
+    data: XOR<VenueUpdateWithoutDevicesInput, VenueUncheckedUpdateWithoutDevicesInput>
+  }
+
+  export type VenueUpdateWithoutDevicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
+  }
+
+  export type VenueUncheckedUpdateWithoutDevicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
+  }
+
+  export type DeviceSessionUpsertWithWhereUniqueWithoutDeviceInput = {
+    where: DeviceSessionWhereUniqueInput
+    update: XOR<DeviceSessionUpdateWithoutDeviceInput, DeviceSessionUncheckedUpdateWithoutDeviceInput>
+    create: XOR<DeviceSessionCreateWithoutDeviceInput, DeviceSessionUncheckedCreateWithoutDeviceInput>
+  }
+
+  export type DeviceSessionUpdateWithWhereUniqueWithoutDeviceInput = {
+    where: DeviceSessionWhereUniqueInput
+    data: XOR<DeviceSessionUpdateWithoutDeviceInput, DeviceSessionUncheckedUpdateWithoutDeviceInput>
+  }
+
+  export type DeviceSessionUpdateManyWithWhereWithoutDeviceInput = {
+    where: DeviceSessionScalarWhereInput
+    data: XOR<DeviceSessionUpdateManyMutationInput, DeviceSessionUncheckedUpdateManyWithoutDeviceInput>
+  }
+
+  export type DeviceCreateWithoutSessionsInput = {
+    id?: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    venue: VenueCreateNestedOneWithoutDevicesInput
+  }
+
+  export type DeviceUncheckedCreateWithoutSessionsInput = {
+    id?: string
+    venueId: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeviceCreateOrConnectWithoutSessionsInput = {
+    where: DeviceWhereUniqueInput
+    create: XOR<DeviceCreateWithoutSessionsInput, DeviceUncheckedCreateWithoutSessionsInput>
+  }
+
+  export type VenueCreateWithoutSessionsInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    devices?: DeviceCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueUncheckedCreateWithoutSessionsInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueCreateOrConnectWithoutSessionsInput = {
+    where: VenueWhereUniqueInput
+    create: XOR<VenueCreateWithoutSessionsInput, VenueUncheckedCreateWithoutSessionsInput>
+  }
+
+  export type DeviceUpsertWithoutSessionsInput = {
+    update: XOR<DeviceUpdateWithoutSessionsInput, DeviceUncheckedUpdateWithoutSessionsInput>
+    create: XOR<DeviceCreateWithoutSessionsInput, DeviceUncheckedCreateWithoutSessionsInput>
+    where?: DeviceWhereInput
+  }
+
+  export type DeviceUpdateToOneWithWhereWithoutSessionsInput = {
+    where?: DeviceWhereInput
+    data: XOR<DeviceUpdateWithoutSessionsInput, DeviceUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type DeviceUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    venue?: VenueUpdateOneRequiredWithoutDevicesNestedInput
+  }
+
+  export type DeviceUncheckedUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VenueUpsertWithoutSessionsInput = {
+    update: XOR<VenueUpdateWithoutSessionsInput, VenueUncheckedUpdateWithoutSessionsInput>
+    create: XOR<VenueCreateWithoutSessionsInput, VenueUncheckedCreateWithoutSessionsInput>
+    where?: VenueWhereInput
+  }
+
+  export type VenueUpdateToOneWithWhereWithoutSessionsInput = {
+    where?: VenueWhereInput
+    data: XOR<VenueUpdateWithoutSessionsInput, VenueUncheckedUpdateWithoutSessionsInput>
+  }
+
+  export type VenueUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    devices?: DeviceUpdateManyWithoutVenueNestedInput
+  }
+
+  export type VenueUncheckedUpdateWithoutSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
+  }
+
   export type PlaylistCancionCreateManyPlaylistInput = {
     id?: number
     titulo: string
@@ -8484,6 +12986,132 @@ export namespace Prisma {
     orden?: IntFieldUpdateOperationsInput | number
   }
 
+  export type DeviceCreateManyVenueInput = {
+    id?: string
+    fingerprint: string
+    name: string
+    role: string
+    approved?: boolean
+    lastSeenAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeviceSessionCreateManyVenueInput = {
+    id?: string
+    tokenHash: string
+    deviceId: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DeviceUpdateWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: DeviceSessionUpdateManyWithoutDeviceNestedInput
+  }
+
+  export type DeviceUncheckedUpdateWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessions?: DeviceSessionUncheckedUpdateManyWithoutDeviceNestedInput
+  }
+
+  export type DeviceUncheckedUpdateManyWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fingerprint?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    lastSeenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceSessionUpdateWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    device?: DeviceUpdateOneRequiredWithoutSessionsNestedInput
+  }
+
+  export type DeviceSessionUncheckedUpdateWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceSessionUncheckedUpdateManyWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceSessionCreateManyDeviceInput = {
+    id?: string
+    tokenHash: string
+    venueId: string
+    role: string
+    expiresAt: Date | string
+    revokedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type DeviceSessionUpdateWithoutDeviceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    venue?: VenueUpdateOneRequiredWithoutSessionsNestedInput
+  }
+
+  export type DeviceSessionUncheckedUpdateWithoutDeviceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceSessionUncheckedUpdateManyWithoutDeviceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
 
 
   /**
@@ -8493,6 +13121,14 @@ export namespace Prisma {
      * @deprecated Use PlaylistCountOutputTypeDefaultArgs instead
      */
     export type PlaylistCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PlaylistCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use VenueCountOutputTypeDefaultArgs instead
+     */
+    export type VenueCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VenueCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use DeviceCountOutputTypeDefaultArgs instead
+     */
+    export type DeviceCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DeviceCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use PlaylistDefaultArgs instead
      */
@@ -8517,6 +13153,18 @@ export namespace Prisma {
      * @deprecated Use ColaDefaultArgs instead
      */
     export type ColaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ColaDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use VenueDefaultArgs instead
+     */
+    export type VenueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VenueDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use DeviceDefaultArgs instead
+     */
+    export type DeviceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DeviceDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use DeviceSessionDefaultArgs instead
+     */
+    export type DeviceSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DeviceSessionDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

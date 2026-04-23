@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
+import { clearSessionCookie } from '@/lib/jukeboxAuth'
 
 export async function POST() {
   const res = NextResponse.json({ ok: true })
-  res.cookies.set('jukebox_session', '', { maxAge: 0, path: '/' })
+  clearSessionCookie(res)
   return res
 }

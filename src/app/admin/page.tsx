@@ -5,7 +5,7 @@ import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
 import { useSpotifyPlayback } from '@/hooks/useSpotifyPlayback'
 
-type Role = 'admin' | 'operador'
+type Role = 'admin' | 'operador' | 'superadmin'
 type EmergencyAction = 'reload-app' | 'close-kiosk' | 'restart-kiosk'
 
 interface SearchResult { artists: { items: any[] }; tracks: { items: any[] } }
@@ -19,8 +19,122 @@ interface Playlist {
   imagenUrl: string; esFavoritos: boolean; oculta: boolean; orden: number; canciones: PlaylistCancion[]
 }
 
+interface DevSession {
+  id: string
+  role: string
+  expiresAt: string
+  revokedAt: string | null
+  createdAt: string
+}
+
+interface DevDevice {
+  id: string
+  fingerprint: string
+  name: string
+  role: string
+  approved: boolean
+  lastSeenAt: string | null
+  createdAt: string
+  updatedAt: string
+  sessions: DevSession[]
+}
+
+interface DevVenue {
+  id: string
+  slug: string
+  name: string
+  active: boolean
+  createdAt: string
+  updatedAt: string
+  devices: DevDevice[]
+}
+
 function fmtMs(ms: number) {
   return `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`
+}
+
+function DeveloperView({ onLogout }: { onLogout: () => void }) {
+  const [venues, setVenues] = useState<DevVenue[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const cargar = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/dev/registry', { cache: 'no-store' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || 'No autorizado')
+      setVenues(data.venues ?? [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void cargar()
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-black text-white p-6" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+      <div className="max-w-5xl mx-auto space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="text-xs tracking-widest text-yellow-400 uppercase">Superadmin</div>
+            <h1 className="text-3xl font-black" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>Venues y Devices</h1>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={cargar} className="bg-zinc-800 px-4 py-2 rounded-xl text-sm">Refrescar</button>
+            <button onClick={onLogout} className="bg-yellow-400 text-black px-4 py-2 rounded-xl text-sm font-bold">Salir</button>
+          </div>
+        </div>
+
+        {loading && <div className="text-zinc-500 text-sm">Cargando inventario...</div>}
+        {error && <div className="text-red-400 text-sm">{error}</div>}
+
+        {!loading && !error && venues.map(venue => (
+          <div key={venue.id} className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5 space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-yellow-400 font-black text-xl" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{venue.name}</div>
+                <div className="text-xs text-zinc-500">{venue.slug} · {venue.active ? 'activo' : 'inactivo'}</div>
+              </div>
+              <div className="text-xs text-zinc-500">{venue.devices.length} devices</div>
+            </div>
+
+            <div className="grid gap-3">
+              {venue.devices.map(device => (
+                <div key={device.id} className="rounded-xl border border-zinc-800 bg-black/40 p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="font-semibold truncate">{device.name}</div>
+                      <div className="text-xs text-zinc-500 truncate">
+                        {device.role} · {device.fingerprint}
+                      </div>
+                    </div>
+                    <div className={`text-xs px-2 py-1 rounded-full ${device.approved ? 'bg-emerald-500/15 text-emerald-300' : 'bg-yellow-500/15 text-yellow-300'}`}>
+                      {device.approved ? 'Aprobado' : 'Pendiente'}
+                    </div>
+                  </div>
+                  <div className="text-xs text-zinc-500 mt-2">
+                    Última actividad: {device.lastSeenAt ? new Date(device.lastSeenAt).toLocaleString('es-AR') : 'sin datos'}
+                  </div>
+                  <div className="text-xs text-zinc-500 mt-1">
+                    Sesiones: {device.sessions.length}
+                  </div>
+                </div>
+              ))}
+              {venue.devices.length === 0 && (
+                <div className="text-zinc-600 text-sm">No hay devices registrados.</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 // ─── Vista Operador ───────────────────────────────────────────────────────────
@@ -1334,7 +1448,7 @@ export default function AdminPage() {
     fetch('/api/auth/me')
       .then(r => r.json())
       .then(({ role }) => {
-        if (role === 'admin' || role === 'operador') setRole(role as Role)
+        if (role === 'admin' || role === 'operador' || role === 'superadmin') setRole(role as Role)
       })
       .catch(() => {})
       .finally(() => setHydrated(true))
@@ -1372,6 +1486,7 @@ export default function AdminPage() {
 
   if (role === 'admin')    return <AdminView onLogout={handleLogout} />
   if (role === 'operador') return <OperadorView onLogout={handleLogout} />
+  if (role === 'superadmin') return <DeveloperView onLogout={handleLogout} />
 
   return (
     <div className="h-screen bg-black flex items-center justify-center">
