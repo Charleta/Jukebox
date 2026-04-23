@@ -1,18 +1,34 @@
 import { NextResponse } from 'next/server'
 import { prismaCloud } from '@/lib/dbCloud'
 
-export async function GET() {
+export const dynamic = 'force-dynamic'
+
+async function readConfig() {
   const configs = await prismaCloud.appConfig.findMany()
   const map = Object.fromEntries(configs.map(c => [c.clave, c.valor]))
   const legacy = map.max_duracion // backward compat con clave vieja
+  const maxDurKiosko = Number(map.max_duracion_kiosko ?? legacy ?? 300)
+  const maxDurAdmin = Number(map.max_duracion_admin ?? legacy ?? 300)
+  const fichasPack = Number(map.fichas_pack ?? 2)
+  const precioPack = Number(map.precio_pack ?? 1000)
+  const autostartPlaylists = String(map.autostart_playlists ?? '[]')
 
-  return NextResponse.json({
-    max_duracion_kiosko:   Number(map.max_duracion_kiosko ?? legacy ?? 300),
-    max_duracion_admin:    Number(map.max_duracion_admin  ?? legacy ?? 300),
-    fichas_pack:           Number(map.fichas_pack ?? 2),
-    precio_pack:           Number(map.precio_pack ?? 1000),
-    autostart_playlists:   map.autostart_playlists ?? '[]',
-  })
+  return {
+    max_duracion_kiosko: maxDurKiosko,
+    max_duracion_admin: maxDurAdmin,
+    fichas_pack: fichasPack,
+    precio_pack: precioPack,
+    autostart_playlists: autostartPlaylists,
+    maxDurKiosko,
+    maxDurAdmin,
+    fichasPack,
+    precioPack,
+    autostartPlaylists,
+  }
+}
+
+export async function GET() {
+  return NextResponse.json(await readConfig(), { headers: { 'Cache-Control': 'no-store' } })
 }
 
 export async function POST(req: Request) {
@@ -26,5 +42,5 @@ export async function POST(req: Request) {
       })
     )
   )
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, ...(await readConfig()) }, { headers: { 'Cache-Control': 'no-store' } })
 }

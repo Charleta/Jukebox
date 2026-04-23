@@ -37,11 +37,19 @@ interface JukeboxSyncContextValue {
   clearRecoverySignal: (requestedAt: string) => Promise<void>
 }
 
+type AppConfigApiResponse = Partial<AppConfigState> & {
+  max_duracion_kiosko?: number
+  max_duracion_admin?: number
+  fichas_pack?: number
+  precio_pack?: number
+  autostart_playlists?: string
+}
+
 const JukeboxSyncContext = createContext<JukeboxSyncContextValue | null>(null)
 
 async function fetchJson<T>(url: string): Promise<T | null> {
   try {
-    const res = await fetch(url)
+    const res = await fetch(url, { cache: 'no-store' })
     if (!res.ok) return null
     return res.json() as Promise<T>
   } catch {
@@ -50,12 +58,19 @@ async function fetchJson<T>(url: string): Promise<T | null> {
 }
 
 function normalizeAppConfig(data: Partial<AppConfigState> | null | undefined): AppConfigState {
+  const maxDurKiosko = data?.maxDurKiosko ?? (data as AppConfigApiResponse | null | undefined)?.max_duracion_kiosko
+  const maxDurAdmin = data?.maxDurAdmin ?? (data as AppConfigApiResponse | null | undefined)?.max_duracion_admin
+  const fichasPack = data?.fichasPack ?? (data as AppConfigApiResponse | null | undefined)?.fichas_pack
+  const precioPack = data?.precioPack ?? (data as AppConfigApiResponse | null | undefined)?.precio_pack
+  const autostartPlaylists =
+    data?.autostartPlaylists ?? (data as AppConfigApiResponse | null | undefined)?.autostart_playlists
+
   return {
-    maxDurKiosko: Number(data?.maxDurKiosko ?? DEFAULT_APP_CONFIG.maxDurKiosko),
-    maxDurAdmin: Number(data?.maxDurAdmin ?? DEFAULT_APP_CONFIG.maxDurAdmin),
-    fichasPack: Number(data?.fichasPack ?? DEFAULT_APP_CONFIG.fichasPack),
-    precioPack: Number(data?.precioPack ?? DEFAULT_APP_CONFIG.precioPack),
-    autostartPlaylists: String(data?.autostartPlaylists ?? DEFAULT_APP_CONFIG.autostartPlaylists),
+    maxDurKiosko: Number(maxDurKiosko ?? DEFAULT_APP_CONFIG.maxDurKiosko),
+    maxDurAdmin: Number(maxDurAdmin ?? DEFAULT_APP_CONFIG.maxDurAdmin),
+    fichasPack: Number(fichasPack ?? DEFAULT_APP_CONFIG.fichasPack),
+    precioPack: Number(precioPack ?? DEFAULT_APP_CONFIG.precioPack),
+    autostartPlaylists: String(autostartPlaylists ?? DEFAULT_APP_CONFIG.autostartPlaylists),
   }
 }
 
@@ -82,7 +97,7 @@ export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const refetchAppConfig = useCallback(async () => {
-    const data = await fetchJson<Partial<AppConfigState>>('/api/config')
+    const data = await fetchJson<AppConfigApiResponse>('/api/config')
     if (!data) return
 
     setAppConfig(normalizeAppConfig(data))
