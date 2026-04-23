@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prismaCloud } from '@/lib/dbCloud'
 
 function hoy() {
   return new Date().toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }).split('/').reverse().map(p => p.padStart(2, '0')).join('-')
@@ -7,14 +7,14 @@ function hoy() {
 
 export async function GET() {
   const today = hoy()
-  let config = await prisma.config.upsert({
+  let config = await prismaCloud.config.upsert({
     where: { id: 1 },
     update: {},
     create: { id: 1, fichas: 0, fichasHoy: 0, fechaHoy: today },
   })
   // Auto-reset diario
   if (config.fechaHoy !== today) {
-    config = await prisma.config.update({
+    config = await prismaCloud.config.update({
       where: { id: 1 },
       data: { fichasHoy: 0, fechaHoy: today },
     })
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
   // Resetear fichas a 0
   if (body.reset) {
-    const config = await prisma.config.upsert({
+    const config = await prismaCloud.config.upsert({
       where: { id: 1 },
       update: { fichas: 0 },
       create: { id: 1, fichas: 0, fichasHoy: 0, fechaHoy: today },
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
   const { cantidad } = body as { cantidad: number }
 
-  const current = await prisma.config.findUnique({ where: { id: 1 } })
+  const current = await prismaCloud.config.findUnique({ where: { id: 1 } })
   const esNuevoDia = !current || current.fechaHoy !== today
 
   const updateData: Record<string, unknown> = {
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
     updateData.fichasHoy = { increment: cantidad }
   }
 
-  const config = await prisma.config.upsert({
+  const config = await prismaCloud.config.upsert({
     where: { id: 1 },
     update: updateData,
     create: {

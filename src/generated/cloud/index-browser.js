@@ -144,6 +144,36 @@ exports.Prisma.PlaylistCancionScalarFieldEnum = {
   orden: 'orden'
 };
 
+exports.Prisma.ConfigScalarFieldEnum = {
+  id: 'id',
+  fichas: 'fichas',
+  fichasHoy: 'fichasHoy',
+  fechaHoy: 'fechaHoy'
+};
+
+exports.Prisma.AppConfigScalarFieldEnum = {
+  id: 'id',
+  clave: 'clave',
+  valor: 'valor'
+};
+
+exports.Prisma.PagoProcesadoScalarFieldEnum = {
+  ref: 'ref',
+  creadoEn: 'creadoEn'
+};
+
+exports.Prisma.ColaScalarFieldEnum = {
+  id: 'id',
+  titulo: 'titulo',
+  artista: 'artista',
+  duracion: 'duracion',
+  spotifyUri: 'spotifyUri',
+  imagenUrl: 'imagenUrl',
+  orden: 'orden',
+  tipo: 'tipo',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -157,7 +187,11 @@ exports.Prisma.QueryMode = {
 
 exports.Prisma.ModelName = {
   Playlist: 'Playlist',
-  PlaylistCancion: 'PlaylistCancion'
+  PlaylistCancion: 'PlaylistCancion',
+  Config: 'Config',
+  AppConfig: 'AppConfig',
+  PagoProcesado: 'PagoProcesado',
+  Cola: 'Cola'
 };
 
 /**

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prismaCloud } from '@/lib/dbCloud'
 import { cookies } from 'next/headers'
 import crypto from 'crypto'
 
@@ -32,12 +32,12 @@ async function isAdmin() {
 }
 
 async function getValue(clave: string) {
-  const row = await prisma.appConfig.findUnique({ where: { clave } })
+  const row = await prismaCloud.appConfig.findUnique({ where: { clave } })
   return row?.valor ?? ''
 }
 
 async function setValue(clave: string, valor: string) {
-  await prisma.appConfig.upsert({
+  await prismaCloud.appConfig.upsert({
     where: { clave },
     update: { valor },
     create: { clave, valor },

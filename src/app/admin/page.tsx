@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { useAppConfig } from '@/hooks/useAppConfig'
 import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
 
@@ -127,6 +128,13 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
 function AdminView({ onLogout }: { onLogout: () => void }) {
   const { fichas, fichasHoy, refetch: refetchFichas } = useFichas()
   const { cola, refetch: refetchCola } = useCola()
+  const {
+    maxDurKiosko: savedMaxDurKiosko,
+    maxDurAdmin: savedMaxDurAdmin,
+    fichasPack: savedFichasPack,
+    precioPack: savedPrecioPack,
+    autostartPlaylists,
+  } = useAppConfig()
   const [isPlaying, setIsPlaying] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult | null>(null)
@@ -198,17 +206,16 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   useEffect(() => { cargarPlaylists() }, [])
 
   useEffect(() => {
-    fetch('/api/config')
-      .then(r => r.json())
-      .then(data => {
-        setMaxDurKiosko(Number(data.max_duracion_kiosko ?? 300))
-        setMaxDurKioskoInput(Math.floor(Number(data.max_duracion_kiosko ?? 300) / 60))
-        setMaxDurAdmin(Number(data.max_duracion_admin ?? 300))
-        setMaxDurAdminInput(Math.floor(Number(data.max_duracion_admin ?? 300) / 60))
-        setFichasPackInput(Number(data.fichas_pack ?? 2))
-        setPrecioPackInput(Number(data.precio_pack ?? 1000))
-        try { setAutostartIds(JSON.parse(data.autostart_playlists ?? '[]')) } catch { }
-      })
+    setMaxDurKiosko(savedMaxDurKiosko)
+    setMaxDurKioskoInput(Math.floor(savedMaxDurKiosko / 60))
+    setMaxDurAdmin(savedMaxDurAdmin)
+    setMaxDurAdminInput(Math.floor(savedMaxDurAdmin / 60))
+    setFichasPackInput(savedFichasPack)
+    setPrecioPackInput(savedPrecioPack)
+    try { setAutostartIds(JSON.parse(autostartPlaylists ?? '[]')) } catch { setAutostartIds([]) }
+  }, [autostartPlaylists, savedFichasPack, savedMaxDurAdmin, savedMaxDurKiosko, savedPrecioPack])
+
+  useEffect(() => {
     const interval = setInterval(async () => {
       const res = await fetch('/api/spotify/playback')
       if (res.ok) {

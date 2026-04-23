@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
-import { prisma } from '@/lib/db'
+import { prismaCloud } from '@/lib/dbCloud'
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   if (!ref || !cantidad) return NextResponse.json({ aprobado: false })
 
   // Verificar en DB (persiste entre reinicios del servidor)
-  const yaProcessado = await prisma.pagoProcesado.findUnique({ where: { ref } })
+  const yaProcessado = await prismaCloud.pagoProcesado.findUnique({ where: { ref } })
   if (yaProcessado) return NextResponse.json({ aprobado: true })
 
   try {
@@ -26,11 +26,27 @@ export async function GET(req: Request) {
     const aprobado = results.results?.some(p => p.status === 'approved') ?? false
 
     if (aprobado) {
-      await prisma.pagoProcesado.create({ data: { ref } })
-      await prisma.config.update({
+        const today = new Date()
+        .toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
+        .split('/')
+        .reverse()
+        .map(p => p.padStart(2, '0'))
+        .join('-')
+
+      await prismaCloud.pagoProcesado.create({ data: { ref } })
+
+      await prismaCloud.config.upsert({
         where: { id: 1 },
-        data: { fichas: { increment: cantidad } },
+        update: { fichas: { increment: cantidad } },
+        create: {
+          id: 1,
+          fichas: cantidad,
+          fichasHoy: cantidad,
+          fechaHoy: today,
+        },
       })
+
+
     }
 
     return NextResponse.json({ aprobado })

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prismaCloud } from '@/lib/dbCloud'
 
 export async function GET() {
-  const configs = await prisma.appConfig.findMany()
+  const configs = await prismaCloud.appConfig.findMany()
   const map = Object.fromEntries(configs.map(c => [c.clave, c.valor]))
   const legacy = map.max_duracion // backward compat con clave vieja
 
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   const body = await req.json()
   await Promise.all(
     Object.entries(body).map(([clave, valor]) =>
-      prisma.appConfig.upsert({
+      prismaCloud.appConfig.upsert({
         where:  { clave },
         update: { valor: String(valor) },
         create: { clave, valor: String(valor) },

@@ -32,3 +32,34 @@ model PlaylistCancion {
   orden      Int
   playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
 }
+
+
+model Config {
+  id        Int    @id @default(1)
+  fichas    Int    @default(0)
+  fichasHoy Int    @default(0)
+  fechaHoy  String @default("")
+}
+
+model AppConfig {
+  id    Int    @id @default(autoincrement())
+  clave String @unique
+  valor String
+}
+
+model PagoProcesado {
+  ref      String   @id
+  creadoEn DateTime @default(now())
+}
+
+model Cola {
+  id         Int      @id @default(autoincrement())
+  titulo     String
+  artista    String
+  duracion   Int
+  spotifyUri String
+  imagenUrl  String
+  orden      Int
+  tipo       String   @default("cliente")
+  createdAt  DateTime @default(now())
+}

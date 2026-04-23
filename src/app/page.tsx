@@ -5,8 +5,10 @@ import { BuscadorArtista } from '@/components/kiosko/BuscadorArtista'
 import { ListaCanciones } from '@/components/kiosko/ListaCanciones'
 import { ColaProximas } from '@/components/kiosko/ColaProximas'
 import { FichasDisplay } from '@/components/kiosko/FichasDisplay'
+import { useAppConfig } from '@/hooks/useAppConfig'
 import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
+import { useRecoverySignal } from '@/hooks/useRecoverySignal'
 import { SpotifyArtist, SpotifyTrack } from '@/types'
 import { SpotifyPlayer } from '@/components/player/SpotifyPlayer'
 import { QRCodeSVG } from 'qrcode.react'
@@ -31,18 +33,14 @@ export default function KioskoPage() {
 
   const { fichas, refetch: refetchFichas } = useFichas()
   const { cola, colaClientes, refetch: refetchCola } = useCola()
+  const { maxDurKiosko, maxDurAdmin, fichasPack, precioPack } = useAppConfig()
+  const { command: recoveryCommand, requestedAt: recoveryRequestedAt, clearSignal: clearRecoverySignal } = useRecoverySignal()
   const [artist, setArtist] = useState<SpotifyArtist | null>(null)
   const [tracks, setTracks] = useState<SpotifyTrack[]>([])
   const [focused, setFocused] = useState(0)
   const [toast, setToast] = useState('')
   const [progreso, setProgreso] = useState(0)
   const [duracion, setDuracion] = useState(0)
-
-  // Config
-  const [maxDurKiosko, setMaxDurKiosko] = useState(300)
-  const [maxDurAdmin, setMaxDurAdmin] = useState(300)
-  const [fichasPack, setFichasPack] = useState(2)
-  const [precioPack, setPrecioPack] = useState(1000)
 
   // Modal confirmación de canción
   const [pendingTrack, setPendingTrack] = useState<SpotifyTrack | null>(null)
@@ -61,22 +59,6 @@ export default function KioskoPage() {
 
 
   useEffect(() => {
-    const loadConfig = () =>
-      fetch('/api/config')
-        .then(r => r.json())
-        .then(data => {
-          setMaxDurKiosko(Number(data.max_duracion_kiosko ?? 300))
-          setMaxDurAdmin(Number(data.max_duracion_admin ?? 300))
-          setFichasPack(Number(data.fichas_pack ?? 2))
-          setPrecioPack(Number(data.precio_pack ?? 1000))
-        })
-        .catch(() => {})
-    loadConfig()
-    const interval = setInterval(loadConfig, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
     if (autostartDoneRef.current) return
     autostartDoneRef.current = true
     fetch('/api/cola/autostart', { method: 'POST' })
@@ -91,41 +73,29 @@ export default function KioskoPage() {
   }
 
   useEffect(() => {
-    const pollRecovery = async () => {
-      try {
-        const res = await fetch('/api/recovery')
-        if (!res.ok) return
+    if (!recoveryCommand || !recoveryRequestedAt || recoveryRequestedAt === lastRecoveryRef.current) return
 
-        const data = await res.json()
-        if (!data.command || !data.requestedAt || data.requestedAt === lastRecoveryRef.current) return
+    lastRecoveryRef.current = recoveryRequestedAt
 
-        lastRecoveryRef.current = data.requestedAt
-        await fetch('/api/recovery', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ requestedAt: data.requestedAt }),
-        }).catch(() => {})
+    const applyRecovery = async () => {
+      await clearRecoverySignal(recoveryRequestedAt).catch(() => {})
 
-        if (data.command === 'reload-app') {
-          window.location.reload()
-          return
-        }
+      if (recoveryCommand === 'reload-app') {
+        window.location.reload()
+        return
+      }
 
-        if (data.command === 'restart-player') {
-          setProgreso(0)
-          setDuracion(0)
-          setPlayerInstanceKey(prev => prev + 1)
-          showToast('REINICIANDO REPRODUCTOR...')
-        }
-      } catch {
-        // No-op: seguimos con el flujo normal del kiosko.
+      if (recoveryCommand === 'restart-player') {
+        setProgreso(0)
+        setDuracion(0)
+        setPlayerInstanceKey(prev => prev + 1)
+        setToast('REINICIANDO REPRODUCTOR...')
+        setTimeout(() => setToast(''), 2500)
       }
     }
 
-    pollRecovery()
-    const interval = setInterval(pollRecovery, 2500)
-    return () => clearInterval(interval)
-  }, [])
+    void applyRecovery()
+  }, [clearRecoverySignal, recoveryCommand, recoveryRequestedAt])
 
   const pasarSiguiente = async () => {
     setProgreso(0)

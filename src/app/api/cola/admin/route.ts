@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prismaCloud } from '@/lib/dbCloud'
 
 export async function POST(req: Request) {
   const body = await req.json()
 
-  const cancion = await prisma.$transaction(async (tx) => {
+  const cancion = await prismaCloud.$transaction(async (tx) => {
     const last = await tx.cola.findFirst({ orderBy: { orden: 'desc' }, select: { orden: true } })
     return tx.cola.create({
       data: {

@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
 import { prismaCloud } from '@/lib/dbCloud'
 
 export async function POST() {
   // No hacer nada si ya hay canciones en cola
-  const existentes = await prisma.cola.count()
+  const existentes = await prismaCloud.cola.count()
   if (existentes > 0) return NextResponse.json({ ok: true, added: 0 })
 
-  const cfg = await prisma.appConfig.findUnique({ where: { clave: 'autostart_playlists' } })
+  const cfg = await prismaCloud.appConfig.findUnique({ where: { clave: 'autostart_playlists' } })
   if (!cfg?.valor) return NextResponse.json({ ok: true, added: 0 })
 
   let ids: number[] = []
@@ -28,7 +27,7 @@ export async function POST() {
 
   if (!todas.length) return NextResponse.json({ ok: true, added: 0 })
 
-  await prisma.cola.createMany({
+  await prismaCloud.cola.createMany({
     data: todas.map((s, i) => ({
       titulo: s.titulo,
       artista: s.artista,

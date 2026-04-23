@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prismaCloud } from '@/lib/dbCloud'
 
 export async function GET() {
-  const cola = await prisma.cola.findMany({
+  const cola = await prismaCloud.cola.findMany({
     orderBy: [
       { tipo: 'desc' },  // 'cliente' > 'admin' → kiosko songs come first
       { orden: 'asc' }
@@ -14,7 +14,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const body = await req.json()
 
-  const cancion = await prisma.$transaction(async (tx) => {
+  const cancion = await prismaCloud.$transaction(async (tx) => {
     const config = await tx.config.findUnique({ where: { id: 1 } })
     if (!config || config.fichas <= 0) return null
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const { id, nuevaPos } = await req.json()
   
-  const cola = await prisma.cola.findMany({
+  const cola = await prismaCloud.cola.findMany({
     orderBy: { orden: 'asc' }
   })
   
@@ -59,7 +59,7 @@ export async function PATCH(req: Request) {
   cola.splice(nuevaPos, 0, item)
   
   await Promise.all(
-    cola.map((c, i) => prisma.cola.update({
+    cola.map((c, i) => prismaCloud.cola.update({
       where: { id: c.id },
       data: { orden: i + 1 }
     }))

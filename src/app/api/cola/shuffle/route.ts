@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prismaCloud } from '@/lib/dbCloud'
 
 export async function POST(req: Request) {
   const { currentId } = await req.json().catch(() => ({ currentId: null }))
 
-  const adminSongs = await prisma.cola.findMany({
+  const adminSongs = await prismaCloud.cola.findMany({
     where: { tipo: 'admin' },
     orderBy: { orden: 'asc' },
   })
@@ -23,9 +23,9 @@ export async function POST(req: Request) {
 
   // Reasignar los mismos valores de orden pero en orden shuffleado
   const originalOrders = toShuffle.map(s => s.orden)
-  await prisma.$transaction(
+  await prismaCloud.$transaction(
     shuffled.map((song, i) =>
-      prisma.cola.update({
+      prismaCloud.cola.update({
         where: { id: song.id },
         data: { orden: originalOrders[i] },
       })

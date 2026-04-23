@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useSupabaseTableRefresh } from './useSupabaseTableRefresh'
 
 export interface CancionCola {
   id: number
@@ -21,10 +22,14 @@ export function useCola() {
   }
 
   useEffect(() => {
-    fetchCola()
-    const interval = setInterval(fetchCola, 3000)
-    return () => clearInterval(interval)
+    const timer = window.setTimeout(() => {
+      void fetchCola()
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [])
+
+  useSupabaseTableRefresh('Cola', fetchCola)
 
   const colaClientes = cola.filter(c => c.tipo === 'cliente')
 

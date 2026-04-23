@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useSupabaseTableRefresh } from './useSupabaseTableRefresh'
 
 export function useFichas() {
   const [fichas, setFichas] = useState(0)
@@ -12,10 +13,14 @@ export function useFichas() {
   }
 
   useEffect(() => {
-    fetchFichas()
-    const interval = setInterval(fetchFichas, 3000)
-    return () => clearInterval(interval)
+    const timer = window.setTimeout(() => {
+      void fetchFichas()
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [])
+
+  useSupabaseTableRefresh('Config', fetchFichas)
 
   return { fichas, fichasHoy, refetch: fetchFichas }
 }
