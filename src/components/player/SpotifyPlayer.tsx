@@ -38,6 +38,15 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
     return delay
   }
 
+  const scheduleMaxTimer = (delayMs: number) => {
+    clearTimeout(maxTimerRef.current)
+    maxTimerRef.current = setTimeout(() => {
+      if (terminadaRef.current) return
+      terminadaRef.current = true
+      onTerminada()
+    }, Math.max(0, delayMs))
+  }
+
   const initPlayer = async () => {
     clearTimeout(reconnectTimerRef.current)
     clearInterval(intervalRef.current)
@@ -175,6 +184,23 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
     }
   }, [])
 
+  useEffect(() => {
+    let active = true
+
+    const refreshMaxTimer = async () => {
+      if (!spotifyUri || !ready || !deviceId || !playerRef.current) return
+      const state = await playerRef.current.getCurrentState()
+      if (!active || !state || state.duration <= 0) return
+      scheduleMaxTimer(Math.max(0, maxSegundos * 1000 - state.position))
+    }
+
+    void refreshMaxTimer()
+
+    return () => {
+      active = false
+    }
+  }, [maxSegundos, spotifyUri, ready, deviceId])
+
   async function playTrack(devId: string, uri: string) {
     clearTimeout(maxTimerRef.current)
     clearTimeout(nearEndTimerRef.current)
@@ -216,11 +242,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
       }
 
       play404CountRef.current = 0
-      maxTimerRef.current = setTimeout(() => {
-        if (terminadaRef.current) return
-        terminadaRef.current = true
-        onTerminada()
-      }, maxSegundos * 1000)
+      scheduleMaxTimer(maxSegundos * 1000)
 
     } catch (err) {
       play404CountRef.current = 0

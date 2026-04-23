@@ -128,6 +128,7 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
     fichasPack: savedFichasPack,
     precioPack: savedPrecioPack,
     autostartPlaylists,
+    refetch: refetchAppConfig,
   } = useAppConfig()
   const playback = useSpotifyPlayback(2000)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -568,6 +569,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ autostart_playlists: JSON.stringify(autostartIds) }),
     })
+    await refetchAppConfig()
     setAutostartGuardado(true)
     setTimeout(() => { setAutostartGuardado(false); setAutostartModal(false) }, 1500)
   }
@@ -1025,6 +1027,7 @@ return (
                 <button onClick={async () => {
                   const seg = maxDurKioskoInput * 60
                   await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ max_duracion_kiosko: seg }) })
+                  await refetchAppConfig()
                   setMaxDurKiosko(seg)
                   showConfigFeedback('Guardado')
                 }} className="bg-yellow-400 active:bg-yellow-300 text-black font-black px-4 py-2.5 rounded-xl text-sm transition-colors">
@@ -1046,6 +1049,7 @@ return (
                 <button onClick={async () => {
                   const seg = maxDurAdminInput * 60
                   await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ max_duracion_admin: seg }) })
+                  await refetchAppConfig()
                   setMaxDurAdmin(seg)
                   showConfigFeedback('Guardado')
                 }} className="bg-yellow-400 active:bg-yellow-300 text-black font-black px-4 py-2.5 rounded-xl text-sm transition-colors">
@@ -1075,6 +1079,7 @@ return (
               </div>
               <button onClick={async () => {
                 await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fichas_pack: fichasPackInput, precio_pack: precioPackInput }) })
+                await refetchAppConfig()
                 showConfigFeedback('Guardado')
               }} className="w-full bg-yellow-400 active:bg-yellow-300 text-black font-black py-3 rounded-xl transition-colors"
                 style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
