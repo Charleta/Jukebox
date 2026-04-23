@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -31,10 +30,10 @@ interface JukeboxSyncContextValue {
   autostartPlaylists: string
   recoveryCommand: string
   recoveryRequestedAt: string
-  refetchFichas: (options?: { broadcast?: boolean }) => Promise<void>
-  refetchCola: (options?: { broadcast?: boolean }) => Promise<void>
-  refetchAppConfig: (options?: { broadcast?: boolean }) => Promise<void>
-  refetchRecovery: (options?: { broadcast?: boolean }) => Promise<void>
+  refetchFichas: () => Promise<void>
+  refetchCola: () => Promise<void>
+  refetchAppConfig: () => Promise<void>
+  refetchRecovery: () => Promise<void>
   clearRecoverySignal: (requestedAt: string) => Promise<void>
 }
 
@@ -66,42 +65,30 @@ export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
   const [cola, setCola] = useState<CancionCola[]>([])
   const [appConfig, setAppConfig] = useState<AppConfigState>(DEFAULT_APP_CONFIG)
   const [recovery, setRecovery] = useState<RecoverySignal>(EMPTY_RECOVERY_SIGNAL)
-  const syncChannelRef = useRef<BroadcastChannel | null>(null)
 
-  if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined' && !syncChannelRef.current) {
-    syncChannelRef.current = new BroadcastChannel('jukebox-sync')
-  }
-
-  const broadcastRefresh = useCallback((topic: 'fichas' | 'cola' | 'app-config' | 'recovery') => {
-    syncChannelRef.current?.postMessage({ topic })
-  }, [])
-
-  const refetchFichas = useCallback(async (options?: { broadcast?: boolean }) => {
+  const refetchFichas = useCallback(async () => {
     const data = await fetchJson<{ fichas?: number; fichasHoy?: number }>('/api/fichas')
     if (!data) return
 
     setFichas(Number(data.fichas ?? 0))
     setFichasHoy(Number(data.fichasHoy ?? 0))
-    if (options?.broadcast !== false) broadcastRefresh('fichas')
-  }, [broadcastRefresh])
+  }, [])
 
-  const refetchCola = useCallback(async (options?: { broadcast?: boolean }) => {
+  const refetchCola = useCallback(async () => {
     const data = await fetchJson<CancionCola[]>('/api/cola')
     if (!data) return
 
     setCola(data)
-    if (options?.broadcast !== false) broadcastRefresh('cola')
-  }, [broadcastRefresh])
+  }, [])
 
-  const refetchAppConfig = useCallback(async (options?: { broadcast?: boolean }) => {
+  const refetchAppConfig = useCallback(async () => {
     const data = await fetchJson<Partial<AppConfigState>>('/api/config')
     if (!data) return
 
     setAppConfig(normalizeAppConfig(data))
-    if (options?.broadcast !== false) broadcastRefresh('app-config')
-  }, [broadcastRefresh])
+  }, [])
 
-  const refetchRecovery = useCallback(async (options?: { broadcast?: boolean }) => {
+  const refetchRecovery = useCallback(async () => {
     const data = await fetchJson<RecoverySignal>('/api/recovery')
     if (!data) return
 
@@ -109,13 +96,12 @@ export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
       command: String(data.command ?? ''),
       requestedAt: String(data.requestedAt ?? ''),
     })
-    if (options?.broadcast !== false) broadcastRefresh('recovery')
-  }, [broadcastRefresh])
+  }, [])
 
   const loadAppConfigAndRecovery = useCallback(async () => {
     await Promise.all([
-      refetchAppConfig({ broadcast: false }),
-      refetchRecovery({ broadcast: false }),
+      refetchAppConfig(),
+      refetchRecovery(),
     ])
   }, [refetchAppConfig, refetchRecovery])
 
@@ -134,46 +120,11 @@ export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void Promise.all([
-      refetchFichas({ broadcast: false }),
-      refetchCola({ broadcast: false }),
+      refetchFichas(),
+      refetchCola(),
       loadAppConfigAndRecovery(),
     ]).catch(() => {})
   }, [loadAppConfigAndRecovery, refetchCola, refetchFichas])
-
-  useEffect(() => {
-    if (!syncChannelRef.current) return
-
-    const channel = syncChannelRef.current
-    channel.onmessage = event => {
-      const topic = event.data?.topic as string | undefined
-      if (topic === 'fichas') {
-        void refetchFichas({ broadcast: false })
-        return
-      }
-      if (topic === 'cola') {
-        void refetchCola({ broadcast: false })
-        return
-      }
-      if (topic === 'app-config') {
-        void refetchAppConfig({ broadcast: false })
-        return
-      }
-      if (topic === 'recovery') {
-        void refetchRecovery({ broadcast: false })
-      }
-    }
-
-    return () => {
-      channel.onmessage = null
-    }
-  }, [refetchAppConfig, refetchCola, refetchFichas, refetchRecovery])
-
-  useEffect(() => {
-    return () => {
-      syncChannelRef.current?.close()
-      syncChannelRef.current = null
-    }
-  }, [])
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient()

@@ -58,23 +58,6 @@ export default function KioskoPage() {
   const lastRecoveryRef = useRef('')
 
   useEffect(() => {
-    const interval = window.setInterval(async () => {
-      try {
-        const res = await fetch('/api/spotify/playback')
-        if (!res.ok) return
-
-        const data = await res.json()
-        setProgreso(data.progress_ms ?? 0)
-        setDuracion(data.duration_ms ?? 0)
-      } catch {
-        // Si el player ya está actualizando por el SDK, no forzamos nada acá.
-      }
-    }, 1000)
-
-    return () => window.clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
     if (autostartDoneRef.current) return
     autostartDoneRef.current = true
     fetch('/api/cola/autostart', { method: 'POST' })

@@ -6,7 +6,7 @@ let playbackCachedAt = 0
 
 export async function GET() {
   // Devuelve caché si tiene menos de 10 segundos
-  if (cachedPlayback && Date.now() - playbackCachedAt < 10000) {
+  if (cachedPlayback && Date.now() - playbackCachedAt < 2000) {
     return NextResponse.json(cachedPlayback)
   }
 
