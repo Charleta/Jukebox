@@ -7,7 +7,7 @@ import { useSpotifyPlayback } from '@/hooks/useSpotifyPlayback'
 import { SuperadminView } from '@/components/admin/SuperadminView'
 
 type Role = 'admin' | 'operador' | 'superadmin'
-type EmergencyAction = 'reload-app' | 'close-kiosk' | 'restart-kiosk'
+type EmergencyAction = 'reload-app' | 'restart-kiosk' | 'close-kiosk' | 'shutdown-pc'
 
 interface SearchResult { artists: { items: any[] }; tracks: { items: any[] } }
 
@@ -397,7 +397,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     try {
       const res = await fetch('/api/admin/kiosk-restart', { method: 'POST' })
       if (!res.ok) throw new Error('restart_failed')
-      showConfigFeedback('Reinicio completo lanzado')
+      showConfigFeedback('Reinicio del kiosko enviado')
     } catch {
       showConfigFeedback('No se pudo reiniciar el kiosko')
     } finally {
@@ -410,9 +410,22 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     try {
       const res = await fetch('/api/admin/kiosk-close', { method: 'POST' })
       if (!res.ok) throw new Error('close_failed')
-      showConfigFeedback('Kiosko cerrado')
+      showConfigFeedback('Cierre del kiosko enviado')
     } catch {
       showConfigFeedback('No se pudo cerrar el kiosko')
+    } finally {
+      setMaintenanceBusy(null)
+    }
+  }
+
+  const shutdownPc = async () => {
+    setMaintenanceBusy('shutdown-pc')
+    try {
+      const res = await fetch('/api/admin/kiosk-shutdown', { method: 'POST' })
+      if (!res.ok) throw new Error('shutdown_failed')
+      showConfigFeedback('Apagado de PC enviado')
+    } catch {
+      showConfigFeedback('No se pudo apagar la PC')
     } finally {
       setMaintenanceBusy(null)
     }
@@ -421,10 +434,12 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   const confirmEmergencyAction = async () => {
     if (pendingEmergencyAction === 'reload-app') {
       await runRecoveryAction('reload-app')
-    } else if (pendingEmergencyAction === 'close-kiosk') {
-      await closeKiosk()
     } else if (pendingEmergencyAction === 'restart-kiosk') {
       await restartKiosk()
+    } else if (pendingEmergencyAction === 'close-kiosk') {
+      await closeKiosk()
+    } else if (pendingEmergencyAction === 'shutdown-pc') {
+      await shutdownPc()
     }
 
     setPendingEmergencyAction(null)
@@ -1234,7 +1249,7 @@ return (
               <div className="text-sm font-semibold text-white mb-0.5">Acciones de emergencia</div>
               <div className="text-xs text-zinc-500 mb-4">Atajos para destrabar el kiosko sin salir del panel admin</div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
                 <button
                   onClick={() => setPendingEmergencyAction('reload-app')}
                   disabled={maintenanceBusy !== null}
@@ -1248,15 +1263,15 @@ return (
                 </button>
 
                 <button
-                  onClick={() => setPendingEmergencyAction('close-kiosk')}
+                  onClick={() => setPendingEmergencyAction('restart-kiosk')}
                   disabled={maintenanceBusy !== null}
                   className="group flex flex-col items-center text-center disabled:opacity-60"
                 >
                   <span className="w-16 h-16 rounded-full border border-yellow-400/30 bg-yellow-400/10 text-yellow-300 flex items-center justify-center text-2xl transition-colors group-active:bg-yellow-400/20">
                     ♪
                   </span>
-                  <span className="text-xs font-semibold text-white mt-2">Reinicio total</span>
-                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra Chrome y reabre el kiosk</span>
+                  <span className="text-xs font-semibold text-white mt-2">Reiniciar kiosko</span>
+                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra Chrome y lo vuelve a abrir</span>
                 </button>
 
                 <button
@@ -1268,7 +1283,19 @@ return (
                     !
                   </span>
                   <span className="text-xs font-semibold text-white mt-2">Cerrar kiosko</span>
-                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra Chrome y apaga la PC</span>
+                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra solo la ventana del kiosko</span>
+                </button>
+
+                <button
+                  onClick={() => setPendingEmergencyAction('shutdown-pc')}
+                  disabled={maintenanceBusy !== null}
+                  className="group flex flex-col items-center text-center disabled:opacity-60"
+                >
+                  <span className="w-16 h-16 rounded-full border border-rose-400/30 bg-rose-400/10 text-rose-300 flex items-center justify-center text-2xl transition-colors group-active:bg-rose-400/20">
+                    ⏻
+                  </span>
+                  <span className="text-xs font-semibold text-white mt-2">Apagar PC</span>
+                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra Chrome y apaga Windows</span>
                 </button>
               </div>
             </div>
@@ -1378,16 +1405,18 @@ return (
       <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70" onClick={() => maintenanceBusy === null && setPendingEmergencyAction(null)}>
         <div className="bg-zinc-900 border border-zinc-800 rounded-t-2xl w-full max-w-lg p-5 pb-8" onClick={e => e.stopPropagation()}>
           <div className="text-xs tracking-widest text-zinc-500 uppercase mb-1">Confirmar accion</div>
-          <div className="text-lg font-semibold text-white mb-2">
-            {pendingEmergencyAction === 'reload-app' && 'Recargar la app del kiosko'}
-            {pendingEmergencyAction === 'close-kiosk' && 'Cerrar el kiosko y apagar la PC'}
-            {pendingEmergencyAction === 'restart-kiosk' && 'Reiniciar todo el kiosko'}
-          </div>
-          <div className="text-sm text-zinc-400 mb-5">
-            {pendingEmergencyAction === 'reload-app' && 'Recarga la pagina del kiosko y vuelve a levantar la interfaz visible en pantalla.'}
-            {pendingEmergencyAction === 'close-kiosk' && 'Cierra Chrome del kiosko y apaga la computadora. Usalo solo cuando realmente quieras finalizar todo.'}
-            {pendingEmergencyAction === 'restart-kiosk' && 'Cierra Chrome y lo vuelve a abrir en modo kiosk. Usalo como ultimo recurso.'}
-          </div>
+            <div className="text-lg font-semibold text-white mb-2">
+              {pendingEmergencyAction === 'reload-app' && 'Recargar la app del kiosko'}
+              {pendingEmergencyAction === 'restart-kiosk' && 'Reiniciar el kiosko'}
+              {pendingEmergencyAction === 'close-kiosk' && 'Cerrar solo el kiosko'}
+              {pendingEmergencyAction === 'shutdown-pc' && 'Apagar la PC'}
+            </div>
+            <div className="text-sm text-zinc-400 mb-5">
+              {pendingEmergencyAction === 'reload-app' && 'Recarga la pagina del kiosko y vuelve a levantar la interfaz visible en pantalla.'}
+              {pendingEmergencyAction === 'restart-kiosk' && 'Cierra Chrome del kiosko y lo vuelve a abrir en modo kiosk.'}
+              {pendingEmergencyAction === 'close-kiosk' && 'Cierra solo la ventana de Chrome del kiosko, sin apagar la computadora.'}
+              {pendingEmergencyAction === 'shutdown-pc' && 'Cierra Chrome del kiosko y luego apaga la computadora.'}
+            </div>
 
           <button
             onClick={confirmEmergencyAction}

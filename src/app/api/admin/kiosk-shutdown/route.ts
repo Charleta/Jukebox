@@ -3,7 +3,7 @@ import { enqueueKioskCommand } from '@/lib/kioskCommands'
 
 export async function POST() {
   try {
-    await enqueueKioskCommand('restart-kiosk')
+    await enqueueKioskCommand('shutdown-pc')
     return NextResponse.json({ ok: true })
   } catch (error) {
     if (error instanceof Error && error.message === 'No autorizado') {

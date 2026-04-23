@@ -73,6 +73,7 @@ model Venue {
   devices   Device[]
   sessions  DeviceSession[]
   attempts  AccessAttempt[]
+  commands  KioskCommand[]
 }
 
 model Device {
@@ -118,4 +119,19 @@ model AccessAttempt {
   createdAt   DateTime @default(now())
   device      Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
   venue       Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+}
+
+model KioskCommand {
+  id               String   @id @default(cuid())
+  venueId          String
+  action           String
+  status           String   @default("pending")
+  requestedByRole  String   @default("")
+  requestedByDeviceId String?
+  requestedAt      DateTime @default(now())
+  claimedAt        DateTime?
+  processedAt      DateTime?
+  failedAt         DateTime?
+  message          String   @default("")
+  venue            Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
 }

@@ -63,6 +63,11 @@ export type DeviceSession = $Result.DefaultSelection<Prisma.$DeviceSessionPayloa
  * 
  */
 export type AccessAttempt = $Result.DefaultSelection<Prisma.$AccessAttemptPayload>
+/**
+ * Model KioskCommand
+ * 
+ */
+export type KioskCommand = $Result.DefaultSelection<Prisma.$KioskCommandPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -286,6 +291,16 @@ export class PrismaClient<
     * ```
     */
   get accessAttempt(): Prisma.AccessAttemptDelegate<ExtArgs>;
+
+  /**
+   * `prisma.kioskCommand`: Exposes CRUD operations for the **KioskCommand** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KioskCommands
+    * const kioskCommands = await prisma.kioskCommand.findMany()
+    * ```
+    */
+  get kioskCommand(): Prisma.KioskCommandDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -736,7 +751,8 @@ export namespace Prisma {
     Venue: 'Venue',
     Device: 'Device',
     DeviceSession: 'DeviceSession',
-    AccessAttempt: 'AccessAttempt'
+    AccessAttempt: 'AccessAttempt',
+    KioskCommand: 'KioskCommand'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -752,7 +768,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "playlist" | "playlistCancion" | "config" | "appConfig" | "pagoProcesado" | "cola" | "venue" | "device" | "deviceSession" | "accessAttempt"
+      modelProps: "playlist" | "playlistCancion" | "config" | "appConfig" | "pagoProcesado" | "cola" | "venue" | "device" | "deviceSession" | "accessAttempt" | "kioskCommand"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1456,6 +1472,76 @@ export namespace Prisma {
           }
         }
       }
+      KioskCommand: {
+        payload: Prisma.$KioskCommandPayload<ExtArgs>
+        fields: Prisma.KioskCommandFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KioskCommandFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KioskCommandFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload>
+          }
+          findFirst: {
+            args: Prisma.KioskCommandFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KioskCommandFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload>
+          }
+          findMany: {
+            args: Prisma.KioskCommandFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload>[]
+          }
+          create: {
+            args: Prisma.KioskCommandCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload>
+          }
+          createMany: {
+            args: Prisma.KioskCommandCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KioskCommandCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload>[]
+          }
+          delete: {
+            args: Prisma.KioskCommandDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload>
+          }
+          update: {
+            args: Prisma.KioskCommandUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload>
+          }
+          deleteMany: {
+            args: Prisma.KioskCommandDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KioskCommandUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.KioskCommandUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KioskCommandPayload>
+          }
+          aggregate: {
+            args: Prisma.KioskCommandAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKioskCommand>
+          }
+          groupBy: {
+            args: Prisma.KioskCommandGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KioskCommandGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KioskCommandCountArgs<ExtArgs>
+            result: $Utils.Optional<KioskCommandCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1651,12 +1737,14 @@ export namespace Prisma {
     devices: number
     sessions: number
     attempts: number
+    commands: number
   }
 
   export type VenueCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     devices?: boolean | VenueCountOutputTypeCountDevicesArgs
     sessions?: boolean | VenueCountOutputTypeCountSessionsArgs
     attempts?: boolean | VenueCountOutputTypeCountAttemptsArgs
+    commands?: boolean | VenueCountOutputTypeCountCommandsArgs
   }
 
   // Custom InputTypes
@@ -1689,6 +1777,13 @@ export namespace Prisma {
    */
   export type VenueCountOutputTypeCountAttemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AccessAttemptWhereInput
+  }
+
+  /**
+   * VenueCountOutputType without action
+   */
+  export type VenueCountOutputTypeCountCommandsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KioskCommandWhereInput
   }
 
 
@@ -7554,6 +7649,7 @@ export namespace Prisma {
     devices?: boolean | Venue$devicesArgs<ExtArgs>
     sessions?: boolean | Venue$sessionsArgs<ExtArgs>
     attempts?: boolean | Venue$attemptsArgs<ExtArgs>
+    commands?: boolean | Venue$commandsArgs<ExtArgs>
     _count?: boolean | VenueCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["venue"]>
 
@@ -7579,6 +7675,7 @@ export namespace Prisma {
     devices?: boolean | Venue$devicesArgs<ExtArgs>
     sessions?: boolean | Venue$sessionsArgs<ExtArgs>
     attempts?: boolean | Venue$attemptsArgs<ExtArgs>
+    commands?: boolean | Venue$commandsArgs<ExtArgs>
     _count?: boolean | VenueCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type VenueIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -7589,6 +7686,7 @@ export namespace Prisma {
       devices: Prisma.$DevicePayload<ExtArgs>[]
       sessions: Prisma.$DeviceSessionPayload<ExtArgs>[]
       attempts: Prisma.$AccessAttemptPayload<ExtArgs>[]
+      commands: Prisma.$KioskCommandPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7964,6 +8062,7 @@ export namespace Prisma {
     devices<T extends Venue$devicesArgs<ExtArgs> = {}>(args?: Subset<T, Venue$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany"> | Null>
     sessions<T extends Venue$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, Venue$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceSessionPayload<ExtArgs>, T, "findMany"> | Null>
     attempts<T extends Venue$attemptsArgs<ExtArgs> = {}>(args?: Subset<T, Venue$attemptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccessAttemptPayload<ExtArgs>, T, "findMany"> | Null>
+    commands<T extends Venue$commandsArgs<ExtArgs> = {}>(args?: Subset<T, Venue$commandsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8370,6 +8469,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AccessAttemptScalarFieldEnum | AccessAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * Venue.commands
+   */
+  export type Venue$commandsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    where?: KioskCommandWhereInput
+    orderBy?: KioskCommandOrderByWithRelationInput | KioskCommandOrderByWithRelationInput[]
+    cursor?: KioskCommandWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KioskCommandScalarFieldEnum | KioskCommandScalarFieldEnum[]
   }
 
   /**
@@ -11432,6 +11551,1011 @@ export namespace Prisma {
 
 
   /**
+   * Model KioskCommand
+   */
+
+  export type AggregateKioskCommand = {
+    _count: KioskCommandCountAggregateOutputType | null
+    _min: KioskCommandMinAggregateOutputType | null
+    _max: KioskCommandMaxAggregateOutputType | null
+  }
+
+  export type KioskCommandMinAggregateOutputType = {
+    id: string | null
+    venueId: string | null
+    action: string | null
+    status: string | null
+    requestedByRole: string | null
+    requestedByDeviceId: string | null
+    requestedAt: Date | null
+    claimedAt: Date | null
+    processedAt: Date | null
+    failedAt: Date | null
+    message: string | null
+  }
+
+  export type KioskCommandMaxAggregateOutputType = {
+    id: string | null
+    venueId: string | null
+    action: string | null
+    status: string | null
+    requestedByRole: string | null
+    requestedByDeviceId: string | null
+    requestedAt: Date | null
+    claimedAt: Date | null
+    processedAt: Date | null
+    failedAt: Date | null
+    message: string | null
+  }
+
+  export type KioskCommandCountAggregateOutputType = {
+    id: number
+    venueId: number
+    action: number
+    status: number
+    requestedByRole: number
+    requestedByDeviceId: number
+    requestedAt: number
+    claimedAt: number
+    processedAt: number
+    failedAt: number
+    message: number
+    _all: number
+  }
+
+
+  export type KioskCommandMinAggregateInputType = {
+    id?: true
+    venueId?: true
+    action?: true
+    status?: true
+    requestedByRole?: true
+    requestedByDeviceId?: true
+    requestedAt?: true
+    claimedAt?: true
+    processedAt?: true
+    failedAt?: true
+    message?: true
+  }
+
+  export type KioskCommandMaxAggregateInputType = {
+    id?: true
+    venueId?: true
+    action?: true
+    status?: true
+    requestedByRole?: true
+    requestedByDeviceId?: true
+    requestedAt?: true
+    claimedAt?: true
+    processedAt?: true
+    failedAt?: true
+    message?: true
+  }
+
+  export type KioskCommandCountAggregateInputType = {
+    id?: true
+    venueId?: true
+    action?: true
+    status?: true
+    requestedByRole?: true
+    requestedByDeviceId?: true
+    requestedAt?: true
+    claimedAt?: true
+    processedAt?: true
+    failedAt?: true
+    message?: true
+    _all?: true
+  }
+
+  export type KioskCommandAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KioskCommand to aggregate.
+     */
+    where?: KioskCommandWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KioskCommands to fetch.
+     */
+    orderBy?: KioskCommandOrderByWithRelationInput | KioskCommandOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KioskCommandWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KioskCommands from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KioskCommands.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KioskCommands
+    **/
+    _count?: true | KioskCommandCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KioskCommandMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KioskCommandMaxAggregateInputType
+  }
+
+  export type GetKioskCommandAggregateType<T extends KioskCommandAggregateArgs> = {
+        [P in keyof T & keyof AggregateKioskCommand]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKioskCommand[P]>
+      : GetScalarType<T[P], AggregateKioskCommand[P]>
+  }
+
+
+
+
+  export type KioskCommandGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KioskCommandWhereInput
+    orderBy?: KioskCommandOrderByWithAggregationInput | KioskCommandOrderByWithAggregationInput[]
+    by: KioskCommandScalarFieldEnum[] | KioskCommandScalarFieldEnum
+    having?: KioskCommandScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KioskCommandCountAggregateInputType | true
+    _min?: KioskCommandMinAggregateInputType
+    _max?: KioskCommandMaxAggregateInputType
+  }
+
+  export type KioskCommandGroupByOutputType = {
+    id: string
+    venueId: string
+    action: string
+    status: string
+    requestedByRole: string
+    requestedByDeviceId: string | null
+    requestedAt: Date
+    claimedAt: Date | null
+    processedAt: Date | null
+    failedAt: Date | null
+    message: string
+    _count: KioskCommandCountAggregateOutputType | null
+    _min: KioskCommandMinAggregateOutputType | null
+    _max: KioskCommandMaxAggregateOutputType | null
+  }
+
+  type GetKioskCommandGroupByPayload<T extends KioskCommandGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KioskCommandGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KioskCommandGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KioskCommandGroupByOutputType[P]>
+            : GetScalarType<T[P], KioskCommandGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KioskCommandSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    venueId?: boolean
+    action?: boolean
+    status?: boolean
+    requestedByRole?: boolean
+    requestedByDeviceId?: boolean
+    requestedAt?: boolean
+    claimedAt?: boolean
+    processedAt?: boolean
+    failedAt?: boolean
+    message?: boolean
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kioskCommand"]>
+
+  export type KioskCommandSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    venueId?: boolean
+    action?: boolean
+    status?: boolean
+    requestedByRole?: boolean
+    requestedByDeviceId?: boolean
+    requestedAt?: boolean
+    claimedAt?: boolean
+    processedAt?: boolean
+    failedAt?: boolean
+    message?: boolean
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kioskCommand"]>
+
+  export type KioskCommandSelectScalar = {
+    id?: boolean
+    venueId?: boolean
+    action?: boolean
+    status?: boolean
+    requestedByRole?: boolean
+    requestedByDeviceId?: boolean
+    requestedAt?: boolean
+    claimedAt?: boolean
+    processedAt?: boolean
+    failedAt?: boolean
+    message?: boolean
+  }
+
+  export type KioskCommandInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }
+  export type KioskCommandIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    venue?: boolean | VenueDefaultArgs<ExtArgs>
+  }
+
+  export type $KioskCommandPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KioskCommand"
+    objects: {
+      venue: Prisma.$VenuePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      venueId: string
+      action: string
+      status: string
+      requestedByRole: string
+      requestedByDeviceId: string | null
+      requestedAt: Date
+      claimedAt: Date | null
+      processedAt: Date | null
+      failedAt: Date | null
+      message: string
+    }, ExtArgs["result"]["kioskCommand"]>
+    composites: {}
+  }
+
+  type KioskCommandGetPayload<S extends boolean | null | undefined | KioskCommandDefaultArgs> = $Result.GetResult<Prisma.$KioskCommandPayload, S>
+
+  type KioskCommandCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<KioskCommandFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: KioskCommandCountAggregateInputType | true
+    }
+
+  export interface KioskCommandDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KioskCommand'], meta: { name: 'KioskCommand' } }
+    /**
+     * Find zero or one KioskCommand that matches the filter.
+     * @param {KioskCommandFindUniqueArgs} args - Arguments to find a KioskCommand
+     * @example
+     * // Get one KioskCommand
+     * const kioskCommand = await prisma.kioskCommand.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KioskCommandFindUniqueArgs>(args: SelectSubset<T, KioskCommandFindUniqueArgs<ExtArgs>>): Prisma__KioskCommandClient<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one KioskCommand that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {KioskCommandFindUniqueOrThrowArgs} args - Arguments to find a KioskCommand
+     * @example
+     * // Get one KioskCommand
+     * const kioskCommand = await prisma.kioskCommand.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KioskCommandFindUniqueOrThrowArgs>(args: SelectSubset<T, KioskCommandFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KioskCommandClient<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first KioskCommand that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KioskCommandFindFirstArgs} args - Arguments to find a KioskCommand
+     * @example
+     * // Get one KioskCommand
+     * const kioskCommand = await prisma.kioskCommand.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KioskCommandFindFirstArgs>(args?: SelectSubset<T, KioskCommandFindFirstArgs<ExtArgs>>): Prisma__KioskCommandClient<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first KioskCommand that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KioskCommandFindFirstOrThrowArgs} args - Arguments to find a KioskCommand
+     * @example
+     * // Get one KioskCommand
+     * const kioskCommand = await prisma.kioskCommand.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KioskCommandFindFirstOrThrowArgs>(args?: SelectSubset<T, KioskCommandFindFirstOrThrowArgs<ExtArgs>>): Prisma__KioskCommandClient<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more KioskCommands that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KioskCommandFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KioskCommands
+     * const kioskCommands = await prisma.kioskCommand.findMany()
+     * 
+     * // Get first 10 KioskCommands
+     * const kioskCommands = await prisma.kioskCommand.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kioskCommandWithIdOnly = await prisma.kioskCommand.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KioskCommandFindManyArgs>(args?: SelectSubset<T, KioskCommandFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a KioskCommand.
+     * @param {KioskCommandCreateArgs} args - Arguments to create a KioskCommand.
+     * @example
+     * // Create one KioskCommand
+     * const KioskCommand = await prisma.kioskCommand.create({
+     *   data: {
+     *     // ... data to create a KioskCommand
+     *   }
+     * })
+     * 
+     */
+    create<T extends KioskCommandCreateArgs>(args: SelectSubset<T, KioskCommandCreateArgs<ExtArgs>>): Prisma__KioskCommandClient<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many KioskCommands.
+     * @param {KioskCommandCreateManyArgs} args - Arguments to create many KioskCommands.
+     * @example
+     * // Create many KioskCommands
+     * const kioskCommand = await prisma.kioskCommand.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KioskCommandCreateManyArgs>(args?: SelectSubset<T, KioskCommandCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KioskCommands and returns the data saved in the database.
+     * @param {KioskCommandCreateManyAndReturnArgs} args - Arguments to create many KioskCommands.
+     * @example
+     * // Create many KioskCommands
+     * const kioskCommand = await prisma.kioskCommand.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KioskCommands and only return the `id`
+     * const kioskCommandWithIdOnly = await prisma.kioskCommand.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KioskCommandCreateManyAndReturnArgs>(args?: SelectSubset<T, KioskCommandCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a KioskCommand.
+     * @param {KioskCommandDeleteArgs} args - Arguments to delete one KioskCommand.
+     * @example
+     * // Delete one KioskCommand
+     * const KioskCommand = await prisma.kioskCommand.delete({
+     *   where: {
+     *     // ... filter to delete one KioskCommand
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KioskCommandDeleteArgs>(args: SelectSubset<T, KioskCommandDeleteArgs<ExtArgs>>): Prisma__KioskCommandClient<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one KioskCommand.
+     * @param {KioskCommandUpdateArgs} args - Arguments to update one KioskCommand.
+     * @example
+     * // Update one KioskCommand
+     * const kioskCommand = await prisma.kioskCommand.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KioskCommandUpdateArgs>(args: SelectSubset<T, KioskCommandUpdateArgs<ExtArgs>>): Prisma__KioskCommandClient<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more KioskCommands.
+     * @param {KioskCommandDeleteManyArgs} args - Arguments to filter KioskCommands to delete.
+     * @example
+     * // Delete a few KioskCommands
+     * const { count } = await prisma.kioskCommand.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KioskCommandDeleteManyArgs>(args?: SelectSubset<T, KioskCommandDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KioskCommands.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KioskCommandUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KioskCommands
+     * const kioskCommand = await prisma.kioskCommand.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KioskCommandUpdateManyArgs>(args: SelectSubset<T, KioskCommandUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one KioskCommand.
+     * @param {KioskCommandUpsertArgs} args - Arguments to update or create a KioskCommand.
+     * @example
+     * // Update or create a KioskCommand
+     * const kioskCommand = await prisma.kioskCommand.upsert({
+     *   create: {
+     *     // ... data to create a KioskCommand
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KioskCommand we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KioskCommandUpsertArgs>(args: SelectSubset<T, KioskCommandUpsertArgs<ExtArgs>>): Prisma__KioskCommandClient<$Result.GetResult<Prisma.$KioskCommandPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of KioskCommands.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KioskCommandCountArgs} args - Arguments to filter KioskCommands to count.
+     * @example
+     * // Count the number of KioskCommands
+     * const count = await prisma.kioskCommand.count({
+     *   where: {
+     *     // ... the filter for the KioskCommands we want to count
+     *   }
+     * })
+    **/
+    count<T extends KioskCommandCountArgs>(
+      args?: Subset<T, KioskCommandCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KioskCommandCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KioskCommand.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KioskCommandAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KioskCommandAggregateArgs>(args: Subset<T, KioskCommandAggregateArgs>): Prisma.PrismaPromise<GetKioskCommandAggregateType<T>>
+
+    /**
+     * Group by KioskCommand.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KioskCommandGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KioskCommandGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KioskCommandGroupByArgs['orderBy'] }
+        : { orderBy?: KioskCommandGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KioskCommandGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKioskCommandGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KioskCommand model
+   */
+  readonly fields: KioskCommandFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KioskCommand.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KioskCommandClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    venue<T extends VenueDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VenueDefaultArgs<ExtArgs>>): Prisma__VenueClient<$Result.GetResult<Prisma.$VenuePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KioskCommand model
+   */ 
+  interface KioskCommandFieldRefs {
+    readonly id: FieldRef<"KioskCommand", 'String'>
+    readonly venueId: FieldRef<"KioskCommand", 'String'>
+    readonly action: FieldRef<"KioskCommand", 'String'>
+    readonly status: FieldRef<"KioskCommand", 'String'>
+    readonly requestedByRole: FieldRef<"KioskCommand", 'String'>
+    readonly requestedByDeviceId: FieldRef<"KioskCommand", 'String'>
+    readonly requestedAt: FieldRef<"KioskCommand", 'DateTime'>
+    readonly claimedAt: FieldRef<"KioskCommand", 'DateTime'>
+    readonly processedAt: FieldRef<"KioskCommand", 'DateTime'>
+    readonly failedAt: FieldRef<"KioskCommand", 'DateTime'>
+    readonly message: FieldRef<"KioskCommand", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KioskCommand findUnique
+   */
+  export type KioskCommandFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * Filter, which KioskCommand to fetch.
+     */
+    where: KioskCommandWhereUniqueInput
+  }
+
+  /**
+   * KioskCommand findUniqueOrThrow
+   */
+  export type KioskCommandFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * Filter, which KioskCommand to fetch.
+     */
+    where: KioskCommandWhereUniqueInput
+  }
+
+  /**
+   * KioskCommand findFirst
+   */
+  export type KioskCommandFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * Filter, which KioskCommand to fetch.
+     */
+    where?: KioskCommandWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KioskCommands to fetch.
+     */
+    orderBy?: KioskCommandOrderByWithRelationInput | KioskCommandOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KioskCommands.
+     */
+    cursor?: KioskCommandWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KioskCommands from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KioskCommands.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KioskCommands.
+     */
+    distinct?: KioskCommandScalarFieldEnum | KioskCommandScalarFieldEnum[]
+  }
+
+  /**
+   * KioskCommand findFirstOrThrow
+   */
+  export type KioskCommandFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * Filter, which KioskCommand to fetch.
+     */
+    where?: KioskCommandWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KioskCommands to fetch.
+     */
+    orderBy?: KioskCommandOrderByWithRelationInput | KioskCommandOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KioskCommands.
+     */
+    cursor?: KioskCommandWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KioskCommands from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KioskCommands.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KioskCommands.
+     */
+    distinct?: KioskCommandScalarFieldEnum | KioskCommandScalarFieldEnum[]
+  }
+
+  /**
+   * KioskCommand findMany
+   */
+  export type KioskCommandFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * Filter, which KioskCommands to fetch.
+     */
+    where?: KioskCommandWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KioskCommands to fetch.
+     */
+    orderBy?: KioskCommandOrderByWithRelationInput | KioskCommandOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KioskCommands.
+     */
+    cursor?: KioskCommandWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KioskCommands from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KioskCommands.
+     */
+    skip?: number
+    distinct?: KioskCommandScalarFieldEnum | KioskCommandScalarFieldEnum[]
+  }
+
+  /**
+   * KioskCommand create
+   */
+  export type KioskCommandCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KioskCommand.
+     */
+    data: XOR<KioskCommandCreateInput, KioskCommandUncheckedCreateInput>
+  }
+
+  /**
+   * KioskCommand createMany
+   */
+  export type KioskCommandCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KioskCommands.
+     */
+    data: KioskCommandCreateManyInput | KioskCommandCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * KioskCommand createManyAndReturn
+   */
+  export type KioskCommandCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many KioskCommands.
+     */
+    data: KioskCommandCreateManyInput | KioskCommandCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KioskCommand update
+   */
+  export type KioskCommandUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KioskCommand.
+     */
+    data: XOR<KioskCommandUpdateInput, KioskCommandUncheckedUpdateInput>
+    /**
+     * Choose, which KioskCommand to update.
+     */
+    where: KioskCommandWhereUniqueInput
+  }
+
+  /**
+   * KioskCommand updateMany
+   */
+  export type KioskCommandUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KioskCommands.
+     */
+    data: XOR<KioskCommandUpdateManyMutationInput, KioskCommandUncheckedUpdateManyInput>
+    /**
+     * Filter which KioskCommands to update
+     */
+    where?: KioskCommandWhereInput
+  }
+
+  /**
+   * KioskCommand upsert
+   */
+  export type KioskCommandUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KioskCommand to update in case it exists.
+     */
+    where: KioskCommandWhereUniqueInput
+    /**
+     * In case the KioskCommand found by the `where` argument doesn't exist, create a new KioskCommand with this data.
+     */
+    create: XOR<KioskCommandCreateInput, KioskCommandUncheckedCreateInput>
+    /**
+     * In case the KioskCommand was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KioskCommandUpdateInput, KioskCommandUncheckedUpdateInput>
+  }
+
+  /**
+   * KioskCommand delete
+   */
+  export type KioskCommandDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+    /**
+     * Filter which KioskCommand to delete.
+     */
+    where: KioskCommandWhereUniqueInput
+  }
+
+  /**
+   * KioskCommand deleteMany
+   */
+  export type KioskCommandDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KioskCommands to delete
+     */
+    where?: KioskCommandWhereInput
+  }
+
+  /**
+   * KioskCommand without action
+   */
+  export type KioskCommandDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KioskCommand
+     */
+    select?: KioskCommandSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KioskCommandInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -11572,6 +12696,23 @@ export namespace Prisma {
   };
 
   export type AccessAttemptScalarFieldEnum = (typeof AccessAttemptScalarFieldEnum)[keyof typeof AccessAttemptScalarFieldEnum]
+
+
+  export const KioskCommandScalarFieldEnum: {
+    id: 'id',
+    venueId: 'venueId',
+    action: 'action',
+    status: 'status',
+    requestedByRole: 'requestedByRole',
+    requestedByDeviceId: 'requestedByDeviceId',
+    requestedAt: 'requestedAt',
+    claimedAt: 'claimedAt',
+    processedAt: 'processedAt',
+    failedAt: 'failedAt',
+    message: 'message'
+  };
+
+  export type KioskCommandScalarFieldEnum = (typeof KioskCommandScalarFieldEnum)[keyof typeof KioskCommandScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -12030,6 +13171,7 @@ export namespace Prisma {
     devices?: DeviceListRelationFilter
     sessions?: DeviceSessionListRelationFilter
     attempts?: AccessAttemptListRelationFilter
+    commands?: KioskCommandListRelationFilter
   }
 
   export type VenueOrderByWithRelationInput = {
@@ -12042,6 +13184,7 @@ export namespace Prisma {
     devices?: DeviceOrderByRelationAggregateInput
     sessions?: DeviceSessionOrderByRelationAggregateInput
     attempts?: AccessAttemptOrderByRelationAggregateInput
+    commands?: KioskCommandOrderByRelationAggregateInput
   }
 
   export type VenueWhereUniqueInput = Prisma.AtLeast<{
@@ -12057,6 +13200,7 @@ export namespace Prisma {
     devices?: DeviceListRelationFilter
     sessions?: DeviceSessionListRelationFilter
     attempts?: AccessAttemptListRelationFilter
+    commands?: KioskCommandListRelationFilter
   }, "id" | "slug">
 
   export type VenueOrderByWithAggregationInput = {
@@ -12328,6 +13472,91 @@ export namespace Prisma {
     message?: StringWithAggregatesFilter<"AccessAttempt"> | string
     userAgent?: StringWithAggregatesFilter<"AccessAttempt"> | string
     createdAt?: DateTimeWithAggregatesFilter<"AccessAttempt"> | Date | string
+  }
+
+  export type KioskCommandWhereInput = {
+    AND?: KioskCommandWhereInput | KioskCommandWhereInput[]
+    OR?: KioskCommandWhereInput[]
+    NOT?: KioskCommandWhereInput | KioskCommandWhereInput[]
+    id?: StringFilter<"KioskCommand"> | string
+    venueId?: StringFilter<"KioskCommand"> | string
+    action?: StringFilter<"KioskCommand"> | string
+    status?: StringFilter<"KioskCommand"> | string
+    requestedByRole?: StringFilter<"KioskCommand"> | string
+    requestedByDeviceId?: StringNullableFilter<"KioskCommand"> | string | null
+    requestedAt?: DateTimeFilter<"KioskCommand"> | Date | string
+    claimedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    processedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    message?: StringFilter<"KioskCommand"> | string
+    venue?: XOR<VenueRelationFilter, VenueWhereInput>
+  }
+
+  export type KioskCommandOrderByWithRelationInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    action?: SortOrder
+    status?: SortOrder
+    requestedByRole?: SortOrder
+    requestedByDeviceId?: SortOrderInput | SortOrder
+    requestedAt?: SortOrder
+    claimedAt?: SortOrderInput | SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    failedAt?: SortOrderInput | SortOrder
+    message?: SortOrder
+    venue?: VenueOrderByWithRelationInput
+  }
+
+  export type KioskCommandWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: KioskCommandWhereInput | KioskCommandWhereInput[]
+    OR?: KioskCommandWhereInput[]
+    NOT?: KioskCommandWhereInput | KioskCommandWhereInput[]
+    venueId?: StringFilter<"KioskCommand"> | string
+    action?: StringFilter<"KioskCommand"> | string
+    status?: StringFilter<"KioskCommand"> | string
+    requestedByRole?: StringFilter<"KioskCommand"> | string
+    requestedByDeviceId?: StringNullableFilter<"KioskCommand"> | string | null
+    requestedAt?: DateTimeFilter<"KioskCommand"> | Date | string
+    claimedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    processedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    message?: StringFilter<"KioskCommand"> | string
+    venue?: XOR<VenueRelationFilter, VenueWhereInput>
+  }, "id">
+
+  export type KioskCommandOrderByWithAggregationInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    action?: SortOrder
+    status?: SortOrder
+    requestedByRole?: SortOrder
+    requestedByDeviceId?: SortOrderInput | SortOrder
+    requestedAt?: SortOrder
+    claimedAt?: SortOrderInput | SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    failedAt?: SortOrderInput | SortOrder
+    message?: SortOrder
+    _count?: KioskCommandCountOrderByAggregateInput
+    _max?: KioskCommandMaxOrderByAggregateInput
+    _min?: KioskCommandMinOrderByAggregateInput
+  }
+
+  export type KioskCommandScalarWhereWithAggregatesInput = {
+    AND?: KioskCommandScalarWhereWithAggregatesInput | KioskCommandScalarWhereWithAggregatesInput[]
+    OR?: KioskCommandScalarWhereWithAggregatesInput[]
+    NOT?: KioskCommandScalarWhereWithAggregatesInput | KioskCommandScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"KioskCommand"> | string
+    venueId?: StringWithAggregatesFilter<"KioskCommand"> | string
+    action?: StringWithAggregatesFilter<"KioskCommand"> | string
+    status?: StringWithAggregatesFilter<"KioskCommand"> | string
+    requestedByRole?: StringWithAggregatesFilter<"KioskCommand"> | string
+    requestedByDeviceId?: StringNullableWithAggregatesFilter<"KioskCommand"> | string | null
+    requestedAt?: DateTimeWithAggregatesFilter<"KioskCommand"> | Date | string
+    claimedAt?: DateTimeNullableWithAggregatesFilter<"KioskCommand"> | Date | string | null
+    processedAt?: DateTimeNullableWithAggregatesFilter<"KioskCommand"> | Date | string | null
+    failedAt?: DateTimeNullableWithAggregatesFilter<"KioskCommand"> | Date | string | null
+    message?: StringWithAggregatesFilter<"KioskCommand"> | string
   }
 
   export type PlaylistCreateInput = {
@@ -12695,6 +13924,7 @@ export namespace Prisma {
     devices?: DeviceCreateNestedManyWithoutVenueInput
     sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
     attempts?: AccessAttemptCreateNestedManyWithoutVenueInput
+    commands?: KioskCommandCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUncheckedCreateInput = {
@@ -12707,6 +13937,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
     sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
     attempts?: AccessAttemptUncheckedCreateNestedManyWithoutVenueInput
+    commands?: KioskCommandUncheckedCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUpdateInput = {
@@ -12719,6 +13950,7 @@ export namespace Prisma {
     devices?: DeviceUpdateManyWithoutVenueNestedInput
     sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
     attempts?: AccessAttemptUpdateManyWithoutVenueNestedInput
+    commands?: KioskCommandUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueUncheckedUpdateInput = {
@@ -12731,6 +13963,7 @@ export namespace Prisma {
     devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
     sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
     attempts?: AccessAttemptUncheckedUpdateManyWithoutVenueNestedInput
+    commands?: KioskCommandUncheckedUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueCreateManyInput = {
@@ -13027,6 +14260,103 @@ export namespace Prisma {
     message?: StringFieldUpdateOperationsInput | string
     userAgent?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KioskCommandCreateInput = {
+    id?: string
+    action: string
+    status?: string
+    requestedByRole?: string
+    requestedByDeviceId?: string | null
+    requestedAt?: Date | string
+    claimedAt?: Date | string | null
+    processedAt?: Date | string | null
+    failedAt?: Date | string | null
+    message?: string
+    venue: VenueCreateNestedOneWithoutCommandsInput
+  }
+
+  export type KioskCommandUncheckedCreateInput = {
+    id?: string
+    venueId: string
+    action: string
+    status?: string
+    requestedByRole?: string
+    requestedByDeviceId?: string | null
+    requestedAt?: Date | string
+    claimedAt?: Date | string | null
+    processedAt?: Date | string | null
+    failedAt?: Date | string | null
+    message?: string
+  }
+
+  export type KioskCommandUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    requestedByRole?: StringFieldUpdateOperationsInput | string
+    requestedByDeviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    venue?: VenueUpdateOneRequiredWithoutCommandsNestedInput
+  }
+
+  export type KioskCommandUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    requestedByRole?: StringFieldUpdateOperationsInput | string
+    requestedByDeviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    message?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KioskCommandCreateManyInput = {
+    id?: string
+    venueId: string
+    action: string
+    status?: string
+    requestedByRole?: string
+    requestedByDeviceId?: string | null
+    requestedAt?: Date | string
+    claimedAt?: Date | string | null
+    processedAt?: Date | string | null
+    failedAt?: Date | string | null
+    message?: string
+  }
+
+  export type KioskCommandUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    requestedByRole?: StringFieldUpdateOperationsInput | string
+    requestedByDeviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    message?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KioskCommandUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    venueId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    requestedByRole?: StringFieldUpdateOperationsInput | string
+    requestedByDeviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    message?: StringFieldUpdateOperationsInput | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -13372,6 +14702,12 @@ export namespace Prisma {
     none?: AccessAttemptWhereInput
   }
 
+  export type KioskCommandListRelationFilter = {
+    every?: KioskCommandWhereInput
+    some?: KioskCommandWhereInput
+    none?: KioskCommandWhereInput
+  }
+
   export type DeviceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -13381,6 +14717,10 @@ export namespace Prisma {
   }
 
   export type AccessAttemptOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type KioskCommandOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -13603,6 +14943,48 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type KioskCommandCountOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    action?: SortOrder
+    status?: SortOrder
+    requestedByRole?: SortOrder
+    requestedByDeviceId?: SortOrder
+    requestedAt?: SortOrder
+    claimedAt?: SortOrder
+    processedAt?: SortOrder
+    failedAt?: SortOrder
+    message?: SortOrder
+  }
+
+  export type KioskCommandMaxOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    action?: SortOrder
+    status?: SortOrder
+    requestedByRole?: SortOrder
+    requestedByDeviceId?: SortOrder
+    requestedAt?: SortOrder
+    claimedAt?: SortOrder
+    processedAt?: SortOrder
+    failedAt?: SortOrder
+    message?: SortOrder
+  }
+
+  export type KioskCommandMinOrderByAggregateInput = {
+    id?: SortOrder
+    venueId?: SortOrder
+    action?: SortOrder
+    status?: SortOrder
+    requestedByRole?: SortOrder
+    requestedByDeviceId?: SortOrder
+    requestedAt?: SortOrder
+    claimedAt?: SortOrder
+    processedAt?: SortOrder
+    failedAt?: SortOrder
+    message?: SortOrder
+  }
+
   export type PlaylistCancionCreateNestedManyWithoutPlaylistInput = {
     create?: XOR<PlaylistCancionCreateWithoutPlaylistInput, PlaylistCancionUncheckedCreateWithoutPlaylistInput> | PlaylistCancionCreateWithoutPlaylistInput[] | PlaylistCancionUncheckedCreateWithoutPlaylistInput[]
     connectOrCreate?: PlaylistCancionCreateOrConnectWithoutPlaylistInput | PlaylistCancionCreateOrConnectWithoutPlaylistInput[]
@@ -13700,6 +15082,13 @@ export namespace Prisma {
     connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
   }
 
+  export type KioskCommandCreateNestedManyWithoutVenueInput = {
+    create?: XOR<KioskCommandCreateWithoutVenueInput, KioskCommandUncheckedCreateWithoutVenueInput> | KioskCommandCreateWithoutVenueInput[] | KioskCommandUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: KioskCommandCreateOrConnectWithoutVenueInput | KioskCommandCreateOrConnectWithoutVenueInput[]
+    createMany?: KioskCommandCreateManyVenueInputEnvelope
+    connect?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+  }
+
   export type DeviceUncheckedCreateNestedManyWithoutVenueInput = {
     create?: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput> | DeviceCreateWithoutVenueInput[] | DeviceUncheckedCreateWithoutVenueInput[]
     connectOrCreate?: DeviceCreateOrConnectWithoutVenueInput | DeviceCreateOrConnectWithoutVenueInput[]
@@ -13719,6 +15108,13 @@ export namespace Prisma {
     connectOrCreate?: AccessAttemptCreateOrConnectWithoutVenueInput | AccessAttemptCreateOrConnectWithoutVenueInput[]
     createMany?: AccessAttemptCreateManyVenueInputEnvelope
     connect?: AccessAttemptWhereUniqueInput | AccessAttemptWhereUniqueInput[]
+  }
+
+  export type KioskCommandUncheckedCreateNestedManyWithoutVenueInput = {
+    create?: XOR<KioskCommandCreateWithoutVenueInput, KioskCommandUncheckedCreateWithoutVenueInput> | KioskCommandCreateWithoutVenueInput[] | KioskCommandUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: KioskCommandCreateOrConnectWithoutVenueInput | KioskCommandCreateOrConnectWithoutVenueInput[]
+    createMany?: KioskCommandCreateManyVenueInputEnvelope
+    connect?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
   }
 
   export type DeviceUpdateManyWithoutVenueNestedInput = {
@@ -13763,6 +15159,20 @@ export namespace Prisma {
     deleteMany?: AccessAttemptScalarWhereInput | AccessAttemptScalarWhereInput[]
   }
 
+  export type KioskCommandUpdateManyWithoutVenueNestedInput = {
+    create?: XOR<KioskCommandCreateWithoutVenueInput, KioskCommandUncheckedCreateWithoutVenueInput> | KioskCommandCreateWithoutVenueInput[] | KioskCommandUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: KioskCommandCreateOrConnectWithoutVenueInput | KioskCommandCreateOrConnectWithoutVenueInput[]
+    upsert?: KioskCommandUpsertWithWhereUniqueWithoutVenueInput | KioskCommandUpsertWithWhereUniqueWithoutVenueInput[]
+    createMany?: KioskCommandCreateManyVenueInputEnvelope
+    set?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+    disconnect?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+    delete?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+    connect?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+    update?: KioskCommandUpdateWithWhereUniqueWithoutVenueInput | KioskCommandUpdateWithWhereUniqueWithoutVenueInput[]
+    updateMany?: KioskCommandUpdateManyWithWhereWithoutVenueInput | KioskCommandUpdateManyWithWhereWithoutVenueInput[]
+    deleteMany?: KioskCommandScalarWhereInput | KioskCommandScalarWhereInput[]
+  }
+
   export type DeviceUncheckedUpdateManyWithoutVenueNestedInput = {
     create?: XOR<DeviceCreateWithoutVenueInput, DeviceUncheckedCreateWithoutVenueInput> | DeviceCreateWithoutVenueInput[] | DeviceUncheckedCreateWithoutVenueInput[]
     connectOrCreate?: DeviceCreateOrConnectWithoutVenueInput | DeviceCreateOrConnectWithoutVenueInput[]
@@ -13803,6 +15213,20 @@ export namespace Prisma {
     update?: AccessAttemptUpdateWithWhereUniqueWithoutVenueInput | AccessAttemptUpdateWithWhereUniqueWithoutVenueInput[]
     updateMany?: AccessAttemptUpdateManyWithWhereWithoutVenueInput | AccessAttemptUpdateManyWithWhereWithoutVenueInput[]
     deleteMany?: AccessAttemptScalarWhereInput | AccessAttemptScalarWhereInput[]
+  }
+
+  export type KioskCommandUncheckedUpdateManyWithoutVenueNestedInput = {
+    create?: XOR<KioskCommandCreateWithoutVenueInput, KioskCommandUncheckedCreateWithoutVenueInput> | KioskCommandCreateWithoutVenueInput[] | KioskCommandUncheckedCreateWithoutVenueInput[]
+    connectOrCreate?: KioskCommandCreateOrConnectWithoutVenueInput | KioskCommandCreateOrConnectWithoutVenueInput[]
+    upsert?: KioskCommandUpsertWithWhereUniqueWithoutVenueInput | KioskCommandUpsertWithWhereUniqueWithoutVenueInput[]
+    createMany?: KioskCommandCreateManyVenueInputEnvelope
+    set?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+    disconnect?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+    delete?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+    connect?: KioskCommandWhereUniqueInput | KioskCommandWhereUniqueInput[]
+    update?: KioskCommandUpdateWithWhereUniqueWithoutVenueInput | KioskCommandUpdateWithWhereUniqueWithoutVenueInput[]
+    updateMany?: KioskCommandUpdateManyWithWhereWithoutVenueInput | KioskCommandUpdateManyWithWhereWithoutVenueInput[]
+    deleteMany?: KioskCommandScalarWhereInput | KioskCommandScalarWhereInput[]
   }
 
   export type VenueCreateNestedOneWithoutDevicesInput = {
@@ -13967,6 +15391,20 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type VenueCreateNestedOneWithoutCommandsInput = {
+    create?: XOR<VenueCreateWithoutCommandsInput, VenueUncheckedCreateWithoutCommandsInput>
+    connectOrCreate?: VenueCreateOrConnectWithoutCommandsInput
+    connect?: VenueWhereUniqueInput
+  }
+
+  export type VenueUpdateOneRequiredWithoutCommandsNestedInput = {
+    create?: XOR<VenueCreateWithoutCommandsInput, VenueUncheckedCreateWithoutCommandsInput>
+    connectOrCreate?: VenueCreateOrConnectWithoutCommandsInput
+    upsert?: VenueUpsertWithoutCommandsInput
+    connect?: VenueWhereUniqueInput
+    update?: XOR<XOR<VenueUpdateToOneWithWhereWithoutCommandsInput, VenueUpdateWithoutCommandsInput>, VenueUncheckedUpdateWithoutCommandsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -14364,6 +15802,42 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type KioskCommandCreateWithoutVenueInput = {
+    id?: string
+    action: string
+    status?: string
+    requestedByRole?: string
+    requestedByDeviceId?: string | null
+    requestedAt?: Date | string
+    claimedAt?: Date | string | null
+    processedAt?: Date | string | null
+    failedAt?: Date | string | null
+    message?: string
+  }
+
+  export type KioskCommandUncheckedCreateWithoutVenueInput = {
+    id?: string
+    action: string
+    status?: string
+    requestedByRole?: string
+    requestedByDeviceId?: string | null
+    requestedAt?: Date | string
+    claimedAt?: Date | string | null
+    processedAt?: Date | string | null
+    failedAt?: Date | string | null
+    message?: string
+  }
+
+  export type KioskCommandCreateOrConnectWithoutVenueInput = {
+    where: KioskCommandWhereUniqueInput
+    create: XOR<KioskCommandCreateWithoutVenueInput, KioskCommandUncheckedCreateWithoutVenueInput>
+  }
+
+  export type KioskCommandCreateManyVenueInputEnvelope = {
+    data: KioskCommandCreateManyVenueInput | KioskCommandCreateManyVenueInput[]
+    skipDuplicates?: boolean
+  }
+
   export type DeviceUpsertWithWhereUniqueWithoutVenueInput = {
     where: DeviceWhereUniqueInput
     update: XOR<DeviceUpdateWithoutVenueInput, DeviceUncheckedUpdateWithoutVenueInput>
@@ -14459,6 +15933,39 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"AccessAttempt"> | Date | string
   }
 
+  export type KioskCommandUpsertWithWhereUniqueWithoutVenueInput = {
+    where: KioskCommandWhereUniqueInput
+    update: XOR<KioskCommandUpdateWithoutVenueInput, KioskCommandUncheckedUpdateWithoutVenueInput>
+    create: XOR<KioskCommandCreateWithoutVenueInput, KioskCommandUncheckedCreateWithoutVenueInput>
+  }
+
+  export type KioskCommandUpdateWithWhereUniqueWithoutVenueInput = {
+    where: KioskCommandWhereUniqueInput
+    data: XOR<KioskCommandUpdateWithoutVenueInput, KioskCommandUncheckedUpdateWithoutVenueInput>
+  }
+
+  export type KioskCommandUpdateManyWithWhereWithoutVenueInput = {
+    where: KioskCommandScalarWhereInput
+    data: XOR<KioskCommandUpdateManyMutationInput, KioskCommandUncheckedUpdateManyWithoutVenueInput>
+  }
+
+  export type KioskCommandScalarWhereInput = {
+    AND?: KioskCommandScalarWhereInput | KioskCommandScalarWhereInput[]
+    OR?: KioskCommandScalarWhereInput[]
+    NOT?: KioskCommandScalarWhereInput | KioskCommandScalarWhereInput[]
+    id?: StringFilter<"KioskCommand"> | string
+    venueId?: StringFilter<"KioskCommand"> | string
+    action?: StringFilter<"KioskCommand"> | string
+    status?: StringFilter<"KioskCommand"> | string
+    requestedByRole?: StringFilter<"KioskCommand"> | string
+    requestedByDeviceId?: StringNullableFilter<"KioskCommand"> | string | null
+    requestedAt?: DateTimeFilter<"KioskCommand"> | Date | string
+    claimedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    processedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    failedAt?: DateTimeNullableFilter<"KioskCommand"> | Date | string | null
+    message?: StringFilter<"KioskCommand"> | string
+  }
+
   export type VenueCreateWithoutDevicesInput = {
     id?: string
     slug: string
@@ -14468,6 +15975,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
     attempts?: AccessAttemptCreateNestedManyWithoutVenueInput
+    commands?: KioskCommandCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUncheckedCreateWithoutDevicesInput = {
@@ -14479,6 +15987,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
     attempts?: AccessAttemptUncheckedCreateNestedManyWithoutVenueInput
+    commands?: KioskCommandUncheckedCreateNestedManyWithoutVenueInput
   }
 
   export type VenueCreateOrConnectWithoutDevicesInput = {
@@ -14570,6 +16079,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
     attempts?: AccessAttemptUpdateManyWithoutVenueNestedInput
+    commands?: KioskCommandUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueUncheckedUpdateWithoutDevicesInput = {
@@ -14581,6 +16091,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
     attempts?: AccessAttemptUncheckedUpdateManyWithoutVenueNestedInput
+    commands?: KioskCommandUncheckedUpdateManyWithoutVenueNestedInput
   }
 
   export type DeviceSessionUpsertWithWhereUniqueWithoutDeviceInput = {
@@ -14659,6 +16170,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     devices?: DeviceCreateNestedManyWithoutVenueInput
     attempts?: AccessAttemptCreateNestedManyWithoutVenueInput
+    commands?: KioskCommandCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUncheckedCreateWithoutSessionsInput = {
@@ -14670,6 +16182,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
     attempts?: AccessAttemptUncheckedCreateNestedManyWithoutVenueInput
+    commands?: KioskCommandUncheckedCreateNestedManyWithoutVenueInput
   }
 
   export type VenueCreateOrConnectWithoutSessionsInput = {
@@ -14738,6 +16251,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     devices?: DeviceUpdateManyWithoutVenueNestedInput
     attempts?: AccessAttemptUpdateManyWithoutVenueNestedInput
+    commands?: KioskCommandUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueUncheckedUpdateWithoutSessionsInput = {
@@ -14749,6 +16263,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
     attempts?: AccessAttemptUncheckedUpdateManyWithoutVenueNestedInput
+    commands?: KioskCommandUncheckedUpdateManyWithoutVenueNestedInput
   }
 
   export type DeviceCreateWithoutAttemptsInput = {
@@ -14795,6 +16310,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     devices?: DeviceCreateNestedManyWithoutVenueInput
     sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
+    commands?: KioskCommandCreateNestedManyWithoutVenueInput
   }
 
   export type VenueUncheckedCreateWithoutAttemptsInput = {
@@ -14806,6 +16322,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
     sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
+    commands?: KioskCommandUncheckedCreateNestedManyWithoutVenueInput
   }
 
   export type VenueCreateOrConnectWithoutAttemptsInput = {
@@ -14874,6 +16391,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     devices?: DeviceUpdateManyWithoutVenueNestedInput
     sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
+    commands?: KioskCommandUpdateManyWithoutVenueNestedInput
   }
 
   export type VenueUncheckedUpdateWithoutAttemptsInput = {
@@ -14885,6 +16403,71 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
     sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
+    commands?: KioskCommandUncheckedUpdateManyWithoutVenueNestedInput
+  }
+
+  export type VenueCreateWithoutCommandsInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    devices?: DeviceCreateNestedManyWithoutVenueInput
+    sessions?: DeviceSessionCreateNestedManyWithoutVenueInput
+    attempts?: AccessAttemptCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueUncheckedCreateWithoutCommandsInput = {
+    id?: string
+    slug: string
+    name: string
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    devices?: DeviceUncheckedCreateNestedManyWithoutVenueInput
+    sessions?: DeviceSessionUncheckedCreateNestedManyWithoutVenueInput
+    attempts?: AccessAttemptUncheckedCreateNestedManyWithoutVenueInput
+  }
+
+  export type VenueCreateOrConnectWithoutCommandsInput = {
+    where: VenueWhereUniqueInput
+    create: XOR<VenueCreateWithoutCommandsInput, VenueUncheckedCreateWithoutCommandsInput>
+  }
+
+  export type VenueUpsertWithoutCommandsInput = {
+    update: XOR<VenueUpdateWithoutCommandsInput, VenueUncheckedUpdateWithoutCommandsInput>
+    create: XOR<VenueCreateWithoutCommandsInput, VenueUncheckedCreateWithoutCommandsInput>
+    where?: VenueWhereInput
+  }
+
+  export type VenueUpdateToOneWithWhereWithoutCommandsInput = {
+    where?: VenueWhereInput
+    data: XOR<VenueUpdateWithoutCommandsInput, VenueUncheckedUpdateWithoutCommandsInput>
+  }
+
+  export type VenueUpdateWithoutCommandsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    devices?: DeviceUpdateManyWithoutVenueNestedInput
+    sessions?: DeviceSessionUpdateManyWithoutVenueNestedInput
+    attempts?: AccessAttemptUpdateManyWithoutVenueNestedInput
+  }
+
+  export type VenueUncheckedUpdateWithoutCommandsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    devices?: DeviceUncheckedUpdateManyWithoutVenueNestedInput
+    sessions?: DeviceSessionUncheckedUpdateManyWithoutVenueNestedInput
+    attempts?: AccessAttemptUncheckedUpdateManyWithoutVenueNestedInput
   }
 
   export type PlaylistCancionCreateManyPlaylistInput = {
@@ -14959,6 +16542,19 @@ export namespace Prisma {
     message?: string
     userAgent: string
     createdAt?: Date | string
+  }
+
+  export type KioskCommandCreateManyVenueInput = {
+    id?: string
+    action: string
+    status?: string
+    requestedByRole?: string
+    requestedByDeviceId?: string | null
+    requestedAt?: Date | string
+    claimedAt?: Date | string | null
+    processedAt?: Date | string | null
+    failedAt?: Date | string | null
+    message?: string
   }
 
   export type DeviceUpdateWithoutVenueInput = {
@@ -15068,6 +16664,45 @@ export namespace Prisma {
     message?: StringFieldUpdateOperationsInput | string
     userAgent?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KioskCommandUpdateWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    requestedByRole?: StringFieldUpdateOperationsInput | string
+    requestedByDeviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    message?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KioskCommandUncheckedUpdateWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    requestedByRole?: StringFieldUpdateOperationsInput | string
+    requestedByDeviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    message?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type KioskCommandUncheckedUpdateManyWithoutVenueInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    requestedByRole?: StringFieldUpdateOperationsInput | string
+    requestedByDeviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    failedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    message?: StringFieldUpdateOperationsInput | string
   }
 
   export type DeviceSessionCreateManyDeviceInput = {
@@ -15215,6 +16850,10 @@ export namespace Prisma {
      * @deprecated Use AccessAttemptDefaultArgs instead
      */
     export type AccessAttemptArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AccessAttemptDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use KioskCommandDefaultArgs instead
+     */
+    export type KioskCommandArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = KioskCommandDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

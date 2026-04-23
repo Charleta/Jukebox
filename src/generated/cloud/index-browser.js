@@ -221,6 +221,20 @@ exports.Prisma.AccessAttemptScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.KioskCommandScalarFieldEnum = {
+  id: 'id',
+  venueId: 'venueId',
+  action: 'action',
+  status: 'status',
+  requestedByRole: 'requestedByRole',
+  requestedByDeviceId: 'requestedByDeviceId',
+  requestedAt: 'requestedAt',
+  claimedAt: 'claimedAt',
+  processedAt: 'processedAt',
+  failedAt: 'failedAt',
+  message: 'message'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -247,7 +261,8 @@ exports.Prisma.ModelName = {
   Venue: 'Venue',
   Device: 'Device',
   DeviceSession: 'DeviceSession',
-  AccessAttempt: 'AccessAttempt'
+  AccessAttempt: 'AccessAttempt',
+  KioskCommand: 'KioskCommand'
 };
 
 /**
