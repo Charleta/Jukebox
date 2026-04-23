@@ -32,6 +32,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
   const spotifyUriRef = useRef<string | null>(null)
   const playRetryTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const play404CountRef = useRef(0)
+  const maxSegundosRef = useRef(maxSegundos)
   const nextReconnectDelay = () => {
     const delay = Math.min(30000, 2000 * Math.pow(2, reconnectAttemptsRef.current))
     reconnectAttemptsRef.current++
@@ -46,6 +47,10 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
       onTerminada()
     }, Math.max(0, delayMs))
   }
+
+  useEffect(() => {
+    maxSegundosRef.current = maxSegundos
+  }, [maxSegundos])
 
   const initPlayer = async () => {
     clearTimeout(reconnectTimerRef.current)
@@ -139,6 +144,13 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
         const state = await playerRef.current.getCurrentState()
         if (!state) return
         onProgress(state.position, state.duration)
+
+        const maxLimitMs = Math.max(0, maxSegundosRef.current * 1000)
+        if (!terminadaRef.current && hasPlayedRef.current && state.position >= maxLimitMs && maxLimitMs > 0) {
+          terminadaRef.current = true
+          onTerminada()
+          return
+        }
 
         // Backup: si estamos a menos de 2s del final, programar onTerminada preciso
         if (
