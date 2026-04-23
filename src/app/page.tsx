@@ -9,6 +9,7 @@ import { useAppConfig } from '@/hooks/useAppConfig'
 import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
 import { useRecoverySignal } from '@/hooks/useRecoverySignal'
+import { useSpotifyPlayback } from '@/hooks/useSpotifyPlayback'
 import { SpotifyArtist, SpotifyTrack } from '@/types'
 import { SpotifyPlayer } from '@/components/player/SpotifyPlayer'
 import { QRCodeSVG } from 'qrcode.react'
@@ -35,12 +36,11 @@ export default function KioskoPage() {
   const { cola, colaClientes, refetch: refetchCola } = useCola()
   const { maxDurKiosko, maxDurAdmin, fichasPack, precioPack } = useAppConfig()
   const { command: recoveryCommand, requestedAt: recoveryRequestedAt, clearSignal: clearRecoverySignal } = useRecoverySignal()
+  const playback = useSpotifyPlayback()
   const [artist, setArtist] = useState<SpotifyArtist | null>(null)
   const [tracks, setTracks] = useState<SpotifyTrack[]>([])
   const [focused, setFocused] = useState(0)
   const [toast, setToast] = useState('')
-  const [progreso, setProgreso] = useState(0)
-  const [duracion, setDuracion] = useState(0)
 
   // Modal confirmación de canción
   const [pendingTrack, setPendingTrack] = useState<SpotifyTrack | null>(null)
@@ -85,8 +85,6 @@ export default function KioskoPage() {
       }
 
       if (recoveryCommand === 'restart-player') {
-        setProgreso(0)
-        setDuracion(0)
         setPlayerInstanceKey(prev => prev + 1)
         setToast('REINICIANDO REPRODUCTOR...')
         setTimeout(() => setToast(''), 2500)
@@ -97,8 +95,6 @@ export default function KioskoPage() {
   }, [clearRecoverySignal, recoveryCommand, recoveryRequestedAt])
 
   const pasarSiguiente = async () => {
-    setProgreso(0)
-    setDuracion(0)
     await fetch('/api/cola/siguiente', { method: 'POST' })
     refetchCola()
   }
@@ -220,7 +216,16 @@ export default function KioskoPage() {
     }
   }
 
-  const nowPlaying = colaClientes[0] ?? cola[0] ?? null
+  const queueNowPlaying = colaClientes[0] ?? cola[0] ?? null
+  const nowPlaying = playback.track
+    ? {
+        ...(queueNowPlaying ?? {}),
+        titulo: playback.track.title || queueNowPlaying?.titulo || '',
+        artista: playback.track.artist || queueNowPlaying?.artista || '',
+        imagenUrl: playback.track.imageUrl || queueNowPlaying?.imagenUrl || '',
+        spotifyUri: playback.track.uri || queueNowPlaying?.spotifyUri || null,
+      }
+    : queueNowPlaying
   const maxSegundos = nowPlaying?.tipo === 'admin' ? maxDurAdmin : maxDurKiosko
   const hasQueue = colaClientes.slice(1).length > 0
 
@@ -280,17 +285,17 @@ export default function KioskoPage() {
                 )}
 
                 {/* Barra de progreso */}
-                {duracion > 0 && (
+                {playback.durationMs > 0 && (
                   <div>
                     <div className="h-0.5 bg-zinc-700 rounded overflow-hidden">
                       <div
                         className="h-full bg-yellow-400 transition-all duration-1000"
-                        style={{ width: `${(progreso / duracion) * 100}%` }}
+                        style={{ width: `${(playback.progressMs / playback.durationMs) * 100}%` }}
                       />
                     </div>
                     <div className="flex justify-between text-xs text-zinc-500 mt-1">
-                      <span>{formatMs(progreso)}</span>
-                      <span>{formatMs(duracion)}</span>
+                      <span>{formatMs(playback.progressMs)}</span>
+                      <span>{formatMs(playback.durationMs)}</span>
                     </div>
                   </div>
                 )}
@@ -309,7 +314,7 @@ export default function KioskoPage() {
           spotifyUri={nowPlaying?.spotifyUri ?? null}
           maxSegundos={maxSegundos}
           onTerminada={pasarSiguiente}
-          onProgress={(pos, dur) => { setProgreso(pos); setDuracion(dur) }}
+          onProgress={() => {}}
         />
 
         <FichasDisplay fichas={fichas} />

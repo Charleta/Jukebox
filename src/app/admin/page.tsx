@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAppConfig } from '@/hooks/useAppConfig'
 import { useFichas } from '@/hooks/useFichas'
 import { useCola } from '@/hooks/useCola'
+import { useSpotifyPlayback } from '@/hooks/useSpotifyPlayback'
 
 type Role = 'admin' | 'operador'
 type EmergencyAction = 'reload-app' | 'close-kiosk' | 'restart-kiosk'
@@ -26,22 +27,15 @@ function fmtMs(ms: number) {
 function OperadorView({ onLogout }: { onLogout: () => void }) {
   const { fichas, fichasHoy, refetch } = useFichas()
   const { cola } = useCola()
-  const [progreso, setProgreso] = useState(0)
-  const [duracion, setDuracion] = useState(0)
-  const nowPlaying = cola[0] ?? null
-
-  useEffect(() => {
-
-    const interval = setInterval(async () => {
-      const res = await fetch('/api/spotify/playback')
-      if (res.ok) {
-        const data = await res.json()
-        setProgreso(data.progress_ms ?? 0)
-        setDuracion(data.duration_ms ?? 0)
+  const playback = useSpotifyPlayback(2000)
+  const nowPlaying = playback.track
+    ? {
+        ...(cola[0] ?? {}),
+        titulo: playback.track.title || cola[0]?.titulo || '',
+        artista: playback.track.artist || cola[0]?.artista || '',
+        imagenUrl: playback.track.imageUrl || cola[0]?.imagenUrl || '',
       }
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
+    : cola[0] ?? null
 
   const cargarFicha = async () => {
     await fetch('/api/fichas', {
@@ -75,15 +69,15 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
                 <div className="text-sm text-zinc-400 truncate">{nowPlaying.artista}</div>
               </div>
             </div>
-            {duracion > 0 && (
+            {playback.durationMs > 0 && (
               <div>
                 <div className="h-0.5 bg-zinc-700 rounded overflow-hidden">
                   <div className="h-full bg-yellow-400 transition-all duration-1000"
-                    style={{ width: `${(progreso / duracion) * 100}%` }} />
+                    style={{ width: `${(playback.progressMs / playback.durationMs) * 100}%` }} />
                 </div>
                 <div className="flex justify-between text-xs text-zinc-500 mt-1">
-                  <span>{fmtMs(progreso)}</span>
-                  <span>{fmtMs(duracion)}</span>
+                  <span>{fmtMs(playback.progressMs)}</span>
+                  <span>{fmtMs(playback.durationMs)}</span>
                 </div>
               </div>
             )}
@@ -135,13 +129,12 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
     precioPack: savedPrecioPack,
     autostartPlaylists,
   } = useAppConfig()
+  const playback = useSpotifyPlayback(2000)
   const [isPlaying, setIsPlaying] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult | null>(null)
   const [searching, setSearching] = useState(false)
   const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [progreso, setProgreso] = useState(0)
-  const [duracion, setDuracion] = useState(0)
 
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [playlistActiva, setPlaylistActiva] = useState<number | null>(null)
@@ -216,17 +209,17 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   }, [autostartPlaylists, savedFichasPack, savedMaxDurAdmin, savedMaxDurKiosko, savedPrecioPack])
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const res = await fetch('/api/spotify/playback')
-      if (res.ok) {
-        const data = await res.json()
-        setIsPlaying(data.isPlaying ?? false)
-        setProgreso(data.progress_ms ?? 0)
-        setDuracion(data.duration_ms ?? 0)
+    setIsPlaying(playback.isPlaying)
+  }, [playback.isPlaying])
+
+  const nowPlaying = playback.track
+    ? {
+        ...(cola[0] ?? {}),
+        titulo: playback.track.title || cola[0]?.titulo || '',
+        artista: playback.track.artist || cola[0]?.artista || '',
+        imagenUrl: playback.track.imageUrl || cola[0]?.imagenUrl || '',
       }
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [])
+    : cola[0] ?? null
 
   const cargarFichas = async (n: number) => {
     await fetch('/api/fichas', {
@@ -606,18 +599,18 @@ return (
 
       {/* PLAYER */}
       <div className="relative overflow-hidden rounded-2xl mb-4 border border-white/5">
-        {cola[0]?.imagenUrl && (
+        {nowPlaying?.imagenUrl && (
           <div className="absolute inset-0" style={{
-            backgroundImage: `url(${cola[0].imagenUrl})`,
+            backgroundImage: `url(${nowPlaying.imagenUrl})`,
             backgroundSize: 'cover', backgroundPosition: 'center',
             filter: 'blur(40px) brightness(0.18)', transform: 'scale(1.1)'
           }} />
         )}
         <div className="relative bg-black/50 p-5">
-          {cola[0] ? (
+          {nowPlaying ? (
             <div className="flex items-center gap-4 mb-4">
-              {cola[0].imagenUrl
-                ? <img src={cola[0].imagenUrl} alt="" className="w-16 h-16 rounded-xl object-cover shadow-lg shrink-0" />
+              {nowPlaying.imagenUrl
+                ? <img src={nowPlaying.imagenUrl} alt="" className="w-16 h-16 rounded-xl object-cover shadow-lg shrink-0" />
                 : <div className="w-16 h-16 rounded-xl bg-zinc-800 flex items-center justify-center text-xl shrink-0">♪</div>
               }
               <div className="flex-1 min-w-0">
@@ -625,8 +618,8 @@ return (
                   <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse inline-block" />
                   Sonando ahora
                 </div>
-                <div className="font-black text-lg leading-tight truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{cola[0].titulo}</div>
-                <div className="text-sm text-zinc-400 truncate">{cola[0].artista}</div>
+                <div className="font-black text-lg leading-tight truncate" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{nowPlaying.titulo}</div>
+                <div className="text-sm text-zinc-400 truncate">{nowPlaying.artista}</div>
               </div>
             </div>
           ) : (
@@ -635,15 +628,15 @@ return (
               <div className="text-sm text-zinc-600">Sin canciones en cola</div>
             </div>
           )}
-          {duracion > 0 && (
+          {playback.durationMs > 0 && (
             <div className="mb-4">
               <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full bg-yellow-400 rounded-full transition-all duration-1000"
-                  style={{ width: `${(progreso / duracion) * 100}%` }} />
+                  style={{ width: `${(playback.progressMs / playback.durationMs) * 100}%` }} />
               </div>
               <div className="flex justify-between text-xs text-zinc-500 mt-1.5">
-                <span>{fmtMs(progreso)}</span>
-                <span>{fmtMs(duracion)}</span>
+                <span>{fmtMs(playback.progressMs)}</span>
+                <span>{fmtMs(playback.durationMs)}</span>
               </div>
             </div>
           )}

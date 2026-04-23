@@ -21,10 +21,18 @@ export async function GET() {
     }
 
     const data = await res.json()
+    const currentTrack = data.item ? {
+      uri: data.item.uri ?? '',
+      title: data.item.name ?? '',
+      artist: Array.isArray(data.item.artists) ? data.item.artists.map((a: any) => a?.name).filter(Boolean).join(', ') : '',
+      imageUrl: Array.isArray(data.item.album?.images) ? data.item.album.images[0]?.url ?? '' : '',
+    } : null
+
     cachedPlayback = {
       isPlaying: data.is_playing ?? false,
       progress_ms: data.progress_ms ?? 0,
       duration_ms: data.item?.duration_ms ?? 0,
+      track: currentTrack,
     }
     playbackCachedAt = Date.now()
     return NextResponse.json(cachedPlayback)
