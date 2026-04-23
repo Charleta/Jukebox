@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "prisma generate && prisma generate --schema=prisma/cloud/schema.prisma && next build",
     "start": "next start",
     "kiosk": "cmd /c scripts\\kiosk-start.bat",
     "kiosk:install": "powershell -ExecutionPolicy Bypass -File scripts\\install-kiosk-startup.ps1",
