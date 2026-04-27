@@ -3,6 +3,7 @@ export interface AppConfigState {
   maxDurAdmin: number
   fichasPack: number
   precioPack: number
+  playerVolume: number
   autostartPlaylists: string
 }
 
@@ -11,6 +12,7 @@ export const DEFAULT_APP_CONFIG: AppConfigState = {
   maxDurAdmin: 300,
   fichasPack: 2,
   precioPack: 1000,
+  playerVolume: 0.8,
   autostartPlaylists: '[]',
 }
 
@@ -34,4 +36,3 @@ export interface CancionCola {
   orden: number
   tipo: string
 }
-

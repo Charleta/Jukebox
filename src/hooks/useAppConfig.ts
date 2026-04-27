@@ -9,6 +9,7 @@ export function useAppConfig() {
     maxDurAdmin,
     fichasPack,
     precioPack,
+    playerVolume,
     autostartPlaylists,
     refetchAppConfig,
   } = useJukeboxSync()
@@ -18,6 +19,7 @@ export function useAppConfig() {
     maxDurAdmin,
     fichasPack,
     precioPack,
+    playerVolume,
     autostartPlaylists,
     refetch: refetchAppConfig,
   }

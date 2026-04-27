@@ -93,7 +93,7 @@ export default function KioskoPage() {
 
   const { fichas, refetch: refetchFichas } = useFichas()
   const { cola, colaClientes, refetch: refetchCola } = useCola()
-  const { maxDurKiosko, maxDurAdmin, fichasPack, precioPack } = useAppConfig()
+  const { maxDurKiosko, maxDurAdmin, fichasPack, precioPack, playerVolume } = useAppConfig()
   const { command: recoveryCommand, requestedAt: recoveryRequestedAt, clearSignal: clearRecoverySignal } = useRecoverySignal()
   const playback = useSpotifyPlayback()
   const [artist, setArtist] = useState<SpotifyArtist | null>(null)
@@ -406,6 +406,7 @@ export default function KioskoPage() {
           key={playerInstanceKey}
           spotifyUri={playerSpotifyUri}
           maxSegundos={maxSegundos}
+          volume={playerVolume}
           onTerminada={pasarSiguiente}
           onProgress={() => {}}
         />

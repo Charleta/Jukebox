@@ -27,6 +27,7 @@ interface JukeboxSyncContextValue {
   maxDurAdmin: number
   fichasPack: number
   precioPack: number
+  playerVolume: number
   autostartPlaylists: string
   recoveryCommand: string
   recoveryRequestedAt: string
@@ -42,6 +43,7 @@ type AppConfigApiResponse = Partial<AppConfigState> & {
   max_duracion_admin?: number
   fichas_pack?: number
   precio_pack?: number
+  player_volume?: number
   autostart_playlists?: string
 }
 
@@ -62,14 +64,21 @@ function normalizeAppConfig(data: Partial<AppConfigState> | null | undefined): A
   const maxDurAdmin = data?.maxDurAdmin ?? (data as AppConfigApiResponse | null | undefined)?.max_duracion_admin
   const fichasPack = data?.fichasPack ?? (data as AppConfigApiResponse | null | undefined)?.fichas_pack
   const precioPack = data?.precioPack ?? (data as AppConfigApiResponse | null | undefined)?.precio_pack
+  const playerVolume = data?.playerVolume ?? (data as AppConfigApiResponse | null | undefined)?.player_volume
   const autostartPlaylists =
     data?.autostartPlaylists ?? (data as AppConfigApiResponse | null | undefined)?.autostart_playlists
 
+  const safeNumber = (value: unknown, fallback: number) => {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : fallback
+  }
+
   return {
-    maxDurKiosko: Number(maxDurKiosko ?? DEFAULT_APP_CONFIG.maxDurKiosko),
-    maxDurAdmin: Number(maxDurAdmin ?? DEFAULT_APP_CONFIG.maxDurAdmin),
-    fichasPack: Number(fichasPack ?? DEFAULT_APP_CONFIG.fichasPack),
-    precioPack: Number(precioPack ?? DEFAULT_APP_CONFIG.precioPack),
+    maxDurKiosko: safeNumber(maxDurKiosko, DEFAULT_APP_CONFIG.maxDurKiosko),
+    maxDurAdmin: safeNumber(maxDurAdmin, DEFAULT_APP_CONFIG.maxDurAdmin),
+    fichasPack: safeNumber(fichasPack, DEFAULT_APP_CONFIG.fichasPack),
+    precioPack: safeNumber(precioPack, DEFAULT_APP_CONFIG.precioPack),
+    playerVolume: safeNumber(playerVolume, DEFAULT_APP_CONFIG.playerVolume),
     autostartPlaylists: String(autostartPlaylists ?? DEFAULT_APP_CONFIG.autostartPlaylists),
   }
 }
@@ -200,6 +209,7 @@ export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
     maxDurAdmin: appConfig.maxDurAdmin,
     fichasPack: appConfig.fichasPack,
     precioPack: appConfig.precioPack,
+    playerVolume: appConfig.playerVolume,
     autostartPlaylists: appConfig.autostartPlaylists,
     recoveryCommand: recovery.command,
     recoveryRequestedAt: recovery.requestedAt,
@@ -214,6 +224,7 @@ export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
     appConfig.maxDurAdmin,
     appConfig.maxDurKiosko,
     appConfig.precioPack,
+    appConfig.playerVolume,
     clearRecoverySignal,
     cola,
     colaClientes,

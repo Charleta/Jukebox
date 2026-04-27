@@ -11,11 +11,14 @@ declare global {
 interface Props {
   spotifyUri: string | null
   maxSegundos: number
+  volume: number
   onTerminada: () => void
   onProgress: (position: number, duration: number) => void
 }
 
-export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress }: Props) {
+const clampVolume = (value: number) => Math.min(1, Math.max(0, Number.isFinite(value) ? value : 0.8))
+
+export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, onProgress }: Props) {
   const [deviceId, setDeviceId] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const playerRef = useRef<any>(null)
@@ -33,6 +36,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
   const playRetryTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const play404CountRef = useRef(0)
   const maxSegundosRef = useRef(maxSegundos)
+  const volumeRef = useRef(clampVolume(volume))
   const nextReconnectDelay = () => {
     const delay = Math.min(30000, 2000 * Math.pow(2, reconnectAttemptsRef.current))
     reconnectAttemptsRef.current++
@@ -51,6 +55,15 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
   useEffect(() => {
     maxSegundosRef.current = maxSegundos
   }, [maxSegundos])
+
+  useEffect(() => {
+    volumeRef.current = clampVolume(volume)
+    if (!ready || !playerRef.current) return
+
+    void playerRef.current.setVolume(volumeRef.current).catch((err: unknown) => {
+      console.warn('No se pudo actualizar el volumen:', err)
+    })
+  }, [volume, ready])
 
   const initPlayer = async () => {
     clearTimeout(reconnectTimerRef.current)
@@ -76,7 +89,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
           const { token: t } = await r.json()
           cb(t)
         },
-        volume: 0.8,
+        volume: volumeRef.current,
       })
 
       playerRef.current = player
@@ -87,7 +100,6 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, onTerminada, onProgress
         deviceIdRef.current = device_id
         setDeviceId(device_id)
         setReady(true)
-
       })
 
       player.addListener('not_ready', ({ device_id }: { device_id: string }) => {

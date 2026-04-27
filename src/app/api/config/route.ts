@@ -3,14 +3,20 @@ import { prismaCloud } from '@/lib/dbCloud'
 
 export const dynamic = 'force-dynamic'
 
+function safeNumber(value: unknown, fallback: number) {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : fallback
+}
+
 async function readConfig() {
   const configs = await prismaCloud.appConfig.findMany()
   const map = Object.fromEntries(configs.map(c => [c.clave, c.valor]))
   const legacy = map.max_duracion // backward compat con clave vieja
-  const maxDurKiosko = Number(map.max_duracion_kiosko ?? legacy ?? 300)
-  const maxDurAdmin = Number(map.max_duracion_admin ?? legacy ?? 300)
-  const fichasPack = Number(map.fichas_pack ?? 2)
-  const precioPack = Number(map.precio_pack ?? 1000)
+  const maxDurKiosko = safeNumber(map.max_duracion_kiosko ?? legacy, 300)
+  const maxDurAdmin = safeNumber(map.max_duracion_admin ?? legacy, 300)
+  const fichasPack = safeNumber(map.fichas_pack, 2)
+  const precioPack = safeNumber(map.precio_pack, 1000)
+  const playerVolume = safeNumber(map.player_volume, 0.8)
   const autostartPlaylists = String(map.autostart_playlists ?? '[]')
 
   return {
@@ -18,11 +24,13 @@ async function readConfig() {
     max_duracion_admin: maxDurAdmin,
     fichas_pack: fichasPack,
     precio_pack: precioPack,
+    player_volume: playerVolume,
     autostart_playlists: autostartPlaylists,
     maxDurKiosko,
     maxDurAdmin,
     fichasPack,
     precioPack,
+    playerVolume,
     autostartPlaylists,
   }
 }

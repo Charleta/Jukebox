@@ -242,6 +242,7 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
     maxDurAdmin: savedMaxDurAdmin,
     fichasPack: savedFichasPack,
     precioPack: savedPrecioPack,
+    playerVolume: savedPlayerVolume,
     autostartPlaylists,
     refetch: refetchAppConfig,
   } = useAppConfig()
@@ -273,6 +274,7 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [maxDurAdminInput, setMaxDurAdminInput] = useState(5)
   const [fichasPackInput, setFichasPackInput] = useState(2)
   const [precioPackInput, setPrecioPackInput] = useState(1000)
+  const [playerVolumeInput, setPlayerVolumeInput] = useState(80)
   const [cargandoPlaylist, setCargandoPlaylist] = useState<number | null>(null)
 
   const [autostartIds, setAutostartIds] = useState<number[]>([])
@@ -321,8 +323,9 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     setMaxDurAdminInput(Math.floor(savedMaxDurAdmin / 60))
     setFichasPackInput(savedFichasPack)
     setPrecioPackInput(savedPrecioPack)
+    setPlayerVolumeInput(Math.round((savedPlayerVolume ?? 0.8) * 100))
     try { setAutostartIds(JSON.parse(autostartPlaylists ?? '[]')) } catch { setAutostartIds([]) }
-  }, [autostartPlaylists, savedFichasPack, savedMaxDurAdmin, savedMaxDurKiosko, savedPrecioPack])
+  }, [autostartPlaylists, savedFichasPack, savedMaxDurAdmin, savedMaxDurKiosko, savedPlayerVolume, savedPrecioPack])
 
   useEffect(() => {
     setIsPlaying(playback.isPlaying)
@@ -1194,6 +1197,48 @@ return (
                 }} className="bg-yellow-400 active:bg-yellow-300 text-black font-black px-4 py-2.5 rounded-xl text-sm transition-colors">
                   Guardar
                 </button>
+              </div>
+            </div>
+
+            <div className="h-px bg-zinc-800" />
+
+            <div>
+              <div className="text-sm font-semibold text-white mb-0.5">Volumen Spotify</div>
+              <div className="text-xs text-zinc-500 mb-3">Se aplica en vivo al reproductor del kiosko</div>
+              <div className="rounded-2xl border border-zinc-800 bg-black/30 p-4 space-y-3">
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={playerVolumeInput}
+                  onChange={e => setPlayerVolumeInput(Number(e.target.value))}
+                  className="w-full accent-yellow-400"
+                />
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-zinc-500">0%</span>
+                  <span className="font-bold text-yellow-400">{playerVolumeInput}%</span>
+                  <span className="text-zinc-500">100%</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-zinc-500">
+                    Actual: {Math.round((savedPlayerVolume ?? 0.8) * 100)}%
+                  </span>
+                  <button
+                    onClick={async () => {
+                      const normalized = Math.min(1, Math.max(0, playerVolumeInput / 100))
+                      await fetch('/api/config', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ player_volume: normalized }),
+                      })
+                      await refetchAppConfig()
+                      showConfigFeedback('Guardado')
+                    }}
+                    className="bg-yellow-400 active:bg-yellow-300 text-black font-black px-4 py-2.5 rounded-xl text-sm transition-colors"
+                  >
+                    Guardar
+                  </button>
+                </div>
               </div>
             </div>
 
