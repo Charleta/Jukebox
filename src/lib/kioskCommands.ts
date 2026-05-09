@@ -1,7 +1,7 @@
 import { prismaCloud } from '@/lib/dbCloud'
 import { getVenueContext, isPrivilegedRole, readSessionContext } from '@/lib/jukeboxAuth'
 
-export type KioskLocalAction = 'restart-kiosk' | 'close-kiosk' | 'shutdown-pc'
+export type KioskLocalAction = 'restart-kiosk' | 'close-kiosk' | 'shutdown-pc' | 'youtube-open' | 'youtube-close'
 
 export async function enqueueKioskCommand(action: KioskLocalAction) {
   const session = await readSessionContext()

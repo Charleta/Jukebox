@@ -295,12 +295,20 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
 
 const [splash, setSplash] = useState(true)
   const [splashFading, setSplashFading] = useState(false)
-
-
+  const [youtubeOpen, setYoutubeOpen] = useState(false)
+  const [youtubeLoading, setYoutubeLoading] = useState(false)
   useEffect(() => {
     const t1 = setTimeout(() => setSplashFading(true), 1800)
     const t2 = setTimeout(() => setSplash(false), 2400)
     return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [])
+
+  useEffect(() => {
+    // Cargar estado de YouTube al montar
+    fetch('/api/admin/youtube-toggle')
+      .then(r => r.json())
+      .then(data => setYoutubeOpen(data.youtubeOpen ?? false))
+      .catch(err => console.error('Error cargando estado YouTube:', err))
   }, [])
 
   const showAdminToast = (msg: string) => {
@@ -418,6 +426,22 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
       showConfigFeedback('No se pudo cerrar el kiosko')
     } finally {
       setMaintenanceBusy(null)
+    }
+  }
+
+  const handleYoutubeToggle = async () => {
+    setYoutubeLoading(true)
+    try {
+      const res = await fetch('/api/admin/youtube-toggle', { method: 'POST' })
+      if (!res.ok) throw new Error('toggle_failed')
+      const data = await res.json()
+      setYoutubeOpen(data.youtubeOpen)
+      const msg = data.youtubeOpen ? 'YouTube abierto' : 'YouTube cerrado'
+      showConfigFeedback(msg)
+    } catch {
+      showConfigFeedback('No se pudo alternar YouTube')
+    } finally {
+      setYoutubeLoading(false)
     }
   }
 
@@ -1320,15 +1344,23 @@ return (
                 </button>
 
                 <button
-                  onClick={() => setPendingEmergencyAction('close-kiosk')}
-                  disabled={maintenanceBusy !== null}
-                  className="group flex flex-col items-center text-center disabled:opacity-60"
+                  onClick={handleYoutubeToggle}
+                  disabled={youtubeLoading}
+                  className={`group flex flex-col items-center text-center ${youtubeLoading ? 'opacity-60' : ''}`}
                 >
-                  <span className="w-16 h-16 rounded-full border border-red-400/30 bg-red-400/10 text-red-300 flex items-center justify-center text-2xl transition-colors group-active:bg-red-400/20">
-                    !
+                  <span className={`w-16 h-16 rounded-full border flex items-center justify-center text-2xl transition-colors ${
+                    youtubeOpen
+                      ? 'border-red-500 bg-red-500/20 text-red-400 group-active:bg-red-500/30'
+                      : 'border-red-400/30 bg-red-400/10 text-red-300 group-active:bg-red-400/20'
+                  }`}>
+                    ▶
                   </span>
-                  <span className="text-xs font-semibold text-white mt-2">Cerrar kiosko</span>
-                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra solo la ventana del kiosko</span>
+                  <span className="text-xs font-semibold text-white mt-2">
+                    {youtubeOpen ? 'Cerrar YouTube' : 'Abrir YouTube'}
+                  </span>
+                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">
+                    {youtubeOpen ? 'Volver al kiosko' : 'Ver reproducción'}
+                  </span>
                 </button>
 
                 <button
