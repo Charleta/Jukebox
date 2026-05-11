@@ -912,6 +912,13 @@ return (
               className="bg-yellow-400 active:bg-yellow-300 text-black font-black py-5 rounded-xl text-2xl transition-colors"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>+2</button>
           </div>
+          <button
+            onClick={() => setSeccion('ventas')}
+            className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl text-base transition-colors"
+            style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+          >
+            VER VENTAS DEL DÍA
+          </button>
         </div>
       )}
 
