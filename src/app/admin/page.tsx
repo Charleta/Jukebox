@@ -879,10 +879,24 @@ return (
           <div className="text-xs tracking-widest text-zinc-500 uppercase mb-1">Disponibles</div>
           <div className="text-8xl text-yellow-400 font-black leading-none mb-2"
             style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichas}</div>
-          <div className="flex items-baseline gap-3 mb-7">
-            <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
-            <div className="text-5xl text-yellow-400/70 font-black leading-none"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasHoy}</div>
+          <div className="space-y-3 mb-7">
+            <div className="flex items-baseline justify-between">
+              <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
+              <div className="text-5xl text-yellow-400/70 font-black leading-none"
+                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasHoy}</div>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <div className="text-xs text-green-500 uppercase tracking-widest">Admin</div>
+              <div className="text-2xl text-green-400 font-black leading-none"
+                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasAdminHoy}</div>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <div className="text-xs text-blue-500 uppercase tracking-widest">Ventas</div>
+              <div className="text-2xl text-blue-400 font-black leading-none"
+                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasVentasHoy}</div>
+            </div>
           </div>
           <div className="grid grid-cols-4 gap-2">
             <button onClick={resetFichas}
