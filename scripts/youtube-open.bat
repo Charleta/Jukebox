@@ -1,13 +1,16 @@
 @echo off
-REM Abre YouTube en una ventana fullscreen nueva
-REM Minimiza Chrome del kiosko
+set "YOUTUBE_URL=https://www.youtube.com"
+set "CHROME=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+set "YOUTUBE_PROFILE=%~dp0youtube-profile"
 
-tasklist /FI "WINDOWTITLE eq Jukebox*" | find /I /N "chrome.exe">nul
-if "%ERRORLEVEL%"=="0" (
-  powershell -Command "Get-Process chrome | Where-Object {$_.MainWindowTitle -like '*Jukebox*'} | ForEach-Object {$_.MainWindowHandle | ForEach-Object {[System.Windows.Forms.SendKeys]::SendWait('%~n')}} ; Start-Sleep -Milliseconds 100"
+if not exist "%CHROME%" (
+  set "CHROME=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
 )
 
-REM Abre YouTube fullscreen en una nueva instancia de Chrome
-start "" "chrome.exe" "https://www.youtube.com" --new-window --start-fullscreen
+if exist "%CHROME%" (
+  start "" "%CHROME%" --user-data-dir="%YOUTUBE_PROFILE%" --new-window --start-fullscreen "%YOUTUBE_URL%"
+) else (
+  start "" "%YOUTUBE_URL%"
+)
 
 exit /b 0

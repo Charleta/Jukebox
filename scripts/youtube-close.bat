@@ -1,13 +1,19 @@
 @echo off
-REM Cierra la ventana de YouTube y trae el kiosko al frente
+REM Cierra solo las ventanas de YouTube usando el perfil específico
+set "YOUTUBE_PROFILE=%~dp0youtube-profile"
 
-REM Cierra todas las instancias de Chrome que tengan YouTube en el título
-taskkill /FI "WINDOWTITLE eq *YouTube*" /IM chrome.exe /T /F 2>nul
+REM Mata procesos de Chrome que usan el perfil de YouTube
+powershell -Command "Get-Process chrome | Where-Object {$_.CommandLine -like '*--user-data-dir=\"%YOUTUBE_PROFILE%*'} | Stop-Process -Force"
 
-REM Espera un poco a que se cierre
-timeout /t 1 /nobreak
+REM Espera 1 segundo
+timeout /t 1 /nobreak >nul
 
-REM Trae el kiosko al frente nuevamente
-powershell -Command "Get-Process chrome | Where-Object {$_.MainWindowTitle -like '*Jukebox*'} | Select-Object -First 1 | ForEach-Object {[System.Windows.Forms.NativeMethods]::SetForegroundWindow($_.MainWindowHandle)}"
+REM Verifica si el kiosko sigue corriendo (busca procesos Chrome sin el perfil de YouTube)
+powershell -Command "Get-Process chrome | Where-Object {$_.CommandLine -notlike '*--user-data-dir=\"%YOUTUBE_PROFILE%*'} | Select-Object -First 1" >nul 2>&1
+
+if %ERRORLEVEL% neq 0 (
+  REM El kiosko no está corriendo, volver a abrirlo
+  call "%~dp0kiosk-start.bat"
+)
 
 exit /b 0

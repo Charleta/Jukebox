@@ -2,29 +2,29 @@ import { NextResponse } from 'next/server'
 import { prismaCloud } from '@/lib/dbCloud'
 import { enqueueKioskCommand } from '@/lib/kioskCommands'
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    // Leer estado actual
-    const appConfig = await prismaCloud.appConfig.findUnique({
-      where: { clave: 'youtube_open' },
-    })
+    const body = await request.json()
+    const { action } = body
 
-    const isYoutubeOpen = appConfig?.valor === 'true'
-    const action = isYoutubeOpen ? 'youtube-close' : 'youtube-open'
+    if (!action || !['open', 'close'].includes(action)) {
+      return NextResponse.json({ error: 'Acción inválida' }, { status: 400 })
+    }
 
-    // Enqueue el comando opuesto
-    await enqueueKioskCommand(action)
+    const kioskAction = action === 'open' ? 'youtube-open' : 'youtube-close'
+
+    // Enqueue el comando específico
+    await enqueueKioskCommand(kioskAction)
 
     return NextResponse.json({
       ok: true,
-      action,
-      youtubeOpen: !isYoutubeOpen,
+      action: kioskAction,
     })
   } catch (error) {
     if (error instanceof Error && error.message === 'No autorizado') {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
-    return NextResponse.json({ error: 'No se pudo alternar YouTube' }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo ejecutar la acción' }, { status: 500 })
   }
 }
 
