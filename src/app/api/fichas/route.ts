@@ -35,11 +35,11 @@ export async function POST(req: Request) {
   const body = await req.json()
   const today = hoy()
 
-  // Resetear fichas a 0
+  // Resetear sólo las fichas disponibles en el kiosko
   if (body.reset) {
     const config = await prismaCloud.config.upsert({
       where: { id: 1 },
-      update: { fichas: 0, fichasAdminHoy: 0, fichasVentasHoy: 0 },
+      update: { fichas: 0 },
       create: { id: 1, fichas: 0, fichasHoy: 0, fichasAdminHoy: 0, fichasVentasHoy: 0, fechaHoy: today },
     })
     return NextResponse.json({
