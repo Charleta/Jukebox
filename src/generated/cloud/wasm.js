@@ -148,6 +148,8 @@ exports.Prisma.ConfigScalarFieldEnum = {
   id: 'id',
   fichas: 'fichas',
   fichasHoy: 'fichasHoy',
+  fichasAdminHoy: 'fichasAdminHoy',
+  fichasVentasHoy: 'fichasVentasHoy',
   fechaHoy: 'fechaHoy'
 };
 

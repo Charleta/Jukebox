@@ -34,10 +34,12 @@ model PlaylistCancion {
 }
 
 model Config {
-  id        Int    @id @default(1)
-  fichas    Int    @default(0)
-  fichasHoy Int    @default(0)
-  fechaHoy  String @default("")
+  id              Int    @id @default(1)
+  fichas          Int    @default(0)
+  fichasHoy       Int    @default(0)
+  fichasAdminHoy  Int    @default(0)
+  fichasVentasHoy Int    @default(0)
+  fechaHoy        String @default("")
 }
 
 model AppConfig {

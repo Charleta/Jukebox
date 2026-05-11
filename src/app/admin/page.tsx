@@ -140,7 +140,7 @@ function DeveloperView({ onLogout }: { onLogout: () => void }) {
 
 // ─── Vista Operador ───────────────────────────────────────────────────────────
 function OperadorView({ onLogout }: { onLogout: () => void }) {
-  const { fichas, fichasHoy, refetch } = useFichas()
+  const { fichas, fichasHoy, fichasAdminHoy, fichasVentasHoy, refetch } = useFichas()
   const { cola } = useCola()
   const playback = useSpotifyPlayback(2000)
   const nowPlaying = playback.track
@@ -156,7 +156,7 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
     await fetch('/api/fichas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cantidad: 1 }),
+      body: JSON.stringify({ cantidad: 1, fuente: 'admin' }),
     })
     refetch()
   }
@@ -205,17 +205,37 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
       {/* Fichas */}
       <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800 w-full max-w-sm">
         <div className="text-zinc-400 text-xs uppercase tracking-widest mb-2">Fichas disponibles</div>
-        <div className="text-7xl text-yellow-400 font-black leading-none mb-1"
+        <div className="text-7xl text-yellow-400 font-black leading-none mb-3"
           style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
           {fichas}
         </div>
-        <div className="flex items-baseline gap-3 mb-5">
-          <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
-          <div className="text-4xl text-yellow-400 font-black leading-none"
-            style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-            {fichasHoy}
+
+        <div className="space-y-2 mb-5">
+          <div className="flex items-baseline justify-between">
+            <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
+            <div className="text-2xl text-yellow-400 font-black leading-none"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+              {fichasHoy}
+            </div>
+          </div>
+
+          <div className="flex items-baseline justify-between">
+            <div className="text-xs text-green-500 uppercase tracking-widest">Admin</div>
+            <div className="text-xl text-green-400 font-black leading-none"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+              {fichasAdminHoy}
+            </div>
+          </div>
+
+          <div className="flex items-baseline justify-between">
+            <div className="text-xs text-blue-500 uppercase tracking-widest">Ventas</div>
+            <div className="text-xl text-blue-400 font-black leading-none"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+              {fichasVentasHoy}
+            </div>
           </div>
         </div>
+
         <button
           onClick={cargarFicha}
           className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-5 rounded-lg text-4xl transition-colors"
@@ -235,7 +255,7 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
 
 // ─── Vista Admin ──────────────────────────────────────────────────────────────
 function AdminView({ onLogout }: { onLogout: () => void }) {
-  const { fichas, fichasHoy, refetch: refetchFichas } = useFichas()
+  const { fichas, fichasHoy, fichasAdminHoy, fichasVentasHoy, refetch: refetchFichas } = useFichas()
   const { cola, refetch: refetchCola } = useCola()
   const {
     maxDurKiosko: savedMaxDurKiosko,
@@ -289,6 +309,8 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [dragSongIndex, setDragSongIndex] = useState<number | null>(null)
   const [dragSongOver, setDragSongOver] = useState<number | null>(null)
   const [dragPlIndex, setDragPlIndex] = useState<number | null>(null)
+  const [ventas, setVentas] = useState<any[]>([])
+  const [cargandoVentas, setCargandoVentas] = useState(false)
   const [dragPlOver, setDragPlOver] = useState<number | null>(null)
   const [editandoNombre, setEditandoNombre] = useState<number | null>(null)
   const [nombreEditando, setNombreEditando] = useState('')
@@ -307,7 +329,7 @@ const [splash, setSplash] = useState(true)
     setTimeout(() => setAdminToast(''), 2200)
   }
 const [dragOver, setDragOver] = useState<number | null>(null)
-const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' | 'config'>('fichas')
+const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' | 'config' | 'ventas'>('fichas')
   const cargarPlaylists = async () => {
     const res = await fetch('/api/playlists')
     if (res.ok) setPlaylists(await res.json())
@@ -329,6 +351,12 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   useEffect(() => {
     setIsPlaying(playback.isPlaying)
   }, [playback.isPlaying])
+
+  useEffect(() => {
+    if (seccion === 'ventas') {
+      cargarVentas()
+    }
+  }, [seccion])
 
   const nowPlaying = playback.track
     ? {
@@ -355,6 +383,21 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
       body: JSON.stringify({ reset: true }),
     })
     refetchFichas()
+  }
+
+  const cargarVentas = async () => {
+    setCargandoVentas(true)
+    try {
+      const response = await fetch('/api/fichas/ventas')
+      if (response.ok) {
+        const data = await response.json()
+        setVentas(data)
+      }
+    } catch (error) {
+      console.error('Error cargando ventas:', error)
+    } finally {
+      setCargandoVentas(false)
+    }
   }
 
   const togglePlay = async () => {
@@ -855,6 +898,52 @@ return (
               className="bg-yellow-400 active:bg-yellow-300 text-black font-black py-5 rounded-xl text-2xl transition-colors"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>+2</button>
           </div>
+        </div>
+      )}
+
+      {seccion === 'ventas' && (
+        <div className="bg-gradient-to-b from-blue-950/60 to-zinc-900 rounded-2xl p-6 border border-blue-900/30 shadow-lg">
+          <div className="text-xs tracking-widest text-zinc-500 uppercase mb-4">Ventas del día</div>
+
+          {cargandoVentas ? (
+            <div className="text-center py-8">
+              <div className="text-zinc-400">Cargando ventas...</div>
+            </div>
+          ) : ventas.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-zinc-400">No hay ventas registradas hoy</div>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {ventas.map((venta, index) => (
+                <div key={venta.ref || index} className="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm text-zinc-300">
+                      {new Date(venta.creadoEn).toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                    <div className="text-lg text-blue-400 font-black"
+                      style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                      PAGO
+                    </div>
+                  </div>
+                  <div className="text-xs text-zinc-500">
+                    Ref: {venta.ref}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={cargarVentas}
+            className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-lg text-sm transition-colors"
+            style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+          >
+            ACTUALIZAR
+          </button>
         </div>
       )}
 

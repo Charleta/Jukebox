@@ -12,16 +12,21 @@ export async function GET() {
   let config = existing
   if (!config) {
     config = await prismaCloud.config.create({
-      data: { id: 1, fichas: 0, fichasHoy: 0, fechaHoy: today },
+      data: { id: 1, fichas: 0, fichasHoy: 0, fichasAdminHoy: 0, fichasVentasHoy: 0, fechaHoy: today },
     })
   } else if (config.fechaHoy !== today) {
     config = await prismaCloud.config.update({
       where: { id: 1 },
-      data: { fichasHoy: 0, fechaHoy: today },
+      data: { fichasHoy: 0, fichasAdminHoy: 0, fichasVentasHoy: 0, fechaHoy: today },
     })
   }
 
-  return NextResponse.json({ fichas: config.fichas, fichasHoy: config.fichasHoy })
+  return NextResponse.json({
+    fichas: config.fichas,
+    fichasHoy: config.fichasHoy,
+    fichasAdminHoy: config.fichasAdminHoy,
+    fichasVentasHoy: config.fichasVentasHoy
+  })
 }
 
 export async function POST(req: Request) {
@@ -32,13 +37,18 @@ export async function POST(req: Request) {
   if (body.reset) {
     const config = await prismaCloud.config.upsert({
       where: { id: 1 },
-      update: { fichas: 0 },
-      create: { id: 1, fichas: 0, fichasHoy: 0, fechaHoy: today },
+      update: { fichas: 0, fichasAdminHoy: 0, fichasVentasHoy: 0 },
+      create: { id: 1, fichas: 0, fichasHoy: 0, fichasAdminHoy: 0, fichasVentasHoy: 0, fechaHoy: today },
     })
-    return NextResponse.json({ fichas: config.fichas, fichasHoy: config.fichasHoy })
+    return NextResponse.json({
+      fichas: config.fichas,
+      fichasHoy: config.fichasHoy,
+      fichasAdminHoy: config.fichasAdminHoy,
+      fichasVentasHoy: config.fichasVentasHoy
+    })
   }
 
-  const { cantidad } = body as { cantidad: number }
+  const { cantidad, fuente } = body as { cantidad: number; fuente?: 'admin' | 'venta' }
 
   const current = await prismaCloud.config.findUnique({ where: { id: 1 } })
   const esNuevoDia = !current || current.fechaHoy !== today
@@ -47,6 +57,26 @@ export async function POST(req: Request) {
     fichas: { increment: cantidad },
     fechaHoy: today,
   }
+
+  // Si es admin, incrementar fichasAdminHoy
+  if (fuente === 'admin' || !fuente) {
+    if (esNuevoDia) {
+      updateData.fichasAdminHoy = cantidad > 0 ? cantidad : 0
+    } else {
+      updateData.fichasAdminHoy = { increment: cantidad }
+    }
+  }
+
+  // Si es venta, incrementar fichasVentasHoy
+  if (fuente === 'venta') {
+    if (esNuevoDia) {
+      updateData.fichasVentasHoy = cantidad > 0 ? cantidad : 0
+    } else {
+      updateData.fichasVentasHoy = { increment: cantidad }
+    }
+  }
+
+  // Mantener fichasHoy como suma total para compatibilidad
   if (esNuevoDia) {
     updateData.fichasHoy = cantidad > 0 ? cantidad : 0
   } else {
@@ -60,8 +90,16 @@ export async function POST(req: Request) {
       id: 1,
       fichas: cantidad,
       fichasHoy: cantidad > 0 ? cantidad : 0,
+      fichasAdminHoy: fuente === 'admin' ? cantidad : 0,
+      fichasVentasHoy: fuente === 'venta' ? cantidad : 0,
       fechaHoy: today,
     },
   })
-  return NextResponse.json({ fichas: config.fichas, fichasHoy: config.fichasHoy })
+
+  return NextResponse.json({
+    fichas: config.fichas,
+    fichasHoy: config.fichasHoy,
+    fichasAdminHoy: config.fichasAdminHoy,
+    fichasVentasHoy: config.fichasVentasHoy
+  })
 }
