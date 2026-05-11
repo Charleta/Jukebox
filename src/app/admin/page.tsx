@@ -220,17 +220,17 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
           </div>
 
           <div className="flex items-baseline justify-between">
-            <div className="text-xs text-green-500 uppercase tracking-widest">Admin</div>
-            <div className="text-xl text-green-400 font-black leading-none"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+            <div className="text-xs uppercase tracking-widest" style={{ color: '#FF6A00' }}>Admin</div>
+            <div className="text-xl font-black leading-none"
+              style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FF6A00' }}>
               {fichasAdminHoy}
             </div>
           </div>
 
           <div className="flex items-baseline justify-between">
-            <div className="text-xs text-blue-500 uppercase tracking-widest">Ventas</div>
-            <div className="text-xl text-blue-400 font-black leading-none"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+            <div className="text-xs uppercase tracking-widest" style={{ color: '#FFC400' }}>Ventas</div>
+            <div className="text-xl font-black leading-none"
+              style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FFC400' }}>
               {fichasVentasHoy}
             </div>
           </div>
@@ -887,15 +887,15 @@ return (
             </div>
 
             <div className="flex items-baseline justify-between">
-              <div className="text-xs text-green-500 uppercase tracking-widest">Admin</div>
-              <div className="text-2xl text-green-400 font-black leading-none"
-                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasAdminHoy}</div>
+              <div className="text-xs uppercase tracking-widest" style={{ color: '#FF6A00' }}>Admin</div>
+              <div className="text-2xl font-black leading-none"
+                style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FF6A00' }}>{fichasAdminHoy}</div>
             </div>
 
             <div className="flex items-baseline justify-between">
-              <div className="text-xs text-blue-500 uppercase tracking-widest">Ventas</div>
-              <div className="text-2xl text-blue-400 font-black leading-none"
-                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasVentasHoy}</div>
+              <div className="text-xs uppercase tracking-widest" style={{ color: '#FFC400' }}>Ventas</div>
+              <div className="text-2xl font-black leading-none"
+                style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FFC400' }}>{fichasVentasHoy}</div>
             </div>
           </div>
           <div className="grid grid-cols-4 gap-2">
@@ -1417,7 +1417,7 @@ return (
                 </div>
                 <button
                   onClick={() => setSeccion('ventas')}
-                  className="rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 text-sm transition-colors"
+                  className="rounded-xl bg-[#FFC400] hover:bg-[#e6b500] text-black font-semibold px-4 py-2 text-sm transition-colors"
                 >
                   Ver ventas
                 </button>

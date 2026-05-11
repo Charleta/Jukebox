@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
-import { prismaCloud } from '@/lib/dbCloud'
+import { prismaCloud, ensureConfigColumns } from '@/lib/dbCloud'
 
 function hoy() {
   return new Date().toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }).split('/').reverse().map(p => p.padStart(2, '0')).join('-')
 }
 
 export async function GET() {
+  await ensureConfigColumns()
   const today = hoy()
   const existing = await prismaCloud.config.findUnique({ where: { id: 1 } })
 
@@ -30,6 +31,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  await ensureConfigColumns()
   const body = await req.json()
   const today = hoy()
 

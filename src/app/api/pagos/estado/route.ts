@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
-import { prismaCloud } from '@/lib/dbCloud'
+import { prismaCloud, ensureConfigColumns } from '@/lib/dbCloud'
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -35,6 +35,7 @@ export async function GET(req: Request) {
 
       await prismaCloud.pagoProcesado.create({ data: { ref } })
 
+      await ensureConfigColumns()
       const current = await prismaCloud.config.findUnique({ where: { id: 1 } })
       const esNuevoDia = !current || current.fechaHoy !== today
 
