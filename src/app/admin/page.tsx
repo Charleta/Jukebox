@@ -912,13 +912,6 @@ return (
               className="bg-yellow-400 active:bg-yellow-300 text-black font-black py-5 rounded-xl text-2xl transition-colors"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>+2</button>
           </div>
-          <button
-            onClick={() => setSeccion('ventas')}
-            className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl text-base transition-colors"
-            style={{ fontFamily: 'Bebas Neue, sans-serif' }}
-          >
-            VER VENTAS DEL DÍA
-          </button>
         </div>
       )}
 
@@ -1415,6 +1408,21 @@ return (
               </div>
               <span className="text-zinc-500 text-lg">›</span>
             </button>
+
+            <div className="rounded-2xl border border-slate-700/50 bg-zinc-950/70 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-white">Ventas del día</div>
+                  <div className="text-xs text-zinc-500 mt-1">Ver las fichas vendidas en el día</div>
+                </div>
+                <button
+                  onClick={() => setSeccion('ventas')}
+                  className="rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 text-sm transition-colors"
+                >
+                  Ver ventas
+                </button>
+              </div>
+            </div>
 
             <div className="h-px bg-zinc-800" />
 
