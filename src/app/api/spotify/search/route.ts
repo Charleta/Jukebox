@@ -1,16 +1,6 @@
 import { NextResponse } from 'next/server'
 import { searchSpotify, getArtistAlbums, getPlaylistTracks } from '@/lib/spotify'
 
-function isPlayableSpotifyTrack(track: unknown) {
-  return Boolean(
-    track &&
-    typeof (track as { uri?: unknown }).uri === 'string' &&
-    String((track as { uri?: string }).uri).startsWith('spotify:track:') &&
-    (track as { is_local?: boolean }).is_local !== true &&
-    (track as { is_playable?: boolean }).is_playable !== false
-  )
-}
-
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const q = searchParams.get('q') ?? ''
@@ -19,17 +9,14 @@ export async function GET(req: Request) {
 
   try {
     if (artistId) {
-      const tracks = (await getArtistAlbums(artistId)).filter(isPlayableSpotifyTrack)
+      const tracks = await getArtistAlbums(artistId)
       return NextResponse.json({ tracks })
     }
     if (playlistId) {
-      const tracks = (await getPlaylistTracks(playlistId)).filter(isPlayableSpotifyTrack)
+      const tracks = await getPlaylistTracks(playlistId)
       return NextResponse.json({ tracks })
     }
     const data = await searchSpotify(q, searchParams.get('modo') === 'import')
-    if (data?.tracks?.items) {
-      data.tracks.items = data.tracks.items.filter(isPlayableSpotifyTrack)
-    }
     return NextResponse.json(data)
   } catch (error) {
     console.error('Spotify search error:', error)

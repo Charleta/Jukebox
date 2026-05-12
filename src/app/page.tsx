@@ -100,7 +100,6 @@ export default function KioskoPage() {
   const [tracks, setTracks] = useState<SpotifyTrack[]>([])
   const [focused, setFocused] = useState(0)
   const [toast, setToast] = useState('')
-  const [spotifyDebug, setSpotifyDebug] = useState<string[]>([])
 
   // Modal confirmación de canción
   const [pendingTrack, setPendingTrack] = useState<SpotifyTrack | null>(null)
@@ -129,13 +128,6 @@ export default function KioskoPage() {
   const showToast = (msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(''), 2500)
-  }
-
-  const pushSpotifyDebug = (msg: string) => {
-    setSpotifyDebug(prev => {
-      const next = [...prev, msg].slice(-6)
-      return next
-    })
   }
 
   useEffect(() => {
@@ -232,11 +224,7 @@ export default function KioskoPage() {
       showToast(`✓ "${track.name}" AGREGADA`)
       refetchFichas()
       refetchCola()
-      return
     }
-
-    const data = await res.json().catch(() => ({} as { error?: string }))
-    showToast(data.error || 'No se pudo agregar la cancion')
   }
 
   const handlePagar = async (cantidad: number, total: number) => {
@@ -421,7 +409,6 @@ export default function KioskoPage() {
           volume={playerVolume}
           onTerminada={pasarSiguiente}
           onProgress={() => {}}
-          onDebug={pushSpotifyDebug}
         />
 
         <FichasDisplay fichas={fichas} />
@@ -469,28 +456,6 @@ export default function KioskoPage() {
       {toast && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-6 py-3 rounded font-bold tracking-widest text-sm animate-bounce z-40">
           {toast}
-        </div>
-      )}
-
-      {/* Spotify debug */}
-      {spotifyDebug.length > 0 && (
-        <div className="fixed top-4 right-4 z-50 w-full max-w-sm rounded-2xl border border-zinc-700 bg-black/85 backdrop-blur px-4 py-3 shadow-2xl">
-          <div className="flex items-center justify-between gap-3 mb-2">
-            <div className="text-[11px] uppercase tracking-[0.35em] text-yellow-400">Spotify debug</div>
-            <button
-              onClick={() => setSpotifyDebug([])}
-              className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors"
-            >
-              limpiar
-            </button>
-          </div>
-          <div className="space-y-1 text-xs leading-5 text-zinc-300">
-            {spotifyDebug.map((line, index) => (
-              <div key={`${line}-${index}`} className="rounded-lg bg-zinc-950/70 px-3 py-2 border border-zinc-800">
-                {line}
-              </div>
-            ))}
-          </div>
         </div>
       )}
 

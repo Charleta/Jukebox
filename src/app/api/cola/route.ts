@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prismaCloud } from '@/lib/dbCloud'
 
-function isTrackUri(value: unknown) {
-  return typeof value === 'string' && value.startsWith('spotify:track:')
-}
-
 export async function GET() {
   const cola = await prismaCloud.cola.findMany({
     orderBy: [
@@ -17,16 +13,6 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const body = await req.json()
-
-  if (
-    typeof body.titulo !== 'string' ||
-    typeof body.artista !== 'string' ||
-    typeof body.duracion !== 'number' ||
-    !Number.isFinite(body.duracion) ||
-    !isTrackUri(body.spotifyUri)
-  ) {
-    return NextResponse.json({ error: 'Cancion invalida o no reproducible en Spotify' }, { status: 400 })
-  }
 
   const cancion = await prismaCloud.$transaction(async (tx) => {
     const config = await tx.config.findUnique({ where: { id: 1 } })

@@ -14,12 +14,11 @@ interface Props {
   volume: number
   onTerminada: () => void
   onProgress: (position: number, duration: number) => void
-  onDebug?: (message: string) => void
 }
 
 const clampVolume = (value: number) => Math.min(1, Math.max(0, Number.isFinite(value) ? value : 0.8))
 
-export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, onProgress, onDebug }: Props) {
+export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, onProgress }: Props) {
   const [deviceId, setDeviceId] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const playerRef = useRef<any>(null)
@@ -35,13 +34,9 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
   const reconnectAttemptsRef = useRef(0)
   const spotifyUriRef = useRef<string | null>(null)
   const playRetryTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
-  const playErrorCountRef = useRef(0)
+  const play404CountRef = useRef(0)
   const maxSegundosRef = useRef(maxSegundos)
   const volumeRef = useRef(clampVolume(volume))
-  const report = (message: string) => {
-    console.log(`[spotify] ${message}`)
-    onDebug?.(message)
-  }
   const nextReconnectDelay = () => {
     const delay = Math.min(30000, 2000 * Math.pow(2, reconnectAttemptsRef.current))
     reconnectAttemptsRef.current++
@@ -71,7 +66,6 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
   }, [volume, ready])
 
   const initPlayer = async () => {
-    report('Inicializando reproductor...')
     clearTimeout(reconnectTimerRef.current)
     clearInterval(intervalRef.current)
     if (playerRef.current) {
@@ -84,7 +78,6 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
       const { token } = await res.json()
 
       if (!token) {
-        report('No se pudo obtener token de Spotify')
         reconnectTimerRef.current = setTimeout(initPlayer, nextReconnectDelay())
         return
       }
@@ -103,7 +96,6 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
 
       player.addListener('ready', ({ device_id }: { device_id: string }) => {
         console.log('Player ready, device:', device_id)
-        report(`Player listo: ${device_id}`)
         reconnectAttemptsRef.current = 0
         deviceIdRef.current = device_id
         setDeviceId(device_id)
@@ -112,7 +104,6 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
 
       player.addListener('not_ready', ({ device_id }: { device_id: string }) => {
         console.log('Device offline:', device_id)
-        report(`Device offline: ${device_id}`)
         deviceIdRef.current = null
         setReady(false)
         reconnectTimerRef.current = setTimeout(initPlayer, nextReconnectDelay())
@@ -144,24 +135,20 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
 
       player.addListener('initialization_error', ({ message }: { message: string }) => {
         console.error('Init error:', message)
-        report(`Init error: ${message}`)
         reconnectTimerRef.current = setTimeout(initPlayer, nextReconnectDelay())
       })
 
       player.addListener('authentication_error', ({ message }: { message: string }) => {
         console.error('Auth error:', message)
-        report(`Auth error: ${message}`)
         reconnectTimerRef.current = setTimeout(initPlayer, nextReconnectDelay())
       })
 
       player.addListener('account_error', ({ message }: { message: string }) => {
         console.error('Account error:', message)
-        report(`Account error: ${message}`)
       })
 
       player.addListener('playback_error', ({ message }: { message: string }) => {
         console.error('Playback error:', message)
-        report(`Playback error: ${message}`)
       })
 
       intervalRef.current = setInterval(async () => {
@@ -200,7 +187,6 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
       player.connect()
     } catch (err) {
       console.error('Error iniciando player:', err)
-      report(`Error iniciando player: ${err instanceof Error ? err.message : 'desconocido'}`)
       reconnectTimerRef.current = setTimeout(initPlayer, nextReconnectDelay())
     }
   }
@@ -257,42 +243,34 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
       if (!res.ok) {
         const err = await res.json()
         console.warn('Play retry pendiente:', err)
-        report(`Play rechazado (${res.status}): ${err?.error?.message ?? err?.error ?? 'sin detalle'}`)
-        playErrorCountRef.current += 1
-        const retryable = res.status === 404 || res.status >= 500 || res.status === 429
-
-        if (retryable && playErrorCountRef.current < 4) {
-          const delay = res.status === 404
-            ? playErrorCountRef.current >= 3 ? 2500 : 1200
-            : res.status === 429
-              ? 4000
-              : 3000
-
+        if (res.status === 404) {
+          play404CountRef.current += 1
           clearTimeout(playRetryTimerRef.current)
           playRetryTimerRef.current = setTimeout(() => {
             const currentId = deviceIdRef.current
             if (spotifyUriRef.current === uri && currentId) {
               playTrack(currentId, uri)
             }
-          }, delay)
-          return
+          }, play404CountRef.current >= 3 ? 2500 : 1200)
+        } else {
+          play404CountRef.current = 0
+          clearTimeout(playRetryTimerRef.current)
+          playRetryTimerRef.current = setTimeout(() => {
+            const currentId = deviceIdRef.current
+            if (spotifyUriRef.current === uri && currentId) {
+              playTrack(currentId, uri)
+            }
+          }, 3000)
         }
-
-        playErrorCountRef.current = 0
-        clearTimeout(playRetryTimerRef.current)
-        report('Se agotaron los reintentos de play; pasando a la siguiente')
-        onTerminada()
         return
       }
 
-      playErrorCountRef.current = 0
-      report(`Reproduciendo: ${uri}`)
+      play404CountRef.current = 0
       scheduleMaxTimer(maxSegundos * 1000)
 
     } catch (err) {
-      playErrorCountRef.current = 0
+      play404CountRef.current = 0
       console.error('Error en playTrack:', err)
-      report(`Error en playTrack: ${err instanceof Error ? err.message : 'desconocido'}`)
       clearTimeout(playRetryTimerRef.current)
       playRetryTimerRef.current = setTimeout(() => {
         const currentId = deviceIdRef.current
