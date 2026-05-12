@@ -224,7 +224,11 @@ export default function KioskoPage() {
       showToast(`✓ "${track.name}" AGREGADA`)
       refetchFichas()
       refetchCola()
+      return
     }
+
+    const data = await res.json().catch(() => ({} as { error?: string }))
+    showToast(data.error || 'No se pudo agregar la cancion')
   }
 
   const handlePagar = async (cantidad: number, total: number) => {

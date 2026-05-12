@@ -34,7 +34,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
   const reconnectAttemptsRef = useRef(0)
   const spotifyUriRef = useRef<string | null>(null)
   const playRetryTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
-  const play404CountRef = useRef(0)
+  const playErrorCountRef = useRef(0)
   const maxSegundosRef = useRef(maxSegundos)
   const volumeRef = useRef(clampVolume(volume))
   const nextReconnectDelay = () => {
@@ -243,33 +243,37 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
       if (!res.ok) {
         const err = await res.json()
         console.warn('Play retry pendiente:', err)
-        if (res.status === 404) {
-          play404CountRef.current += 1
+        playErrorCountRef.current += 1
+        const retryable = res.status === 404 || res.status >= 500 || res.status === 429
+
+        if (retryable && playErrorCountRef.current < 4) {
+          const delay = res.status === 404
+            ? playErrorCountRef.current >= 3 ? 2500 : 1200
+            : res.status === 429
+              ? 4000
+              : 3000
+
           clearTimeout(playRetryTimerRef.current)
           playRetryTimerRef.current = setTimeout(() => {
             const currentId = deviceIdRef.current
             if (spotifyUriRef.current === uri && currentId) {
               playTrack(currentId, uri)
             }
-          }, play404CountRef.current >= 3 ? 2500 : 1200)
-        } else {
-          play404CountRef.current = 0
-          clearTimeout(playRetryTimerRef.current)
-          playRetryTimerRef.current = setTimeout(() => {
-            const currentId = deviceIdRef.current
-            if (spotifyUriRef.current === uri && currentId) {
-              playTrack(currentId, uri)
-            }
-          }, 3000)
+          }, delay)
+          return
         }
+
+        playErrorCountRef.current = 0
+        clearTimeout(playRetryTimerRef.current)
+        onTerminada()
         return
       }
 
-      play404CountRef.current = 0
+      playErrorCountRef.current = 0
       scheduleMaxTimer(maxSegundos * 1000)
 
     } catch (err) {
-      play404CountRef.current = 0
+      playErrorCountRef.current = 0
       console.error('Error en playTrack:', err)
       clearTimeout(playRetryTimerRef.current)
       playRetryTimerRef.current = setTimeout(() => {
