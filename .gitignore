@@ -41,3 +41,8 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# local analysis notes
+/ANALISIS_PROYECTO.md
+/COMPARATIVA_FEAT_VERCEL_SUPABASE_MIGRATION.md
+/COMPARATIVA_ROLLBACK_SPOTIFY_STABLE.md
