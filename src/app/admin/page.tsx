@@ -598,6 +598,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   }
 
   const limpiarYoutubeCola = async () => {
+    if (!window.confirm('¿Vaciar toda la cola de YouTube?')) return
     try {
       const res = await fetch('/api/youtube/queue', { method: 'DELETE' })
       if (!res.ok) throw new Error('clear_failed')
@@ -611,6 +612,12 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   const cambiarYoutubeVolumen = (value: number) => {
     setYoutubeVolume(value)
     void controlarYoutube('set-volume', value)
+  }
+
+  const limpiarBusquedaYoutube = () => {
+    if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
+    setYoutubeQuery('')
+    setYoutubeResults([])
   }
 
   const shutdownPc = async () => {
@@ -931,7 +938,7 @@ return (
     <div className="max-w-lg mx-auto px-4 pt-4">
 
       {/* PLAYER */}
-      <div className="relative overflow-hidden rounded-2xl mb-4 border border-white/5">
+      {seccion !== 'youtube' && <div className="relative overflow-hidden rounded-2xl mb-4 border border-white/5">
         {nowPlaying?.imagenUrl && (
           <div className="absolute inset-0" style={{
             backgroundImage: `url(${nowPlaying.imagenUrl})`,
@@ -1001,7 +1008,7 @@ return (
             </button>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* CONTENIDO SEGÚN TAB */}
 
@@ -1146,7 +1153,7 @@ return (
             <div className="p-4">
               <div className="grid grid-cols-4 gap-2">
                 <button onClick={() => controlarYoutube('play')} disabled={youtubeLoading} className="rounded-2xl bg-red-500 py-4 text-lg font-black text-white disabled:opacity-60">▶</button>
-                <button onClick={() => controlarYoutube('pause')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-60">Ⅱ</button>
+                <button onClick={() => controlarYoutube('pause')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-60">⏸</button>
                 <button onClick={() => controlarYoutube('replay')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-60">↺</button>
                 <button onClick={() => controlarYoutube('stop')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-900 py-4 text-lg font-black text-zinc-400 disabled:opacity-60">■</button>
               </div>
@@ -1205,12 +1212,23 @@ return (
         <div className="bg-gradient-to-b from-red-950/60 to-zinc-900 rounded-2xl p-5 border border-red-900/30 shadow-lg">
           <div className="mb-4">
             <label className="mb-2 block text-xs uppercase tracking-widest text-zinc-500">Buscar video</label>
-            <input
-              value={youtubeQuery}
-              onChange={e => handleYoutubeSearch(e.target.value)}
-              placeholder="Nombre del video, artista, cancion..."
-              className="w-full rounded-2xl border border-zinc-700 bg-black/60 px-4 py-4 text-base text-white outline-none focus:border-red-400"
-            />
+            <div className="relative">
+              <input
+                value={youtubeQuery}
+                onChange={e => handleYoutubeSearch(e.target.value)}
+                placeholder="Nombre del video, artista, cancion..."
+                className="w-full rounded-2xl border border-zinc-700 bg-black/60 px-4 py-4 pr-12 text-base text-white outline-none focus:border-red-400"
+              />
+              {youtubeQuery && (
+                <button
+                  onClick={limpiarBusquedaYoutube}
+                  className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-zinc-800 text-sm font-black text-zinc-400 active:bg-zinc-700"
+                  aria-label="Limpiar busqueda"
+                >
+                  ×
+                </button>
+              )}
+            </div>
             {youtubeSearching && <div className="mt-2 text-xs text-zinc-500">Buscando...</div>}
           </div>
 
