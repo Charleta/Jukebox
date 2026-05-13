@@ -14,7 +14,7 @@ if not exist "%CHROME%" (
 )
 
 if exist "%CHROME%" (
-  start "" "%CHROME%" --user-data-dir="%YOUTUBE_PROFILE%" --new-window --start-fullscreen "%YOUTUBE_URL%"
+  start "" "%CHROME%" --user-data-dir="%YOUTUBE_PROFILE%" --new-window --start-fullscreen --autoplay-policy=no-user-gesture-required "%YOUTUBE_URL%"
 ) else (
   start "" "%YOUTUBE_URL%"
 )

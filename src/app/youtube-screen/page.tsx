@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface CurrentVideo {
   videoId: string
@@ -10,12 +10,18 @@ interface CurrentVideo {
   updatedAt: string
 }
 
+interface YouTubeControl {
+  action: string
+  updatedAt: string
+}
+
 const POLL_MS = 2000
 
 function buildEmbedUrl(videoId: string) {
   const params = new URLSearchParams({
     autoplay: '1',
     controls: '1',
+    enablejsapi: '1',
     rel: '0',
     modestbranding: '1',
     playsinline: '0',
@@ -28,6 +34,30 @@ export default function YouTubeScreenPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const lastUpdatedAtRef = useRef('')
+  const lastControlUpdatedAtRef = useRef('')
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+
+  const sendPlayerCommand = useCallback((func: string, args: unknown[] = []) => {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: 'command', func, args }),
+      'https://www.youtube.com'
+    )
+  }, [])
+
+  const applyControl = useCallback((control: YouTubeControl | null | undefined) => {
+    if (!control?.action || !control.updatedAt || control.updatedAt === lastControlUpdatedAtRef.current) return
+    lastControlUpdatedAtRef.current = control.updatedAt
+
+    if (control.action === 'play') sendPlayerCommand('playVideo')
+    if (control.action === 'pause') sendPlayerCommand('pauseVideo')
+    if (control.action === 'stop') sendPlayerCommand('stopVideo')
+    if (control.action === 'replay') {
+      sendPlayerCommand('seekTo', [0, true])
+      sendPlayerCommand('playVideo')
+    }
+    if (control.action === 'mute') sendPlayerCommand('mute')
+    if (control.action === 'unmute') sendPlayerCommand('unMute')
+  }, [sendPlayerCommand])
 
   useEffect(() => {
     let active = true
@@ -36,7 +66,7 @@ export default function YouTubeScreenPage() {
       try {
         const res = await fetch('/api/youtube/current', { cache: 'no-store' })
         if (!res.ok) throw new Error('current_failed')
-        const data = await res.json() as { video?: CurrentVideo | null }
+        const data = await res.json() as { video?: CurrentVideo | null; control?: YouTubeControl }
         if (!active) return
 
         const nextVideo = data.video ?? null
@@ -45,6 +75,7 @@ export default function YouTubeScreenPage() {
           lastUpdatedAtRef.current = nextUpdatedAt
           setVideo(nextVideo)
         }
+        window.setTimeout(() => applyControl(data.control), 250)
         setError('')
       } catch {
         if (active) setError('No se pudo leer el video actual')
@@ -62,13 +93,14 @@ export default function YouTubeScreenPage() {
       active = false
       window.clearInterval(interval)
     }
-  }, [])
+  }, [applyControl])
 
   return (
     <main className="h-screen w-screen overflow-hidden bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
       {video ? (
         <div className="relative h-full w-full bg-black">
           <iframe
+            ref={iframeRef}
             key={`${video.videoId}-${video.updatedAt}`}
             className="h-full w-full border-0"
             src={buildEmbedUrl(video.videoId)}

@@ -10,6 +10,8 @@ const KEYS = [
   'youtube_current_channel',
   'youtube_current_thumbnail',
   'youtube_updated_at',
+  'youtube_control_action',
+  'youtube_control_updated_at',
 ]
 
 export async function GET() {
@@ -20,7 +22,13 @@ export async function GET() {
   const videoId = map.youtube_current_video_id ?? ''
 
   if (!isValidYouTubeVideoId(videoId)) {
-    return NextResponse.json({ video: null }, { headers: { 'Cache-Control': 'no-store' } })
+    return NextResponse.json({
+      video: null,
+      control: {
+        action: map.youtube_control_action ?? '',
+        updatedAt: map.youtube_control_updated_at ?? '',
+      },
+    }, { headers: { 'Cache-Control': 'no-store' } })
   }
 
   const video: YouTubeCurrentVideo = {
@@ -32,5 +40,11 @@ export async function GET() {
     updatedAt: map.youtube_updated_at ?? '',
   }
 
-  return NextResponse.json({ video }, { headers: { 'Cache-Control': 'no-store' } })
+  return NextResponse.json({
+    video,
+    control: {
+      action: map.youtube_control_action ?? '',
+      updatedAt: map.youtube_control_updated_at ?? '',
+    },
+  }, { headers: { 'Cache-Control': 'no-store' } })
 }

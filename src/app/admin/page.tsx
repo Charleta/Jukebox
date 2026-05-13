@@ -550,6 +550,31 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     }
   }
 
+  const controlarYoutube = async (action: 'play' | 'pause' | 'stop' | 'replay' | 'mute' | 'unmute') => {
+    setYoutubeLoading(true)
+    try {
+      const res = await fetch('/api/youtube/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      })
+      if (!res.ok) throw new Error('control_failed')
+      const labels: Record<typeof action, string> = {
+        play: 'Play enviado',
+        pause: 'Pausa enviada',
+        stop: 'Stop enviado',
+        replay: 'Reiniciar enviado',
+        mute: 'Mute enviado',
+        unmute: 'Sonido enviado',
+      }
+      showConfigFeedback(labels[action])
+    } catch {
+      showConfigFeedback('No se pudo controlar YouTube')
+    } finally {
+      setYoutubeLoading(false)
+    }
+  }
+
   const shutdownPc = async () => {
     setMaintenanceBusy('shutdown-pc')
     try {
@@ -1067,6 +1092,17 @@ return (
                   <div className="line-clamp-2 text-sm font-bold leading-tight text-white">{youtubeCurrent.title}</div>
                   <div className="mt-1 truncate text-xs text-zinc-500">{youtubeCurrent.channelTitle}</div>
                 </div>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <button onClick={() => controlarYoutube('play')} disabled={youtubeLoading} className="rounded-xl bg-red-500 px-3 py-3 text-xs font-black text-white disabled:opacity-60">PLAY</button>
+                <button onClick={() => controlarYoutube('pause')} disabled={youtubeLoading} className="rounded-xl bg-zinc-800 px-3 py-3 text-xs font-black text-zinc-200 disabled:opacity-60">PAUSA</button>
+                <button onClick={() => controlarYoutube('replay')} disabled={youtubeLoading} className="rounded-xl bg-zinc-800 px-3 py-3 text-xs font-black text-zinc-200 disabled:opacity-60">REINICIAR</button>
+                <button onClick={() => controlarYoutube('stop')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 px-3 py-3 text-xs font-black text-zinc-400 disabled:opacity-60">STOP</button>
+                <button onClick={() => controlarYoutube('mute')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 px-3 py-3 text-xs font-black text-zinc-400 disabled:opacity-60">MUTE</button>
+                <button onClick={() => controlarYoutube('unmute')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 px-3 py-3 text-xs font-black text-zinc-400 disabled:opacity-60">SONIDO</button>
+              </div>
+              <div className="mt-3 text-[11px] leading-4 text-zinc-600">
+                La pantalla se abre fullscreen desde la PC. El fullscreen del iframe no puede forzarse desde el celular por seguridad del navegador.
               </div>
             </div>
           )}
