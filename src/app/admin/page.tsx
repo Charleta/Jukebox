@@ -20,6 +20,15 @@ interface Playlist {
   imagenUrl: string; esFavoritos: boolean; oculta: boolean; orden: number; canciones: PlaylistCancion[]
 }
 
+interface YouTubeVideo {
+  videoId: string
+  title: string
+  channelTitle: string
+  thumbnailUrl: string
+  publishedAt: string
+  updatedAt?: string
+}
+
 interface DevSession {
   id: string
   role: string
@@ -281,6 +290,12 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [resultsPl, setResultsPl] = useState<any | null>(null)
   const [buscandoPl, setBuscandoPl] = useState(false)
   const searchPlRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [youtubeQuery, setYoutubeQuery] = useState('')
+  const [youtubeResults, setYoutubeResults] = useState<YouTubeVideo[]>([])
+  const [youtubeSearching, setYoutubeSearching] = useState(false)
+  const [youtubePlayingId, setYoutubePlayingId] = useState<string | null>(null)
+  const [youtubeCurrent, setYoutubeCurrent] = useState<YouTubeVideo | null>(null)
+  const searchYoutubeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [importPlaylistId, setImportPlaylistId] = useState<number | null>(null)
   const [importTexto, setImportTexto] = useState('')
@@ -329,7 +344,7 @@ const [splash, setSplash] = useState(true)
     setTimeout(() => setAdminToast(''), 2200)
   }
 const [dragOver, setDragOver] = useState<number | null>(null)
-const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' | 'config' | 'ventas'>('fichas')
+const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' | 'config' | 'ventas' | 'youtube'>('fichas')
   const cargarPlaylists = async () => {
     const res = await fetch('/api/playlists')
     if (res.ok) setPlaylists(await res.json())
@@ -355,6 +370,9 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   useEffect(() => {
     if (seccion === 'ventas') {
       cargarVentas()
+    }
+    if (seccion === 'youtube') {
+      cargarYoutubeActual()
     }
   }, [seccion])
 
@@ -472,13 +490,63 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
         body: JSON.stringify({ action })
       })
       if (!res.ok) throw new Error('action_failed')
-      const data = await res.json()
       const msg = action === 'open' ? 'YouTube abierto' : 'YouTube cerrado'
       showConfigFeedback(msg)
     } catch {
       showConfigFeedback('No se pudo ejecutar la acción')
     } finally {
       setYoutubeLoading(false)
+    }
+  }
+
+  const cargarYoutubeActual = async () => {
+    try {
+      const res = await fetch('/api/youtube/current', { cache: 'no-store' })
+      if (!res.ok) return
+      const data = await res.json() as { video?: YouTubeVideo | null }
+      setYoutubeCurrent(data.video ?? null)
+    } catch {}
+  }
+
+  const handleYoutubeSearch = (q: string) => {
+    setYoutubeQuery(q)
+    if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
+    if (!q.trim()) {
+      setYoutubeResults([])
+      return
+    }
+    searchYoutubeRef.current = setTimeout(async () => {
+      setYoutubeSearching(true)
+      try {
+        const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(q)}`, { cache: 'no-store' })
+        const data = await res.json().catch(() => ({} as { items?: YouTubeVideo[]; error?: string }))
+        if (!res.ok) throw new Error(data.error || 'search_failed')
+        setYoutubeResults(data.items ?? [])
+      } catch {
+        setYoutubeResults([])
+        showConfigFeedback('No se pudo buscar en YouTube')
+      } finally {
+        setYoutubeSearching(false)
+      }
+    }, 450)
+  }
+
+  const reproducirYoutube = async (video: YouTubeVideo) => {
+    setYoutubePlayingId(video.videoId)
+    try {
+      const res = await fetch('/api/youtube/play', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(video),
+      })
+      const data = await res.json().catch(() => ({} as { video?: YouTubeVideo; error?: string }))
+      if (!res.ok) throw new Error(data.error || 'play_failed')
+      setYoutubeCurrent(data.video ?? video)
+      showConfigFeedback('Video enviado a pantalla')
+    } catch {
+      showConfigFeedback('No se pudo enviar el video')
+    } finally {
+      setYoutubePlayingId(null)
     }
   }
 
@@ -958,6 +1026,87 @@ return (
           >
             ACTUALIZAR
           </button>
+        </div>
+      )}
+
+      {seccion === 'youtube' && (
+        <div className="bg-gradient-to-b from-red-950/60 to-zinc-900 rounded-2xl p-5 border border-red-900/30 shadow-lg">
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div>
+              <div className="text-xs tracking-widest text-red-300 uppercase mb-1">YouTube</div>
+              <div className="text-3xl font-black leading-none text-white" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                Pantalla externa
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleYoutubeAction('open')}
+                disabled={youtubeLoading}
+                className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white disabled:opacity-60"
+              >
+                ABRIR
+              </button>
+              <button
+                onClick={() => handleYoutubeAction('close')}
+                disabled={youtubeLoading}
+                className="rounded-xl bg-zinc-800 px-3 py-2 text-xs font-black text-zinc-300 disabled:opacity-60"
+              >
+                CERRAR
+              </button>
+            </div>
+          </div>
+
+          {youtubeCurrent && (
+            <div className="mb-4 rounded-2xl border border-red-500/20 bg-black/40 p-3">
+              <div className="mb-2 text-[10px] uppercase tracking-widest text-zinc-500">Reproduciendo en pantalla</div>
+              <div className="flex gap-3">
+                {youtubeCurrent.thumbnailUrl && (
+                  <img src={youtubeCurrent.thumbnailUrl} alt="" className="h-16 w-24 rounded-lg object-cover" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="line-clamp-2 text-sm font-bold leading-tight text-white">{youtubeCurrent.title}</div>
+                  <div className="mt-1 truncate text-xs text-zinc-500">{youtubeCurrent.channelTitle}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-4">
+            <label className="mb-2 block text-xs uppercase tracking-widest text-zinc-500">Buscar video</label>
+            <input
+              value={youtubeQuery}
+              onChange={e => handleYoutubeSearch(e.target.value)}
+              placeholder="Nombre del video, artista, cancion..."
+              className="w-full rounded-2xl border border-zinc-700 bg-black/60 px-4 py-4 text-base text-white outline-none focus:border-red-400"
+            />
+            {youtubeSearching && <div className="mt-2 text-xs text-zinc-500">Buscando...</div>}
+          </div>
+
+          <div className="space-y-3">
+            {youtubeResults.map(video => (
+              <article key={video.videoId} className="overflow-hidden rounded-2xl border border-zinc-800 bg-black/35">
+                {video.thumbnailUrl && <img src={video.thumbnailUrl} alt="" className="h-40 w-full object-cover" />}
+                <div className="p-4">
+                  <div className="line-clamp-2 text-base font-bold leading-tight text-white">{video.title}</div>
+                  <div className="mt-1 truncate text-xs text-zinc-500">{video.channelTitle}</div>
+                  <button
+                    onClick={() => reproducirYoutube(video)}
+                    disabled={youtubePlayingId === video.videoId}
+                    className="mt-4 w-full rounded-xl bg-red-500 py-3 text-sm font-black text-white transition-colors active:bg-red-400 disabled:opacity-60"
+                    style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+                  >
+                    {youtubePlayingId === video.videoId ? 'ENVIANDO...' : 'REPRODUCIR EN PANTALLA'}
+                  </button>
+                </div>
+              </article>
+            ))}
+
+            {!youtubeSearching && youtubeQuery.trim() && youtubeResults.length === 0 && (
+              <div className="rounded-2xl border border-zinc-800 bg-black/30 px-4 py-8 text-center text-sm text-zinc-500">
+                Sin resultados para esta busqueda.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1644,6 +1793,7 @@ return (
         { id: 'cola', icon: '≡', label: 'Cola', color: 'text-sky-400', dot: 'bg-sky-400', bg: 'bg-sky-400/10' },
         { id: 'agregar', icon: '+', label: 'Agregar', color: 'text-emerald-400', dot: 'bg-emerald-400', bg: 'bg-emerald-400/10' },
         { id: 'listas', icon: '♪', label: 'Listas', color: 'text-violet-400', dot: 'bg-violet-400', bg: 'bg-violet-400/10' },
+        { id: 'youtube', icon: '▶', label: 'YouTube', color: 'text-red-400', dot: 'bg-red-400', bg: 'bg-red-400/10' },
         { id: 'config', icon: '⚙', label: 'Config', color: 'text-zinc-300', dot: 'bg-zinc-400', bg: 'bg-zinc-400/10' },
       ].map(tab => (
         <button key={tab.id} onClick={() => setSeccion(tab.id as any)}
