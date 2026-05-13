@@ -29,25 +29,8 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeSearchI
   const q = query.trim()
   if (!q) return []
 
-  const params = new URLSearchParams({
-    part: 'snippet',
-    type: 'video',
-    maxResults: '25',
-    videoEmbeddable: 'true',
-    q,
-    key,
-  })
-
-  const res = await fetch(`${YOUTUBE_SEARCH_URL}?${params.toString()}`, {
-    cache: 'no-store',
-  })
-
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '')
-    throw new Error(`YouTube search failed ${res.status}: ${detail || res.statusText}`)
-  }
-
-  const data = await res.json() as {
+  type YouTubeSearchResponse = {
+    nextPageToken?: string
     items?: Array<{
       id?: { videoId?: string }
       snippet?: {
@@ -63,7 +46,34 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeSearchI
     }>
   }
 
-  return (data.items ?? [])
+  const fetchPage = async (pageToken?: string): Promise<YouTubeSearchResponse> => {
+    const params = new URLSearchParams({
+      part: 'snippet',
+      type: 'video',
+      maxResults: '25',
+      videoEmbeddable: 'true',
+      q,
+      key,
+    })
+    if (pageToken) params.set('pageToken', pageToken)
+
+    const res = await fetch(`${YOUTUBE_SEARCH_URL}?${params.toString()}`, {
+      cache: 'no-store',
+    })
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '')
+      throw new Error(`YouTube search failed ${res.status}: ${detail || res.statusText}`)
+    }
+
+    return res.json() as Promise<YouTubeSearchResponse>
+  }
+
+  const firstPage = await fetchPage()
+  const secondPage = firstPage.nextPageToken ? await fetchPage(firstPage.nextPageToken) : null
+  const items = [...(firstPage.items ?? []), ...(secondPage?.items ?? [])]
+
+  return items
     .map(item => {
       const videoId = item.id?.videoId ?? ''
       const snippet = item.snippet ?? {}

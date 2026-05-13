@@ -297,6 +297,7 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [youtubeCurrent, setYoutubeCurrent] = useState<YouTubeVideo | null>(null)
   const [youtubeQueue, setYoutubeQueue] = useState<YouTubeVideo[]>([])
   const [youtubeVolume, setYoutubeVolume] = useState(80)
+  const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false)
   const searchYoutubeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [importPlaylistId, setImportPlaylistId] = useState<number | null>(null)
@@ -505,10 +506,12 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     try {
       const res = await fetch('/api/youtube/current', { cache: 'no-store' })
       if (!res.ok) return
-      const data = await res.json() as { video?: YouTubeVideo | null; queue?: YouTubeVideo[]; volume?: number }
+      const data = await res.json() as { video?: YouTubeVideo | null; queue?: YouTubeVideo[]; volume?: number; control?: { action?: string } }
       setYoutubeCurrent(data.video ?? null)
       setYoutubeQueue(data.queue ?? [])
       setYoutubeVolume(Number(data.volume ?? 80))
+      if (data.control?.action === 'play') setYoutubeIsPlaying(true)
+      if (data.control?.action === 'pause' || data.control?.action === 'stop') setYoutubeIsPlaying(false)
     } catch {}
   }
 
@@ -546,6 +549,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
       const data = await res.json().catch(() => ({} as { video?: YouTubeVideo; error?: string }))
       if (!res.ok) throw new Error(data.error || 'play_failed')
       setYoutubeCurrent(data.video ?? video)
+      setYoutubeIsPlaying(true)
       await cargarYoutubeActual()
       showConfigFeedback('Video enviado a pantalla')
     } catch {
@@ -574,6 +578,8 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
         'set-volume': 'Volumen actualizado',
       }
       showConfigFeedback(labels[action])
+      if (action === 'play') setYoutubeIsPlaying(true)
+      if (action === 'pause' || action === 'stop') setYoutubeIsPlaying(false)
     } catch {
       showConfigFeedback('No se pudo controlar YouTube')
     } finally {
@@ -612,6 +618,27 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   const cambiarYoutubeVolumen = (value: number) => {
     setYoutubeVolume(value)
     void controlarYoutube('set-volume', value)
+  }
+
+  const toggleYoutubePlayPause = () => {
+    void controlarYoutube(youtubeIsPlaying ? 'pause' : 'play')
+  }
+
+  const siguienteYoutube = async () => {
+    setYoutubeLoading(true)
+    try {
+      const res = await fetch('/api/youtube/next', { method: 'POST', cache: 'no-store' })
+      const data = await res.json().catch(() => ({} as { video?: YouTubeVideo | null; queue?: YouTubeVideo[] }))
+      if (!res.ok) throw new Error('next_failed')
+      setYoutubeCurrent(data.video ?? null)
+      setYoutubeQueue(data.queue ?? [])
+      setYoutubeIsPlaying(Boolean(data.video))
+      showConfigFeedback(data.video ? 'Siguiente video enviado' : 'No hay videos en cola')
+    } catch {
+      showConfigFeedback('No se pudo pasar al siguiente')
+    } finally {
+      setYoutubeLoading(false)
+    }
   }
 
   const limpiarBusquedaYoutube = () => {
@@ -1152,8 +1179,8 @@ return (
 
             <div className="p-4">
               <div className="grid grid-cols-4 gap-2">
-                <button onClick={() => controlarYoutube('play')} disabled={youtubeLoading} className="rounded-2xl bg-red-500 py-4 text-lg font-black text-white disabled:opacity-60">▶</button>
-                <button onClick={() => controlarYoutube('pause')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-60">⏸</button>
+                <button onClick={toggleYoutubePlayPause} disabled={youtubeLoading} className="rounded-2xl bg-red-500 py-4 text-lg font-black text-white disabled:opacity-60">{youtubeIsPlaying ? '⏸' : '▶'}</button>
+                <button onClick={siguienteYoutube} disabled={youtubeLoading || youtubeQueue.length === 0} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-40">⏭</button>
                 <button onClick={() => controlarYoutube('replay')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-60">↺</button>
                 <button onClick={() => controlarYoutube('stop')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-900 py-4 text-lg font-black text-zinc-400 disabled:opacity-60">■</button>
               </div>
@@ -1764,30 +1791,6 @@ return (
                   </span>
                   <span className="text-xs font-semibold text-white mt-2">Reiniciar kiosko</span>
                   <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra Chrome y lo vuelve a abrir</span>
-                </button>
-
-                <button
-                  onClick={() => handleYoutubeAction('open')}
-                  disabled={youtubeLoading}
-                  className="group flex flex-col items-center text-center disabled:opacity-60"
-                >
-                  <span className="w-16 h-16 rounded-full border border-red-400/30 bg-red-400/10 text-red-300 flex items-center justify-center text-2xl transition-colors group-active:bg-red-400/20">
-                    ▶
-                  </span>
-                  <span className="text-xs font-semibold text-white mt-2">Abrir YouTube</span>
-                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Ver reproducción</span>
-                </button>
-
-                <button
-                  onClick={() => handleYoutubeAction('close')}
-                  disabled={youtubeLoading}
-                  className="group flex flex-col items-center text-center disabled:opacity-60"
-                >
-                  <span className="w-16 h-16 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 flex items-center justify-center text-2xl transition-colors group-active:bg-red-500/20">
-                    ■
-                  </span>
-                  <span className="text-xs font-semibold text-white mt-2">Cerrar YouTube</span>
-                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Volver al kiosko</span>
                 </button>
 
                 <button
