@@ -4,7 +4,7 @@ import { isPrivilegedRole, readSessionContext } from '@/lib/jukeboxAuth'
 
 export const dynamic = 'force-dynamic'
 
-const ALLOWED_ACTIONS = new Set(['play', 'pause', 'stop', 'replay', 'mute', 'unmute'])
+const ALLOWED_ACTIONS = new Set(['play', 'pause', 'stop', 'replay', 'mute', 'unmute', 'set-volume'])
 
 async function upsertConfig(clave: string, valor: string) {
   await prismaCloud.appConfig.upsert({
@@ -20,17 +20,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const body = await req.json().catch(() => ({} as { action?: unknown }))
+  const body = await req.json().catch(() => ({} as { action?: unknown; volume?: unknown }))
   const action = typeof body.action === 'string' ? body.action : ''
   if (!ALLOWED_ACTIONS.has(action)) {
     return NextResponse.json({ error: 'Accion invalida' }, { status: 400 })
   }
 
   const updatedAt = new Date().toISOString()
-  await Promise.all([
+  const updates = [
     upsertConfig('youtube_control_action', action),
     upsertConfig('youtube_control_updated_at', updatedAt),
-  ])
+  ]
 
-  return NextResponse.json({ ok: true, action, updatedAt }, { headers: { 'Cache-Control': 'no-store' } })
+  let volume: number | null = null
+  if (action === 'set-volume') {
+    const parsed = Number(body.volume)
+    volume = Number.isFinite(parsed) ? Math.min(100, Math.max(0, Math.round(parsed))) : 80
+    updates.push(upsertConfig('youtube_volume', String(volume)))
+  }
+
+  await Promise.all(updates)
+
+  return NextResponse.json({ ok: true, action, volume, updatedAt }, { headers: { 'Cache-Control': 'no-store' } })
 }

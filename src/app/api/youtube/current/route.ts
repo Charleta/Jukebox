@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prismaCloud } from '@/lib/dbCloud'
-import { isValidYouTubeVideoId, type YouTubeCurrentVideo } from '@/lib/youtube'
+import { isValidYouTubeVideoId, parseYouTubeQueue, type YouTubeCurrentVideo } from '@/lib/youtube'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,6 +12,8 @@ const KEYS = [
   'youtube_updated_at',
   'youtube_control_action',
   'youtube_control_updated_at',
+  'youtube_queue',
+  'youtube_volume',
 ]
 
 export async function GET() {
@@ -24,6 +26,8 @@ export async function GET() {
   if (!isValidYouTubeVideoId(videoId)) {
     return NextResponse.json({
       video: null,
+      queue: parseYouTubeQueue(map.youtube_queue),
+      volume: Number(map.youtube_volume ?? 80),
       control: {
         action: map.youtube_control_action ?? '',
         updatedAt: map.youtube_control_updated_at ?? '',
@@ -42,6 +46,8 @@ export async function GET() {
 
   return NextResponse.json({
     video,
+    queue: parseYouTubeQueue(map.youtube_queue),
+    volume: Number(map.youtube_volume ?? 80),
     control: {
       action: map.youtube_control_action ?? '',
       updatedAt: map.youtube_control_updated_at ?? '',

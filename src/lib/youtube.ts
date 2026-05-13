@@ -10,6 +10,8 @@ export interface YouTubeCurrentVideo extends YouTubeSearchItem {
   updatedAt: string
 }
 
+export type YouTubeQueuedVideo = YouTubeSearchItem
+
 const YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search'
 
 export function isValidYouTubeVideoId(videoId: unknown) {
@@ -30,7 +32,7 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeSearchI
   const params = new URLSearchParams({
     part: 'snippet',
     type: 'video',
-    maxResults: '12',
+    maxResults: '25',
     videoEmbeddable: 'true',
     q,
     key,
@@ -74,6 +76,30 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeSearchI
       }
     })
     .filter(item => isValidYouTubeVideoId(item.videoId) && item.title)
+}
+
+export function normalizeYouTubeVideo(input: unknown): YouTubeSearchItem | null {
+  const item = input as Partial<YouTubeSearchItem> | null
+  if (!item || !isValidYouTubeVideoId(item.videoId)) return null
+
+  return {
+    videoId: String(item.videoId),
+    title: typeof item.title === 'string' ? item.title.slice(0, 240) : '',
+    channelTitle: typeof item.channelTitle === 'string' ? item.channelTitle.slice(0, 160) : '',
+    thumbnailUrl: typeof item.thumbnailUrl === 'string' ? item.thumbnailUrl.slice(0, 500) : '',
+    publishedAt: typeof item.publishedAt === 'string' ? item.publishedAt : '',
+  }
+}
+
+export function parseYouTubeQueue(value: string | undefined | null): YouTubeQueuedVideo[] {
+  if (!value) return []
+  try {
+    const parsed = JSON.parse(value) as unknown
+    if (!Array.isArray(parsed)) return []
+    return parsed.map(normalizeYouTubeVideo).filter((item): item is YouTubeQueuedVideo => Boolean(item))
+  } catch {
+    return []
+  }
 }
 
 function decodeHtmlEntities(value: string) {

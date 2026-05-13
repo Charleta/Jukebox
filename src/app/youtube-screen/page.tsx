@@ -15,49 +15,120 @@ interface YouTubeControl {
   updatedAt: string
 }
 
-const POLL_MS = 2000
-
-function buildEmbedUrl(videoId: string) {
-  const params = new URLSearchParams({
-    autoplay: '1',
-    controls: '1',
-    enablejsapi: '1',
-    rel: '0',
-    modestbranding: '1',
-    playsinline: '0',
-  })
-  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`
+declare global {
+  interface Window {
+    YT?: {
+      Player: new (elementId: string, options: Record<string, unknown>) => YouTubePlayer
+      PlayerState: { ENDED: number }
+    }
+    onYouTubeIframeAPIReady?: () => void
+  }
 }
+
+interface YouTubePlayer {
+  loadVideoById: (videoId: string) => void
+  playVideo: () => void
+  pauseVideo: () => void
+  stopVideo: () => void
+  seekTo: (seconds: number, allowSeekAhead: boolean) => void
+  mute: () => void
+  unMute: () => void
+  setVolume: (volume: number) => void
+  destroy: () => void
+}
+
+const POLL_MS = 2000
 
 export default function YouTubeScreenPage() {
   const [video, setVideo] = useState<CurrentVideo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const playerRef = useRef<YouTubePlayer | null>(null)
+  const playerReadyRef = useRef(false)
+  const pendingVideoRef = useRef<CurrentVideo | null>(null)
+  const currentVolumeRef = useRef(80)
   const lastUpdatedAtRef = useRef('')
   const lastControlUpdatedAtRef = useRef('')
-  const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
-  const sendPlayerCommand = useCallback((func: string, args: unknown[] = []) => {
-    iframeRef.current?.contentWindow?.postMessage(
-      JSON.stringify({ event: 'command', func, args }),
-      'https://www.youtube.com'
-    )
+  const playVideo = useCallback((nextVideo: CurrentVideo) => {
+    pendingVideoRef.current = nextVideo
+    setVideo(nextVideo)
+    if (!playerReadyRef.current || !playerRef.current) return
+    playerRef.current.loadVideoById(nextVideo.videoId)
+    playerRef.current.setVolume(currentVolumeRef.current)
   }, [])
 
-  const applyControl = useCallback((control: YouTubeControl | null | undefined) => {
+  const playNextFromQueue = useCallback(async () => {
+    try {
+      await fetch('/api/youtube/next', { method: 'POST', cache: 'no-store' })
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    let active = true
+
+    const initPlayer = () => {
+      if (!active || playerRef.current || !window.YT) return
+      playerRef.current = new window.YT.Player('youtube-player', {
+        width: '100%',
+        height: '100%',
+        videoId: pendingVideoRef.current?.videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 1,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 0,
+        },
+        events: {
+          onReady: () => {
+            playerReadyRef.current = true
+            playerRef.current?.setVolume(currentVolumeRef.current)
+            if (pendingVideoRef.current) playVideo(pendingVideoRef.current)
+          },
+          onStateChange: (event: { data: number }) => {
+            if (event.data === window.YT?.PlayerState.ENDED) {
+              void playNextFromQueue()
+            }
+          },
+        },
+      })
+    }
+
+    if (window.YT?.Player) {
+      initPlayer()
+    } else {
+      window.onYouTubeIframeAPIReady = initPlayer
+      const script = document.createElement('script')
+      script.src = 'https://www.youtube.com/iframe_api'
+      document.body.appendChild(script)
+    }
+
+    return () => {
+      active = false
+      playerRef.current?.destroy()
+      playerRef.current = null
+    }
+  }, [playNextFromQueue, playVideo])
+
+  const applyControl = useCallback((control: YouTubeControl | null | undefined, volume: number) => {
+    currentVolumeRef.current = Math.min(100, Math.max(0, Math.round(volume)))
+    playerRef.current?.setVolume(currentVolumeRef.current)
+
     if (!control?.action || !control.updatedAt || control.updatedAt === lastControlUpdatedAtRef.current) return
     lastControlUpdatedAtRef.current = control.updatedAt
 
-    if (control.action === 'play') sendPlayerCommand('playVideo')
-    if (control.action === 'pause') sendPlayerCommand('pauseVideo')
-    if (control.action === 'stop') sendPlayerCommand('stopVideo')
+    if (control.action === 'play') playerRef.current?.playVideo()
+    if (control.action === 'pause') playerRef.current?.pauseVideo()
+    if (control.action === 'stop') playerRef.current?.stopVideo()
     if (control.action === 'replay') {
-      sendPlayerCommand('seekTo', [0, true])
-      sendPlayerCommand('playVideo')
+      playerRef.current?.seekTo(0, true)
+      playerRef.current?.playVideo()
     }
-    if (control.action === 'mute') sendPlayerCommand('mute')
-    if (control.action === 'unmute') sendPlayerCommand('unMute')
-  }, [sendPlayerCommand])
+    if (control.action === 'mute') playerRef.current?.mute()
+    if (control.action === 'unmute') playerRef.current?.unMute()
+    if (control.action === 'set-volume') playerRef.current?.setVolume(currentVolumeRef.current)
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -66,16 +137,18 @@ export default function YouTubeScreenPage() {
       try {
         const res = await fetch('/api/youtube/current', { cache: 'no-store' })
         if (!res.ok) throw new Error('current_failed')
-        const data = await res.json() as { video?: CurrentVideo | null; control?: YouTubeControl }
+        const data = await res.json() as { video?: CurrentVideo | null; control?: YouTubeControl; volume?: number }
         if (!active) return
 
         const nextVideo = data.video ?? null
         const nextUpdatedAt = nextVideo?.updatedAt ?? ''
-        if (nextUpdatedAt !== lastUpdatedAtRef.current) {
+        if (nextVideo && nextUpdatedAt !== lastUpdatedAtRef.current) {
           lastUpdatedAtRef.current = nextUpdatedAt
-          setVideo(nextVideo)
+          playVideo(nextVideo)
+        } else if (!nextVideo) {
+          setVideo(null)
         }
-        window.setTimeout(() => applyControl(data.control), 250)
+        applyControl(data.control, Number(data.volume ?? 80))
         setError('')
       } catch {
         if (active) setError('No se pudo leer el video actual')
@@ -93,30 +166,19 @@ export default function YouTubeScreenPage() {
       active = false
       window.clearInterval(interval)
     }
-  }, [applyControl])
+  }, [applyControl, playVideo])
 
   return (
     <main className="h-screen w-screen overflow-hidden bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+      <div className={video ? 'h-full w-full' : 'hidden'} id="youtube-player" />
       {video ? (
-        <div className="relative h-full w-full bg-black">
-          <iframe
-            ref={iframeRef}
-            key={`${video.videoId}-${video.updatedAt}`}
-            className="h-full w-full border-0"
-            src={buildEmbedUrl(video.videoId)}
-            title={video.title || 'YouTube'}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-
-          <div className="pointer-events-none absolute left-0 right-0 top-0 bg-gradient-to-b from-black/70 to-transparent p-6">
-            <div className="max-w-4xl">
-              <div className="text-xs uppercase tracking-[0.4em] text-red-400">YouTube</div>
-              <h1 className="mt-2 truncate text-4xl font-black leading-none" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-                {video.title}
-              </h1>
-              {video.channelTitle && <div className="mt-1 text-sm text-zinc-300">{video.channelTitle}</div>}
-            </div>
+        <div className="pointer-events-none absolute left-0 right-0 top-0 bg-gradient-to-b from-black/70 to-transparent p-6">
+          <div className="max-w-4xl">
+            <div className="text-xs uppercase tracking-[0.4em] text-red-400">YouTube</div>
+            <h1 className="mt-2 truncate text-4xl font-black leading-none" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+              {video.title}
+            </h1>
+            {video.channelTitle && <div className="mt-1 text-sm text-zinc-300">{video.channelTitle}</div>}
           </div>
         </div>
       ) : (

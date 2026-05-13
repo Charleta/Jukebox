@@ -295,6 +295,8 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [youtubeSearching, setYoutubeSearching] = useState(false)
   const [youtubePlayingId, setYoutubePlayingId] = useState<string | null>(null)
   const [youtubeCurrent, setYoutubeCurrent] = useState<YouTubeVideo | null>(null)
+  const [youtubeQueue, setYoutubeQueue] = useState<YouTubeVideo[]>([])
+  const [youtubeVolume, setYoutubeVolume] = useState(80)
   const searchYoutubeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [importPlaylistId, setImportPlaylistId] = useState<number | null>(null)
@@ -503,8 +505,10 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     try {
       const res = await fetch('/api/youtube/current', { cache: 'no-store' })
       if (!res.ok) return
-      const data = await res.json() as { video?: YouTubeVideo | null }
+      const data = await res.json() as { video?: YouTubeVideo | null; queue?: YouTubeVideo[]; volume?: number }
       setYoutubeCurrent(data.video ?? null)
+      setYoutubeQueue(data.queue ?? [])
+      setYoutubeVolume(Number(data.volume ?? 80))
     } catch {}
   }
 
@@ -542,6 +546,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
       const data = await res.json().catch(() => ({} as { video?: YouTubeVideo; error?: string }))
       if (!res.ok) throw new Error(data.error || 'play_failed')
       setYoutubeCurrent(data.video ?? video)
+      await cargarYoutubeActual()
       showConfigFeedback('Video enviado a pantalla')
     } catch {
       showConfigFeedback('No se pudo enviar el video')
@@ -550,13 +555,13 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     }
   }
 
-  const controlarYoutube = async (action: 'play' | 'pause' | 'stop' | 'replay' | 'mute' | 'unmute') => {
+  const controlarYoutube = async (action: 'play' | 'pause' | 'stop' | 'replay' | 'mute' | 'unmute' | 'set-volume', volume?: number) => {
     setYoutubeLoading(true)
     try {
       const res = await fetch('/api/youtube/control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, volume }),
       })
       if (!res.ok) throw new Error('control_failed')
       const labels: Record<typeof action, string> = {
@@ -566,6 +571,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
         replay: 'Reiniciar enviado',
         mute: 'Mute enviado',
         unmute: 'Sonido enviado',
+        'set-volume': 'Volumen actualizado',
       }
       showConfigFeedback(labels[action])
     } catch {
@@ -573,6 +579,38 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     } finally {
       setYoutubeLoading(false)
     }
+  }
+
+  const agregarYoutubeACola = async (video: YouTubeVideo) => {
+    try {
+      const res = await fetch('/api/youtube/queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(video),
+      })
+      const data = await res.json().catch(() => ({} as { queue?: YouTubeVideo[] }))
+      if (!res.ok) throw new Error('queue_failed')
+      setYoutubeQueue(data.queue ?? [])
+      showConfigFeedback('Video agregado a la cola')
+    } catch {
+      showConfigFeedback('No se pudo agregar a la cola')
+    }
+  }
+
+  const limpiarYoutubeCola = async () => {
+    try {
+      const res = await fetch('/api/youtube/queue', { method: 'DELETE' })
+      if (!res.ok) throw new Error('clear_failed')
+      setYoutubeQueue([])
+      showConfigFeedback('Cola de YouTube vaciada')
+    } catch {
+      showConfigFeedback('No se pudo vaciar la cola')
+    }
+  }
+
+  const cambiarYoutubeVolumen = (value: number) => {
+    setYoutubeVolume(value)
+    void controlarYoutube('set-volume', value)
   }
 
   const shutdownPc = async () => {
@@ -1055,15 +1093,16 @@ return (
       )}
 
       {seccion === 'youtube' && (
-        <div className="bg-gradient-to-b from-red-950/60 to-zinc-900 rounded-2xl p-5 border border-red-900/30 shadow-lg">
+        <div className="space-y-4">
+        <div className="overflow-hidden rounded-3xl border border-red-900/30 bg-gradient-to-b from-red-950/70 to-zinc-950 shadow-2xl">
           <div className="flex items-start justify-between gap-3 mb-4">
-            <div>
+            <div className="p-5 pb-0">
               <div className="text-xs tracking-widest text-red-300 uppercase mb-1">YouTube</div>
               <div className="text-3xl font-black leading-none text-white" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-                Pantalla externa
+                Reproductor remoto
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 p-5 pb-0">
               <button
                 onClick={() => handleYoutubeAction('open')}
                 disabled={youtubeLoading}
@@ -1081,32 +1120,89 @@ return (
             </div>
           </div>
 
-          {youtubeCurrent && (
-            <div className="mb-4 rounded-2xl border border-red-500/20 bg-black/40 p-3">
-              <div className="mb-2 text-[10px] uppercase tracking-widest text-zinc-500">Reproduciendo en pantalla</div>
-              <div className="flex gap-3">
-                {youtubeCurrent.thumbnailUrl && (
-                  <img src={youtubeCurrent.thumbnailUrl} alt="" className="h-16 w-24 rounded-lg object-cover" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="line-clamp-2 text-sm font-bold leading-tight text-white">{youtubeCurrent.title}</div>
-                  <div className="mt-1 truncate text-xs text-zinc-500">{youtubeCurrent.channelTitle}</div>
+          <div className="px-5 pb-5">
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/50 shadow-xl">
+            {youtubeCurrent?.thumbnailUrl ? (
+              <div className="relative h-48">
+                <img src={youtubeCurrent.thumbnailUrl} alt="" className="h-full w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="mb-1 text-[10px] uppercase tracking-[0.35em] text-red-300">En pantalla</div>
+                  <div className="line-clamp-2 text-2xl font-black leading-none text-white" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                    {youtubeCurrent.title}
+                  </div>
+                  <div className="mt-1 truncate text-xs text-zinc-300">{youtubeCurrent.channelTitle}</div>
                 </div>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                <button onClick={() => controlarYoutube('play')} disabled={youtubeLoading} className="rounded-xl bg-red-500 px-3 py-3 text-xs font-black text-white disabled:opacity-60">PLAY</button>
-                <button onClick={() => controlarYoutube('pause')} disabled={youtubeLoading} className="rounded-xl bg-zinc-800 px-3 py-3 text-xs font-black text-zinc-200 disabled:opacity-60">PAUSA</button>
-                <button onClick={() => controlarYoutube('replay')} disabled={youtubeLoading} className="rounded-xl bg-zinc-800 px-3 py-3 text-xs font-black text-zinc-200 disabled:opacity-60">REINICIAR</button>
-                <button onClick={() => controlarYoutube('stop')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 px-3 py-3 text-xs font-black text-zinc-400 disabled:opacity-60">STOP</button>
-                <button onClick={() => controlarYoutube('mute')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 px-3 py-3 text-xs font-black text-zinc-400 disabled:opacity-60">MUTE</button>
-                <button onClick={() => controlarYoutube('unmute')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 px-3 py-3 text-xs font-black text-zinc-400 disabled:opacity-60">SONIDO</button>
+            ) : (
+              <div className="flex h-48 items-center justify-center bg-zinc-950 text-center">
+                <div>
+                  <div className="text-5xl text-red-400">▶</div>
+                  <div className="mt-3 text-sm text-zinc-500">Sin video seleccionado</div>
+                </div>
               </div>
+            )}
+
+            <div className="p-4">
+              <div className="grid grid-cols-4 gap-2">
+                <button onClick={() => controlarYoutube('play')} disabled={youtubeLoading} className="rounded-2xl bg-red-500 py-4 text-lg font-black text-white disabled:opacity-60">▶</button>
+                <button onClick={() => controlarYoutube('pause')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-60">Ⅱ</button>
+                <button onClick={() => controlarYoutube('replay')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-60">↺</button>
+                <button onClick={() => controlarYoutube('stop')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-900 py-4 text-lg font-black text-zinc-400 disabled:opacity-60">■</button>
+              </div>
+
+              <div className="mt-4 rounded-2xl bg-zinc-950/70 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="text-xs uppercase tracking-widest text-zinc-500">Volumen pantalla</div>
+                  <div className="text-xl font-black text-red-300" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{youtubeVolume}%</div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={youtubeVolume}
+                  onChange={e => cambiarYoutubeVolumen(Number(e.target.value))}
+                  className="w-full accent-red-500"
+                />
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button onClick={() => controlarYoutube('mute')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 py-2 text-xs font-black text-zinc-400 disabled:opacity-60">MUTE</button>
+                  <button onClick={() => controlarYoutube('unmute')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 py-2 text-xs font-black text-zinc-400 disabled:opacity-60">SONIDO</button>
+                </div>
+              </div>
+
               <div className="mt-3 text-[11px] leading-4 text-zinc-600">
                 La pantalla se abre fullscreen desde la PC. El fullscreen del iframe no puede forzarse desde el celular por seguridad del navegador.
               </div>
             </div>
+          </div>
+          </div>
+        </div>
+
+          {youtubeQueue.length > 0 && (
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-950/80 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs uppercase tracking-widest text-zinc-500">Siguientes</div>
+                  <div className="text-2xl font-black text-white" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{youtubeQueue.length} en cola</div>
+                </div>
+                <button onClick={limpiarYoutubeCola} className="rounded-xl bg-zinc-800 px-3 py-2 text-xs font-black text-zinc-400">VACIAR</button>
+              </div>
+              <div className="space-y-2">
+                {youtubeQueue.slice(0, 8).map((item, index) => (
+                  <div key={`${item.videoId}-${index}`} className="flex items-center gap-3 rounded-2xl bg-black/40 p-2">
+                    <div className="w-5 text-center text-xs text-zinc-600">{index + 1}</div>
+                    {item.thumbnailUrl && <img src={item.thumbnailUrl} alt="" className="h-12 w-16 rounded-lg object-cover" />}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold text-white">{item.title}</div>
+                      <div className="truncate text-xs text-zinc-500">{item.channelTitle}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
+        <div className="bg-gradient-to-b from-red-950/60 to-zinc-900 rounded-2xl p-5 border border-red-900/30 shadow-lg">
           <div className="mb-4">
             <label className="mb-2 block text-xs uppercase tracking-widest text-zinc-500">Buscar video</label>
             <input
@@ -1121,18 +1217,29 @@ return (
           <div className="space-y-3">
             {youtubeResults.map(video => (
               <article key={video.videoId} className="overflow-hidden rounded-2xl border border-zinc-800 bg-black/35">
-                {video.thumbnailUrl && <img src={video.thumbnailUrl} alt="" className="h-40 w-full object-cover" />}
+                {video.thumbnailUrl && (
+                  <img src={video.thumbnailUrl} alt="" className="h-40 w-full object-cover" />
+                )}
                 <div className="p-4">
                   <div className="line-clamp-2 text-base font-bold leading-tight text-white">{video.title}</div>
                   <div className="mt-1 truncate text-xs text-zinc-500">{video.channelTitle}</div>
-                  <button
-                    onClick={() => reproducirYoutube(video)}
-                    disabled={youtubePlayingId === video.videoId}
-                    className="mt-4 w-full rounded-xl bg-red-500 py-3 text-sm font-black text-white transition-colors active:bg-red-400 disabled:opacity-60"
-                    style={{ fontFamily: 'Bebas Neue, sans-serif' }}
-                  >
-                    {youtubePlayingId === video.videoId ? 'ENVIANDO...' : 'REPRODUCIR EN PANTALLA'}
-                  </button>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => reproducirYoutube(video)}
+                      disabled={youtubePlayingId === video.videoId}
+                      className="rounded-xl bg-red-500 py-3 text-sm font-black text-white transition-colors active:bg-red-400 disabled:opacity-60"
+                      style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+                    >
+                      {youtubePlayingId === video.videoId ? 'ENVIANDO...' : 'REPRODUCIR'}
+                    </button>
+                    <button
+                      onClick={() => agregarYoutubeACola(video)}
+                      className="rounded-xl bg-zinc-800 py-3 text-sm font-black text-zinc-200 transition-colors active:bg-zinc-700"
+                      style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+                    >
+                      + COLA
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -1143,6 +1250,7 @@ return (
               </div>
             )}
           </div>
+        </div>
         </div>
       )}
 
