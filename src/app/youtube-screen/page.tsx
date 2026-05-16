@@ -54,8 +54,12 @@ export default function YouTubeScreenPage() {
     pendingVideoRef.current = nextVideo
     setVideo(nextVideo)
     if (!playerReadyRef.current || !playerRef.current) return
+    setError('')
     playerRef.current.loadVideoById(nextVideo.videoId)
     playerRef.current.setVolume(currentVolumeRef.current)
+    window.setTimeout(() => {
+      playerRef.current?.playVideo()
+    }, 250)
   }, [])
 
   const playNextFromQueue = useCallback(async () => {
@@ -76,9 +80,12 @@ export default function YouTubeScreenPage() {
         playerVars: {
           autoplay: 1,
           controls: 1,
+          enablejsapi: 1,
+          origin: window.location.origin,
           rel: 0,
           modestbranding: 1,
-          playsinline: 0,
+          playsinline: 1,
+          iv_load_policy: 3,
         },
         events: {
           onReady: () => {
@@ -90,6 +97,12 @@ export default function YouTubeScreenPage() {
             if (event.data === window.YT?.PlayerState.ENDED) {
               void playNextFromQueue()
             }
+          },
+          onError: () => {
+            setError('YouTube no pudo reproducir este video. Probá con otro resultado.')
+          },
+          onAutoplayBlocked: () => {
+            setError('Chrome bloqueó el autoplay. Tocá Play desde el admin o abrí la pantalla con el script actualizado.')
           },
         },
       })
@@ -169,9 +182,10 @@ export default function YouTubeScreenPage() {
   }, [applyControl, playVideo])
 
   return (
-    <main className="h-screen w-screen overflow-hidden bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-      <div className={video ? 'h-full w-full' : 'hidden'} id="youtube-player" />
+    <main className="relative h-screen w-screen overflow-hidden bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+      <div className="absolute inset-0 h-full w-full bg-black" id="youtube-player" />
       {video ? (
+        <>
         <div className="pointer-events-none absolute left-0 right-0 top-0 bg-gradient-to-b from-black/70 to-transparent p-6">
           <div className="max-w-4xl">
             <div className="text-xs uppercase tracking-[0.4em] text-red-400">YouTube</div>
@@ -181,8 +195,14 @@ export default function YouTubeScreenPage() {
             {video.channelTitle && <div className="mt-1 text-sm text-zinc-300">{video.channelTitle}</div>}
           </div>
         </div>
+        {error && (
+          <div className="pointer-events-none absolute bottom-6 left-6 right-6 rounded-2xl border border-red-500/40 bg-black/80 px-5 py-4 text-sm text-red-100">
+            {error}
+          </div>
+        )}
+        </>
       ) : (
-        <div className="flex h-full w-full items-center justify-center px-8 text-center">
+        <div className="relative z-10 flex h-full w-full items-center justify-center bg-black px-8 text-center">
           <div className="max-w-xl">
             <div className="text-xs uppercase tracking-[0.6em] text-red-400">YouTube</div>
             <h1 className="mt-5 text-7xl font-black leading-none text-yellow-400" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
