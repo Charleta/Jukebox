@@ -615,6 +615,22 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     }
   }
 
+  const quitarYoutubeActual = async () => {
+    if (!youtubeCurrent) return
+    setYoutubeLoading(true)
+    try {
+      const res = await fetch('/api/youtube/current', { method: 'DELETE', cache: 'no-store' })
+      if (!res.ok) throw new Error('clear_current_failed')
+      setYoutubeCurrent(null)
+      setYoutubeIsPlaying(false)
+      showConfigFeedback('Video quitado de la pantalla')
+    } catch {
+      showConfigFeedback('No se pudo quitar el video')
+    } finally {
+      setYoutubeLoading(false)
+    }
+  }
+
   const cambiarYoutubeVolumen = (value: number) => {
     setYoutubeVolume(value)
     void controlarYoutube('set-volume', value)
@@ -1184,6 +1200,14 @@ return (
                 <button onClick={() => controlarYoutube('replay')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-800 py-4 text-lg font-black text-zinc-200 disabled:opacity-60">↺</button>
                 <button onClick={() => controlarYoutube('stop')} disabled={youtubeLoading} className="rounded-2xl bg-zinc-900 py-4 text-lg font-black text-zinc-400 disabled:opacity-60">■</button>
               </div>
+
+              <button
+                onClick={quitarYoutubeActual}
+                disabled={youtubeLoading || !youtubeCurrent}
+                className="mt-3 w-full rounded-2xl border border-red-500/30 bg-red-500/10 py-3 text-xs font-black uppercase tracking-widest text-red-200 disabled:border-zinc-800 disabled:bg-zinc-900 disabled:text-zinc-600"
+              >
+                Quitar video actual
+              </button>
 
               <div className="mt-4 rounded-2xl bg-zinc-950/70 p-4">
                 <div className="mb-3 flex items-center justify-between">

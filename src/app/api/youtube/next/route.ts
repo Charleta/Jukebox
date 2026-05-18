@@ -12,13 +12,28 @@ async function upsertConfig(clave: string, valor: string) {
   })
 }
 
+async function clearCurrentVideo() {
+  const updatedAt = new Date().toISOString()
+  await Promise.all([
+    upsertConfig('youtube_current_video_id', ''),
+    upsertConfig('youtube_current_video_title', ''),
+    upsertConfig('youtube_current_channel', ''),
+    upsertConfig('youtube_current_thumbnail', ''),
+    upsertConfig('youtube_updated_at', updatedAt),
+    upsertConfig('youtube_control_action', 'stop'),
+    upsertConfig('youtube_control_updated_at', updatedAt),
+  ])
+  return updatedAt
+}
+
 export async function POST() {
   const row = await prismaCloud.appConfig.findUnique({ where: { clave: 'youtube_queue' } })
   const queue = parseYouTubeQueue(row?.valor)
   const [next, ...rest] = queue
 
   if (!next) {
-    return NextResponse.json({ ok: true, video: null, queue: [] }, { headers: { 'Cache-Control': 'no-store' } })
+    const updatedAt = await clearCurrentVideo()
+    return NextResponse.json({ ok: true, video: null, queue: [], updatedAt }, { headers: { 'Cache-Control': 'no-store' } })
   }
 
   const updatedAt = new Date().toISOString()

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface CurrentVideo {
@@ -38,6 +39,7 @@ interface YouTubePlayer {
 }
 
 const POLL_MS = 2000
+const YOUTUBE_VIDEO_ID_RE = /^[A-Za-z0-9_-]{11}$/
 
 export default function YouTubeScreenPage() {
   const [video, setVideo] = useState<CurrentVideo | null>(null)
@@ -52,11 +54,17 @@ export default function YouTubeScreenPage() {
   const readFailuresRef = useRef(0)
 
   const playVideo = useCallback((nextVideo: CurrentVideo) => {
+    const videoId = nextVideo.videoId.trim()
+    if (!YOUTUBE_VIDEO_ID_RE.test(videoId)) {
+      setError('YouTube devolvio un ID de video invalido.')
+      return
+    }
+
     pendingVideoRef.current = nextVideo
     setVideo(nextVideo)
     if (!playerReadyRef.current || !playerRef.current) return
     setError('')
-    playerRef.current.loadVideoById(nextVideo.videoId)
+    playerRef.current.loadVideoById(videoId)
     playerRef.current.setVolume(currentVolumeRef.current)
     window.setTimeout(() => {
       playerRef.current?.playVideo()
@@ -74,10 +82,10 @@ export default function YouTubeScreenPage() {
 
     const initPlayer = () => {
       if (!active || playerRef.current || !window.YT) return
-      playerRef.current = new window.YT.Player('youtube-player', {
+      const pendingVideoId = pendingVideoRef.current?.videoId.trim()
+      const playerOptions: Record<string, unknown> = {
         width: '100%',
         height: '100%',
-        videoId: pendingVideoRef.current?.videoId,
         playerVars: {
           autoplay: 1,
           controls: 1,
@@ -106,7 +114,13 @@ export default function YouTubeScreenPage() {
             setError('Chrome bloqueó el autoplay. Tocá Play desde el admin o abrí la pantalla con el script actualizado.')
           },
         },
-      })
+      }
+
+      if (pendingVideoId && YOUTUBE_VIDEO_ID_RE.test(pendingVideoId)) {
+        playerOptions.videoId = pendingVideoId
+      }
+
+      playerRef.current = new window.YT.Player('youtube-player', playerOptions)
     }
 
     if (window.YT?.Player) {
@@ -161,6 +175,9 @@ export default function YouTubeScreenPage() {
           lastUpdatedAtRef.current = nextUpdatedAt
           playVideo(nextVideo)
         } else if (!nextVideo) {
+          pendingVideoRef.current = null
+          lastUpdatedAtRef.current = ''
+          playerRef.current?.stopVideo()
           setVideo(null)
         }
         applyControl(data.control, Number(data.volume ?? 80))
@@ -209,7 +226,8 @@ export default function YouTubeScreenPage() {
       ) : (
         <div className="relative z-10 flex h-full w-full items-center justify-center bg-black px-8 text-center">
           <div className="max-w-xl">
-            <div className="text-xs uppercase tracking-[0.6em] text-red-400">YouTube</div>
+            <Image src="/icon-192.png" alt="Rancho Aparte" width={128} height={128} className="mx-auto rounded-3xl" priority />
+            <div className="mt-6 text-xs uppercase tracking-[0.6em] text-red-400">YouTube</div>
             <h1 className="mt-5 text-7xl font-black leading-none text-yellow-400" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
               Rancho Aparte
             </h1>
