@@ -49,6 +49,7 @@ export default function YouTubeScreenPage() {
   const currentVolumeRef = useRef(80)
   const lastUpdatedAtRef = useRef('')
   const lastControlUpdatedAtRef = useRef('')
+  const readFailuresRef = useRef(0)
 
   const playVideo = useCallback((nextVideo: CurrentVideo) => {
     pendingVideoRef.current = nextVideo
@@ -152,6 +153,7 @@ export default function YouTubeScreenPage() {
         if (!res.ok) throw new Error('current_failed')
         const data = await res.json() as { video?: CurrentVideo | null; control?: YouTubeControl; volume?: number }
         if (!active) return
+        readFailuresRef.current = 0
 
         const nextVideo = data.video ?? null
         const nextUpdatedAt = nextVideo?.updatedAt ?? ''
@@ -164,7 +166,10 @@ export default function YouTubeScreenPage() {
         applyControl(data.control, Number(data.volume ?? 80))
         setError('')
       } catch {
-        if (active) setError('No se pudo leer el video actual')
+        readFailuresRef.current += 1
+        if (active && (!video || readFailuresRef.current >= 3)) {
+          setError('Reconectando con el control remoto de YouTube...')
+        }
       } finally {
         if (active) setLoading(false)
       }
@@ -179,7 +184,7 @@ export default function YouTubeScreenPage() {
       active = false
       window.clearInterval(interval)
     }
-  }, [applyControl, playVideo])
+  }, [applyControl, playVideo, video])
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
