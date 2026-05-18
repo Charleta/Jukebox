@@ -43,7 +43,6 @@ const YOUTUBE_VIDEO_ID_RE = /^[A-Za-z0-9_-]{11}$/
 
 export default function YouTubeScreenPage() {
   const [video, setVideo] = useState<CurrentVideo | null>(null)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const playerRef = useRef<YouTubePlayer | null>(null)
   const playerReadyRef = useRef(false)
@@ -188,7 +187,6 @@ export default function YouTubeScreenPage() {
           setError('Reconectando con el control remoto de YouTube...')
         }
       } finally {
-        if (active) setLoading(false)
       }
     }
 
@@ -227,13 +225,9 @@ export default function YouTubeScreenPage() {
         <div className="relative z-10 flex h-full w-full items-center justify-center bg-black px-8 text-center">
           <div className="max-w-xl">
             <Image src="/icon-192.png" alt="Rancho Aparte" width={128} height={128} className="mx-auto rounded-3xl" priority />
-            <div className="mt-6 text-xs uppercase tracking-[0.6em] text-red-400">YouTube</div>
             <h1 className="mt-5 text-7xl font-black leading-none text-yellow-400" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
               Rancho Aparte
             </h1>
-            <p className="mt-4 text-lg text-zinc-500">
-              {loading ? 'Cargando pantalla...' : 'Esperando video desde el panel admin'}
-            </p>
             {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
           </div>
         </div>
