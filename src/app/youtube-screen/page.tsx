@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getSupabaseBrowserClient } from '@/lib/supabaseBrowser'
 
 interface CurrentVideo {
   videoId: string
@@ -38,7 +39,6 @@ interface YouTubePlayer {
   destroy: () => void
 }
 
-const POLL_MS = 2000
 const YOUTUBE_VIDEO_ID_RE = /^[A-Za-z0-9_-]{11}$/
 
 export default function YouTubeScreenPage() {
@@ -159,6 +159,8 @@ export default function YouTubeScreenPage() {
 
   useEffect(() => {
     let active = true
+    let refreshTimer: number | null = null
+    const supabase = getSupabaseBrowserClient()
 
     const loadCurrent = async () => {
       try {
@@ -183,23 +185,31 @@ export default function YouTubeScreenPage() {
         setError('')
       } catch {
         readFailuresRef.current += 1
-        if (active && (!video || readFailuresRef.current >= 3)) {
+        if (active && (!pendingVideoRef.current || readFailuresRef.current >= 3)) {
           setError('Reconectando con el control remoto de YouTube...')
         }
-      } finally {
       }
     }
 
+    const scheduleLoadCurrent = () => {
+      if (refreshTimer) window.clearTimeout(refreshTimer)
+      refreshTimer = window.setTimeout(() => {
+        void loadCurrent()
+      }, 150)
+    }
+
     void loadCurrent()
-    const interval = window.setInterval(() => {
-      void loadCurrent()
-    }, POLL_MS)
+    const channel = supabase
+      ?.channel('youtube-screen:AppConfig')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'AppConfig' }, scheduleLoadCurrent)
+      .subscribe()
 
     return () => {
       active = false
-      window.clearInterval(interval)
+      if (refreshTimer) window.clearTimeout(refreshTimer)
+      if (supabase && channel) void supabase.removeChannel(channel)
     }
-  }, [applyControl, playVideo, video])
+  }, [applyControl, playVideo])
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>
