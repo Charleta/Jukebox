@@ -19,6 +19,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ items }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     console.error('YouTube search error:', error)
+    const message = error instanceof Error ? error.message : ''
+    if (message.includes('quotaExceeded')) {
+      return NextResponse.json({ error: 'Se agotó la cuota diaria de YouTube. Probá más tarde.' }, { status: 429 })
+    }
     return NextResponse.json({ error: 'No se pudo buscar en YouTube' }, { status: 500 })
   }
 }

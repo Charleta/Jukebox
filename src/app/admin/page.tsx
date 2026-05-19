@@ -293,6 +293,7 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [youtubeQuery, setYoutubeQuery] = useState('')
   const [youtubeResults, setYoutubeResults] = useState<YouTubeVideo[]>([])
   const [youtubeSearching, setYoutubeSearching] = useState(false)
+  const [youtubeHasSearched, setYoutubeHasSearched] = useState(false)
   const [youtubePlayingId, setYoutubePlayingId] = useState<string | null>(null)
   const [youtubeCurrent, setYoutubeCurrent] = useState<YouTubeVideo | null>(null)
   const [youtubeQueue, setYoutubeQueue] = useState<YouTubeVideo[]>([])
@@ -531,28 +532,40 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     const seq = searchYoutubeSeqRef.current + 1
     searchYoutubeSeqRef.current = seq
     if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
+    setYoutubeResults([])
+    setYoutubeHasSearched(false)
     if (!q.trim()) {
+      setYoutubeSearching(false)
+    }
+  }
+
+  const buscarYoutube = async () => {
+    const query = youtubeQuery.trim()
+    const seq = searchYoutubeSeqRef.current + 1
+    searchYoutubeSeqRef.current = seq
+    if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
+    if (!query) {
       setYoutubeResults([])
+      setYoutubeHasSearched(false)
       setYoutubeSearching(false)
       return
     }
-    const query = q.trim()
-    searchYoutubeRef.current = setTimeout(async () => {
-      setYoutubeSearching(true)
-      try {
-        const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}`, { cache: 'no-store' })
-        const data = await res.json().catch(() => ({} as { items?: YouTubeVideo[]; error?: string }))
-        if (seq !== searchYoutubeSeqRef.current) return
-        if (!res.ok) throw new Error(data.error || 'search_failed')
-        setYoutubeResults(data.items ?? [])
-      } catch {
-        if (seq !== searchYoutubeSeqRef.current) return
-        setYoutubeResults([])
-        showConfigFeedback('No se pudo buscar en YouTube')
-      } finally {
-        if (seq === searchYoutubeSeqRef.current) setYoutubeSearching(false)
-      }
-    }, 450)
+    setYoutubeSearching(true)
+    try {
+      const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}`, { cache: 'no-store' })
+      const data = await res.json().catch(() => ({} as { items?: YouTubeVideo[]; error?: string }))
+      if (seq !== searchYoutubeSeqRef.current) return
+      if (!res.ok) throw new Error(data.error || 'search_failed')
+      setYoutubeResults(data.items ?? [])
+      setYoutubeHasSearched(true)
+    } catch (error) {
+      if (seq !== searchYoutubeSeqRef.current) return
+      setYoutubeResults([])
+      setYoutubeHasSearched(true)
+      showConfigFeedback(error instanceof Error ? error.message : 'No se pudo buscar en YouTube')
+    } finally {
+      if (seq === searchYoutubeSeqRef.current) setYoutubeSearching(false)
+    }
   }
 
   const reproducirYoutube = async (video: YouTubeVideo, skipConfirm = false) => {
@@ -707,6 +720,7 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
     setYoutubeQuery('')
     setYoutubeResults([])
+    setYoutubeHasSearched(false)
     setYoutubeSearching(false)
   }
 
@@ -1201,7 +1215,6 @@ return (
               <div className="mt-2 inline-flex rounded-full bg-zinc-800/80 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-zinc-300">
                 Pantalla HDMI
               </div>
-              <div className="mt-1 text-[11px] text-zinc-500">Abrí /youtube-screen en la segunda pantalla. Sin chequeo automatico para evitar requests extra.</div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => handleYoutubeAction('open')} disabled={youtubeLoading} className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white disabled:opacity-60">ABRIR PANTALLA</button>
@@ -1237,13 +1250,23 @@ return (
               <input
                 value={youtubeQuery}
                 onChange={e => handleYoutubeSearch(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') void buscarYoutube()
+                }}
                 placeholder="Nombre del video, artista, cancion..."
-                className="w-full rounded-2xl border border-zinc-700 bg-black/60 px-4 py-4 pr-12 text-base text-white outline-none focus:border-red-400"
+                className="w-full rounded-2xl border border-zinc-700 bg-black/60 px-4 py-4 pr-24 text-base text-white outline-none focus:border-red-400"
               />
+              <button
+                onClick={() => void buscarYoutube()}
+                disabled={youtubeSearching || !youtubeQuery.trim()}
+                className="absolute right-3 top-1/2 flex h-8 -translate-y-1/2 items-center rounded-full bg-red-500 px-3 text-xs font-black text-white active:bg-red-400 disabled:bg-zinc-800 disabled:text-zinc-500"
+              >
+                BUSCAR
+              </button>
               {youtubeQuery && (
                 <button
                   onClick={limpiarBusquedaYoutube}
-                  className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-zinc-800 text-sm font-black text-zinc-400 active:bg-zinc-700"
+                  className="absolute right-[84px] top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-zinc-800 text-sm font-black text-zinc-400 active:bg-zinc-700"
                   aria-label="Limpiar busqueda"
                 >
                   ×
@@ -1283,7 +1306,7 @@ return (
               </article>
             ))}
 
-            {!youtubeSearching && youtubeQuery.trim() && youtubeResults.length === 0 && (
+            {!youtubeSearching && youtubeHasSearched && youtubeQuery.trim() && youtubeResults.length === 0 && (
               <div className="rounded-2xl border border-zinc-800 bg-black/30 px-4 py-8 text-center text-sm text-zinc-500">
                 Sin resultados para esta busqueda.
               </div>
@@ -1348,7 +1371,6 @@ return (
                 <button onClick={quitarYoutubeActual} disabled={youtubeLoading || !youtubeCurrent} className="rounded-xl border border-red-500/30 bg-red-500/10 py-3 text-xs font-black text-red-200 disabled:border-zinc-800 disabled:bg-zinc-900 disabled:text-zinc-600">QUITAR ACTUAL</button>
               </div>
             </div>
-            <div className="mt-3 text-[11px] leading-4 text-zinc-600">El fullscreen se activa manualmente con F11 en la pantalla HDMI; el navegador no permite forzarlo desde el admin.</div>
           </div>
         </div>
       )}

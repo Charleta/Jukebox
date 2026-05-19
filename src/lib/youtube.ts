@@ -13,6 +13,8 @@ export interface YouTubeCurrentVideo extends YouTubeSearchItem {
 export type YouTubeQueuedVideo = YouTubeSearchItem
 
 const YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search'
+const YOUTUBE_SEARCH_CACHE_TTL = 1000 * 60 * 60 * 24 * 7
+const youtubeSearchCache = new Map<string, { items: YouTubeSearchItem[]; at: number }>()
 
 export function isValidYouTubeVideoId(videoId: unknown) {
   return typeof videoId === 'string' && /^[A-Za-z0-9_-]{11}$/.test(videoId)
@@ -28,9 +30,13 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeSearchI
   const key = getYouTubeApiKey()
   const q = query.trim()
   if (!q) return []
+  const cacheKey = q.toLowerCase()
+  const cached = youtubeSearchCache.get(cacheKey)
+  if (cached && Date.now() - cached.at < YOUTUBE_SEARCH_CACHE_TTL) {
+    return cached.items
+  }
 
   type YouTubeSearchResponse = {
-    nextPageToken?: string
     items?: Array<{
       id?: { videoId?: string }
       snippet?: {
@@ -46,16 +52,15 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeSearchI
     }>
   }
 
-  const fetchPage = async (pageToken?: string): Promise<YouTubeSearchResponse> => {
+  const fetchPage = async (): Promise<YouTubeSearchResponse> => {
     const params = new URLSearchParams({
       part: 'snippet',
       type: 'video',
-      maxResults: '25',
+      maxResults: '50',
       videoEmbeddable: 'true',
       q,
       key,
     })
-    if (pageToken) params.set('pageToken', pageToken)
 
     const res = await fetch(`${YOUTUBE_SEARCH_URL}?${params.toString()}`, {
       cache: 'no-store',
@@ -70,10 +75,8 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeSearchI
   }
 
   const firstPage = await fetchPage()
-  const secondPage = firstPage.nextPageToken ? await fetchPage(firstPage.nextPageToken) : null
-  const items = [...(firstPage.items ?? []), ...(secondPage?.items ?? [])]
 
-  return items
+  const items = (firstPage.items ?? [])
     .map(item => {
       const videoId = item.id?.videoId ?? ''
       const snippet = item.snippet ?? {}
@@ -86,6 +89,9 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeSearchI
       }
     })
     .filter(item => isValidYouTubeVideoId(item.videoId) && item.title)
+
+  youtubeSearchCache.set(cacheKey, { items, at: Date.now() })
+  return items
 }
 
 export function normalizeYouTubeVideo(input: unknown): YouTubeSearchItem | null {

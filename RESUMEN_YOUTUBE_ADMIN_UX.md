@@ -15,11 +15,17 @@ No se implemento integracion tipo Chromecast/Cast de YouTube porque el player em
 - `src/app/api/youtube/play/route.ts`: envia video actual y pausa Spotify.
 - `src/app/api/youtube/control/route.ts`: play, pause, stop, replay, mute, unmute y volumen.
 - `src/app/api/youtube/next/route.ts`: pasa al siguiente video de la cola.
+- `src/app/api/youtube/search/route.ts`: busca videos y devuelve mensaje claro si se agota la cuota.
+- `src/lib/youtube.ts`: cliente YouTube Data API con cache en memoria por 7 dias.
 
 ## UX implementada
 
 - El bloque YouTube del admin ahora arranca con indicacion de pantalla HDMI y video actual.
 - La busqueda de video quedo arriba de la cola para operacion rapida.
+- La busqueda no consulta mientras se escribe: solo busca con boton `BUSCAR` o tecla `Enter`.
+- Al editar o borrar el texto se limpian resultados anteriores y se ignoran respuestas viejas que lleguen tarde.
+- La busqueda usa cache en memoria por 7 dias por texto.
+- Se usa una sola pagina de resultados con hasta 50 videos para reducir consumo de cuota sin quedar tan corto.
 - Los botones de resultado dicen `PONER AHORA` y `AGREGAR A COLA`.
 - `AGREGAR A COLA` tiene mas peso visual que antes para evitar cortar el video actual por error.
 - Si hay video en pantalla y se intenta `PONER AHORA`, pide confirmacion antes de reemplazar.
