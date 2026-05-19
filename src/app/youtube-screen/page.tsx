@@ -138,6 +138,21 @@ export default function YouTubeScreenPage() {
     }
   }, [playNextFromQueue, playVideo])
 
+  useEffect(() => {
+    let active = true
+    const sendHeartbeat = async () => {
+      if (!active) return
+      await fetch('/api/youtube/screen', { method: 'POST', cache: 'no-store' }).catch(() => {})
+    }
+
+    void sendHeartbeat()
+    const timer = window.setInterval(() => void sendHeartbeat(), 15000)
+    return () => {
+      active = false
+      window.clearInterval(timer)
+    }
+  }, [])
+
   const applyControl = useCallback((control: YouTubeControl | null | undefined, volume: number) => {
     currentVolumeRef.current = Math.min(100, Math.max(0, Math.round(volume)))
     playerRef.current?.setVolume(currentVolumeRef.current)

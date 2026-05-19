@@ -36,6 +36,33 @@ export async function POST(req: Request) {
   return NextResponse.json({ ok: true, queue }, { headers: { 'Cache-Control': 'no-store' } })
 }
 
+export async function PATCH(req: Request) {
+  const session = await readSessionContext()
+  if (!isPrivilegedRole(session?.role)) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  }
+
+  const body = await req.json().catch(() => ({} as { action?: string; index?: number }))
+  const index = Number(body.index)
+  const queue = await readQueue()
+  if (!Number.isInteger(index) || index < 0 || index >= queue.length) {
+    return NextResponse.json({ error: 'Indice invalido' }, { status: 400 })
+  }
+
+  if (body.action === 'remove') {
+    queue.splice(index, 1)
+  } else if (body.action === 'up' && index > 0) {
+    ;[queue[index - 1], queue[index]] = [queue[index], queue[index - 1]]
+  } else if (body.action === 'down' && index < queue.length - 1) {
+    ;[queue[index], queue[index + 1]] = [queue[index + 1], queue[index]]
+  } else if (body.action !== 'up' && body.action !== 'down') {
+    return NextResponse.json({ error: 'Accion invalida' }, { status: 400 })
+  }
+
+  await upsertConfig('youtube_queue', JSON.stringify(queue))
+  return NextResponse.json({ ok: true, queue }, { headers: { 'Cache-Control': 'no-store' } })
+}
+
 export async function DELETE() {
   const session = await readSessionContext()
   if (!isPrivilegedRole(session?.role)) {
