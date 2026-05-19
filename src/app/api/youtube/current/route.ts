@@ -16,7 +16,6 @@ const KEYS = [
   'youtube_control_updated_at',
   'youtube_queue',
   'youtube_volume',
-  'youtube_screen_last_seen',
 ]
 
 async function upsertConfig(clave: string, valor: string) {
@@ -54,7 +53,6 @@ export async function GET() {
         video: null,
         queue: parseYouTubeQueue(map.youtube_queue),
         volume: Number(map.youtube_volume ?? 80),
-        screenLastSeen: map.youtube_screen_last_seen ?? '',
         control: {
           action: map.youtube_control_action ?? '',
           updatedAt: map.youtube_control_updated_at ?? '',
@@ -75,7 +73,6 @@ export async function GET() {
       video,
       queue: parseYouTubeQueue(map.youtube_queue),
       volume: Number(map.youtube_volume ?? 80),
-      screenLastSeen: map.youtube_screen_last_seen ?? '',
       control: {
         action: map.youtube_control_action ?? '',
         updatedAt: map.youtube_control_updated_at ?? '',

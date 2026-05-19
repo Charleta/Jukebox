@@ -298,9 +298,9 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [youtubeQueue, setYoutubeQueue] = useState<YouTubeVideo[]>([])
   const [youtubeVolume, setYoutubeVolume] = useState(80)
   const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false)
-  const [youtubeScreenLastSeen, setYoutubeScreenLastSeen] = useState('')
   const [youtubeActionMsg, setYoutubeActionMsg] = useState('')
   const searchYoutubeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchYoutubeSeqRef = useRef(0)
   const youtubeVolumeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [importPlaylistId, setImportPlaylistId] = useState<number | null>(null)
@@ -517,11 +517,10 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     try {
       const res = await fetch('/api/youtube/current', { cache: 'no-store' })
       if (!res.ok) return
-      const data = await res.json() as { video?: YouTubeVideo | null; queue?: YouTubeVideo[]; volume?: number; screenLastSeen?: string; control?: { action?: string } }
+      const data = await res.json() as { video?: YouTubeVideo | null; queue?: YouTubeVideo[]; volume?: number; control?: { action?: string } }
       setYoutubeCurrent(data.video ?? null)
       setYoutubeQueue(data.queue ?? [])
       setYoutubeVolume(Number(data.volume ?? 80))
-      setYoutubeScreenLastSeen(String(data.screenLastSeen ?? ''))
       if (data.control?.action === 'play') setYoutubeIsPlaying(true)
       if (data.control?.action === 'pause' || data.control?.action === 'stop') setYoutubeIsPlaying(false)
     } catch {}
@@ -529,23 +528,29 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
 
   const handleYoutubeSearch = (q: string) => {
     setYoutubeQuery(q)
+    const seq = searchYoutubeSeqRef.current + 1
+    searchYoutubeSeqRef.current = seq
     if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
     if (!q.trim()) {
       setYoutubeResults([])
+      setYoutubeSearching(false)
       return
     }
+    const query = q.trim()
     searchYoutubeRef.current = setTimeout(async () => {
       setYoutubeSearching(true)
       try {
-        const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(q)}`, { cache: 'no-store' })
+        const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}`, { cache: 'no-store' })
         const data = await res.json().catch(() => ({} as { items?: YouTubeVideo[]; error?: string }))
+        if (seq !== searchYoutubeSeqRef.current) return
         if (!res.ok) throw new Error(data.error || 'search_failed')
         setYoutubeResults(data.items ?? [])
       } catch {
+        if (seq !== searchYoutubeSeqRef.current) return
         setYoutubeResults([])
         showConfigFeedback('No se pudo buscar en YouTube')
       } finally {
-        setYoutubeSearching(false)
+        if (seq === searchYoutubeSeqRef.current) setYoutubeSearching(false)
       }
     }, 450)
   }
@@ -698,9 +703,11 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   }
 
   const limpiarBusquedaYoutube = () => {
+    searchYoutubeSeqRef.current += 1
     if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
     setYoutubeQuery('')
     setYoutubeResults([])
+    setYoutubeSearching(false)
   }
 
   const shutdownPc = async () => {
@@ -1006,17 +1013,6 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   refetchCola()
 }
 
-const youtubeLastSeenMs = youtubeScreenLastSeen ? Date.now() - new Date(youtubeScreenLastSeen).getTime() : Infinity
-const youtubeScreenConnected = Number.isFinite(youtubeLastSeenMs) && youtubeLastSeenMs < 45000
-const youtubeScreenStatusText = youtubeScreenConnected
-  ? 'Pantalla conectada'
-  : youtubeScreenLastSeen
-    ? 'Pantalla sin señal reciente'
-    : 'Esperando pantalla'
-const youtubeScreenDetail = youtubeScreenConnected
-  ? `Última señal hace ${Math.max(0, Math.round(youtubeLastSeenMs / 1000))}s`
-  : 'Abrí /youtube-screen en la pantalla HDMI'
-
 return (
   <div className="min-h-screen bg-[#0c0c0c] text-white pb-24" style={{ fontFamily: 'DM Sans, sans-serif' }}>
     {splash && (
@@ -1202,10 +1198,10 @@ return (
               <div className="text-3xl font-black leading-none text-white" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
                 Control de pantalla
               </div>
-              <div className={`mt-2 inline-flex rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-widest ${youtubeScreenConnected ? 'bg-emerald-500/15 text-emerald-300' : 'bg-yellow-500/15 text-yellow-300'}`}>
-                {youtubeScreenStatusText}
+              <div className="mt-2 inline-flex rounded-full bg-zinc-800/80 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-zinc-300">
+                Pantalla HDMI
               </div>
-              <div className="mt-1 text-[11px] text-zinc-500">{youtubeScreenDetail}</div>
+              <div className="mt-1 text-[11px] text-zinc-500">Abrí /youtube-screen en la segunda pantalla. Sin chequeo automatico para evitar requests extra.</div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => handleYoutubeAction('open')} disabled={youtubeLoading} className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white disabled:opacity-60">ABRIR PANTALLA</button>
