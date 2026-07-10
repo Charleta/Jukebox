@@ -35,6 +35,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
   const spotifyUriRef = useRef<string | null>(null)
   const playRetryTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const play404CountRef = useRef(0)
+  const playRetryCountRef = useRef(0)
   const maxSegundosRef = useRef(maxSegundos)
   const volumeRef = useRef(clampVolume(volume))
   const nextReconnectDelay = () => {
@@ -225,13 +226,14 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
     }
   }, [maxSegundos, spotifyUri, ready, deviceId])
 
-  async function playTrack(devId: string, uri: string) {
+  async function playTrack(devId: string, uri: string, isRetry = false) {
     clearTimeout(maxTimerRef.current)
     clearTimeout(nearEndTimerRef.current)
     terminadaRef.current = false
     hasPlayedRef.current = false
     playStartTimeRef.current = 0
     nearEndScheduledRef.current = false
+    if (!isRetry) playRetryCountRef.current = 0
 
     try {
       const res = await fetch('/api/spotify/play', {
@@ -242,6 +244,23 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
 
       if (!res.ok) {
         const err = await res.json()
+        if (res.status === 429) {
+          const retryAfter = (err.retryAfter ?? 30) as number
+          playRetryCountRef.current += 1
+          if (playRetryCountRef.current > 5) {
+            console.error(`[play] Rate limit persistente tras 5 intentos — abortando`)
+            return
+          }
+          console.warn(`[play] Rate limit 429 — esperando ${retryAfter}s (intento ${playRetryCountRef.current})`)
+          clearTimeout(playRetryTimerRef.current)
+          playRetryTimerRef.current = setTimeout(() => {
+            const currentId = deviceIdRef.current
+            if (spotifyUriRef.current === uri && currentId) {
+              playTrack(currentId, uri, true)
+            }
+          }, retryAfter * 1000)
+          return
+        }
         console.warn('Play retry pendiente:', err)
         if (res.status === 404) {
           play404CountRef.current += 1
@@ -249,7 +268,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
           playRetryTimerRef.current = setTimeout(() => {
             const currentId = deviceIdRef.current
             if (spotifyUriRef.current === uri && currentId) {
-              playTrack(currentId, uri)
+              playTrack(currentId, uri, true)
             }
           }, play404CountRef.current >= 3 ? 2500 : 1200)
         } else {
@@ -258,7 +277,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
           playRetryTimerRef.current = setTimeout(() => {
             const currentId = deviceIdRef.current
             if (spotifyUriRef.current === uri && currentId) {
-              playTrack(currentId, uri)
+              playTrack(currentId, uri, true)
             }
           }, 3000)
         }
@@ -266,6 +285,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
       }
 
       play404CountRef.current = 0
+      playRetryCountRef.current = 0
       scheduleMaxTimer(maxSegundos * 1000)
 
     } catch (err) {
@@ -275,7 +295,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
       playRetryTimerRef.current = setTimeout(() => {
         const currentId = deviceIdRef.current
         if (spotifyUriRef.current === uri && currentId) {
-          playTrack(currentId, uri)
+          playTrack(currentId, uri, true)
         }
       }, 3000)
     }
