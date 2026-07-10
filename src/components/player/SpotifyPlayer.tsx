@@ -36,6 +36,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
   const playRetryTimerRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const play404CountRef = useRef(0)
   const playRetryCountRef = useRef(0)
+  const rateLimitedUntilRef = useRef<number>(0)
   const maxSegundosRef = useRef(maxSegundos)
   const volumeRef = useRef(clampVolume(volume))
   const nextReconnectDelay = () => {
@@ -227,6 +228,20 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
   }, [maxSegundos, spotifyUri, ready, deviceId])
 
   async function playTrack(devId: string, uri: string, isRetry = false) {
+    const now = Date.now()
+    if (rateLimitedUntilRef.current > now) {
+      const waitMs = rateLimitedUntilRef.current - now
+      console.warn(`[play] Rate limit activo — esperando ${Math.ceil(waitMs / 1000)}s más`)
+      clearTimeout(playRetryTimerRef.current)
+      playRetryTimerRef.current = setTimeout(() => {
+        const currentId = deviceIdRef.current
+        if (spotifyUriRef.current === uri && currentId) {
+          playTrack(currentId, uri, true)
+        }
+      }, waitMs)
+      return
+    }
+
     clearTimeout(maxTimerRef.current)
     clearTimeout(nearEndTimerRef.current)
     terminadaRef.current = false
@@ -246,9 +261,10 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
         const err = await res.json()
         if (res.status === 429) {
           const retryAfter = (err.retryAfter ?? 30) as number
+          rateLimitedUntilRef.current = Date.now() + retryAfter * 1000
           playRetryCountRef.current += 1
-          if (playRetryCountRef.current > 5) {
-            console.error(`[play] Rate limit persistente tras 5 intentos — abortando`)
+          if (playRetryCountRef.current > 3) {
+            console.error(`[play] Rate limit persistente tras 3 intentos — abortando para esta canción`)
             return
           }
           console.warn(`[play] Rate limit 429 — esperando ${retryAfter}s (intento ${playRetryCountRef.current})`)
@@ -286,6 +302,7 @@ export function SpotifyPlayer({ spotifyUri, maxSegundos, volume, onTerminada, on
 
       play404CountRef.current = 0
       playRetryCountRef.current = 0
+      rateLimitedUntilRef.current = 0
       scheduleMaxTimer(maxSegundos * 1000)
 
     } catch (err) {
