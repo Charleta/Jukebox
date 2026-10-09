@@ -1,7 +1,7 @@
 import { useJukeboxSync } from '@/providers/JukeboxSyncProvider'
 
 export function useFichas() {
-  const { fichas, fichasHoy, refetchFichas } = useJukeboxSync()
+  const { fichas, fichasHoy, fichasAdminHoy, fichasVentasHoy, refetchFichas } = useJukeboxSync()
 
-  return { fichas, fichasHoy, refetch: refetchFichas }
+  return { fichas, fichasHoy, fichasAdminHoy, fichasVentasHoy, refetch: refetchFichas }
 }

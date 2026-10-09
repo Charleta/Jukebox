@@ -29,6 +29,8 @@ const ACTION_SCRIPTS = {
   'restart-kiosk': path.join(ROOT, 'scripts', 'kiosk-restart.bat'),
   'close-kiosk': path.join(ROOT, 'scripts', 'kiosk-close.bat'),
   'shutdown-pc': path.join(ROOT, 'scripts', 'kiosk-shutdown.bat'),
+  'youtube-open': path.join(ROOT, 'scripts', 'youtube-open.bat'),
+  'youtube-close': path.join(ROOT, 'scripts', 'youtube-close.bat'),
 }
 
 function fail(message) {
@@ -99,6 +101,21 @@ async function executeCommand(command) {
   }
 
   await runScript(scriptPath)
+
+  // Actualizar AppConfig si es comando de YouTube
+  if (command.action === 'youtube-open' || command.action === 'youtube-close') {
+    const youtubeOpen = command.action === 'youtube-open'
+    await supabase
+      .from('AppConfig')
+      .upsert(
+        { clave: 'youtube_open', valor: youtubeOpen ? 'true' : 'false' },
+        { onConflict: 'clave' }
+      )
+      .then(res => {
+        if (res.error) console.error('[kiosk-agent] Error actualizando AppConfig:', res.error)
+      })
+  }
+
   await markCommand(command.id, {
     status: 'processed',
     processedAt: new Date().toISOString(),

@@ -20,6 +20,15 @@ interface Playlist {
   imagenUrl: string; esFavoritos: boolean; oculta: boolean; orden: number; canciones: PlaylistCancion[]
 }
 
+interface YouTubeVideo {
+  videoId: string
+  title: string
+  channelTitle: string
+  thumbnailUrl: string
+  publishedAt: string
+  updatedAt?: string
+}
+
 interface DevSession {
   id: string
   role: string
@@ -140,7 +149,7 @@ function DeveloperView({ onLogout }: { onLogout: () => void }) {
 
 // ─── Vista Operador ───────────────────────────────────────────────────────────
 function OperadorView({ onLogout }: { onLogout: () => void }) {
-  const { fichas, fichasHoy, refetch } = useFichas()
+  const { fichas, fichasHoy, fichasAdminHoy, fichasVentasHoy, refetch } = useFichas()
   const { cola } = useCola()
   const playback = useSpotifyPlayback(2000)
   const nowPlaying = playback.track
@@ -156,7 +165,7 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
     await fetch('/api/fichas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cantidad: 1 }),
+      body: JSON.stringify({ cantidad: 1, fuente: 'admin' }),
     })
     refetch()
   }
@@ -205,17 +214,37 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
       {/* Fichas */}
       <div className="bg-zinc-900 rounded-lg p-5 border border-zinc-800 w-full max-w-sm">
         <div className="text-zinc-400 text-xs uppercase tracking-widest mb-2">Fichas disponibles</div>
-        <div className="text-7xl text-yellow-400 font-black leading-none mb-1"
+        <div className="text-7xl text-yellow-400 font-black leading-none mb-3"
           style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
           {fichas}
         </div>
-        <div className="flex items-baseline gap-3 mb-5">
-          <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
-          <div className="text-4xl text-yellow-400 font-black leading-none"
-            style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-            {fichasHoy}
+
+        <div className="space-y-2 mb-5">
+          <div className="flex items-baseline justify-between">
+            <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
+            <div className="text-2xl text-yellow-400 font-black leading-none"
+              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+              {fichasHoy}
+            </div>
+          </div>
+
+          <div className="flex items-baseline justify-between">
+            <div className="text-xs uppercase tracking-widest" style={{ color: '#FF6A00' }}>Admin</div>
+            <div className="text-xl font-black leading-none"
+              style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FF6A00' }}>
+              {fichasAdminHoy}
+            </div>
+          </div>
+
+          <div className="flex items-baseline justify-between">
+            <div className="text-xs uppercase tracking-widest" style={{ color: '#FFC400' }}>Ventas</div>
+            <div className="text-xl font-black leading-none"
+              style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FFC400' }}>
+              {fichasVentasHoy}
+            </div>
           </div>
         </div>
+
         <button
           onClick={cargarFicha}
           className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-5 rounded-lg text-4xl transition-colors"
@@ -235,7 +264,7 @@ function OperadorView({ onLogout }: { onLogout: () => void }) {
 
 // ─── Vista Admin ──────────────────────────────────────────────────────────────
 function AdminView({ onLogout }: { onLogout: () => void }) {
-  const { fichas, fichasHoy, refetch: refetchFichas } = useFichas()
+  const { fichas, fichasHoy, fichasAdminHoy, fichasVentasHoy, refetch: refetchFichas } = useFichas()
   const { cola, refetch: refetchCola } = useCola()
   const {
     maxDurKiosko: savedMaxDurKiosko,
@@ -261,6 +290,19 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [resultsPl, setResultsPl] = useState<any | null>(null)
   const [buscandoPl, setBuscandoPl] = useState(false)
   const searchPlRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [youtubeQuery, setYoutubeQuery] = useState('')
+  const [youtubeResults, setYoutubeResults] = useState<YouTubeVideo[]>([])
+  const [youtubeSearching, setYoutubeSearching] = useState(false)
+  const [youtubeHasSearched, setYoutubeHasSearched] = useState(false)
+  const [youtubePlayingId, setYoutubePlayingId] = useState<string | null>(null)
+  const [youtubeCurrent, setYoutubeCurrent] = useState<YouTubeVideo | null>(null)
+  const [youtubeQueue, setYoutubeQueue] = useState<YouTubeVideo[]>([])
+  const [youtubeVolume, setYoutubeVolume] = useState(80)
+  const [youtubeIsPlaying, setYoutubeIsPlaying] = useState(false)
+  const [youtubeActionMsg, setYoutubeActionMsg] = useState('')
+  const searchYoutubeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchYoutubeSeqRef = useRef(0)
+  const youtubeVolumeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [importPlaylistId, setImportPlaylistId] = useState<number | null>(null)
   const [importTexto, setImportTexto] = useState('')
@@ -289,14 +331,15 @@ function AdminView({ onLogout }: { onLogout: () => void }) {
   const [dragSongIndex, setDragSongIndex] = useState<number | null>(null)
   const [dragSongOver, setDragSongOver] = useState<number | null>(null)
   const [dragPlIndex, setDragPlIndex] = useState<number | null>(null)
+  const [ventas, setVentas] = useState<any[]>([])
+  const [cargandoVentas, setCargandoVentas] = useState(false)
   const [dragPlOver, setDragPlOver] = useState<number | null>(null)
   const [editandoNombre, setEditandoNombre] = useState<number | null>(null)
   const [nombreEditando, setNombreEditando] = useState('')
 
 const [splash, setSplash] = useState(true)
   const [splashFading, setSplashFading] = useState(false)
-
-
+  const [youtubeLoading, setYoutubeLoading] = useState(false)
   useEffect(() => {
     const t1 = setTimeout(() => setSplashFading(true), 1800)
     const t2 = setTimeout(() => setSplash(false), 2400)
@@ -308,7 +351,7 @@ const [splash, setSplash] = useState(true)
     setTimeout(() => setAdminToast(''), 2200)
   }
 const [dragOver, setDragOver] = useState<number | null>(null)
-const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' | 'config'>('fichas')
+const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' | 'config' | 'ventas' | 'youtube'>('fichas')
   const cargarPlaylists = async () => {
     const res = await fetch('/api/playlists')
     if (res.ok) setPlaylists(await res.json())
@@ -330,6 +373,17 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   useEffect(() => {
     setIsPlaying(playback.isPlaying)
   }, [playback.isPlaying])
+
+  useEffect(() => {
+    if (seccion === 'ventas') {
+      cargarVentas()
+    }
+    if (seccion === 'youtube') {
+      cargarYoutubeActual()
+      const timer = setInterval(() => void cargarYoutubeActual(), 20000)
+      return () => clearInterval(timer)
+    }
+  }, [seccion])
 
   const nowPlaying = playback.track
     ? {
@@ -358,6 +412,21 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     refetchFichas()
   }
 
+  const cargarVentas = async () => {
+    setCargandoVentas(true)
+    try {
+      const response = await fetch('/api/fichas/ventas')
+      if (response.ok) {
+        const data = await response.json()
+        setVentas(data)
+      }
+    } catch (error) {
+      console.error('Error cargando ventas:', error)
+    } finally {
+      setCargandoVentas(false)
+    }
+  }
+
   const togglePlay = async () => {
     await fetch('/api/spotify/pause', {
       method: 'POST',
@@ -375,6 +444,12 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
   const showConfigFeedback = (msg: string) => {
     setConfigMsg(msg)
     setTimeout(() => setConfigMsg(''), 2500)
+  }
+
+  const showYoutubeFeedback = (msg: string) => {
+    setYoutubeActionMsg(msg)
+    showConfigFeedback(msg)
+    setTimeout(() => setYoutubeActionMsg(''), 2500)
   }
 
   const runRecoveryAction = async (action: 'reload-app') => {
@@ -419,6 +494,234 @@ const [seccion, setSeccion] = useState<'fichas' | 'cola' | 'agregar' | 'listas' 
     } finally {
       setMaintenanceBusy(null)
     }
+  }
+
+  const handleYoutubeAction = async (action: 'open' | 'close') => {
+    setYoutubeLoading(true)
+    try {
+      const res = await fetch('/api/admin/youtube-toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      })
+      if (!res.ok) throw new Error('action_failed')
+      const msg = action === 'open' ? 'Pantalla de YouTube abierta' : 'Pantalla de YouTube cerrada'
+      showYoutubeFeedback(msg)
+    } catch {
+      showYoutubeFeedback('No se pudo ejecutar la acción')
+    } finally {
+      setYoutubeLoading(false)
+    }
+  }
+
+  const cargarYoutubeActual = async () => {
+    try {
+      const res = await fetch('/api/youtube/current', { cache: 'no-store' })
+      if (!res.ok) return
+      const data = await res.json() as { video?: YouTubeVideo | null; queue?: YouTubeVideo[]; volume?: number; control?: { action?: string } }
+      setYoutubeCurrent(data.video ?? null)
+      setYoutubeQueue(data.queue ?? [])
+      setYoutubeVolume(Number(data.volume ?? 80))
+      if (data.control?.action === 'play') setYoutubeIsPlaying(true)
+      if (data.control?.action === 'pause' || data.control?.action === 'stop') setYoutubeIsPlaying(false)
+    } catch {}
+  }
+
+  const handleYoutubeSearch = (q: string) => {
+    setYoutubeQuery(q)
+    const seq = searchYoutubeSeqRef.current + 1
+    searchYoutubeSeqRef.current = seq
+    if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
+    setYoutubeResults([])
+    setYoutubeHasSearched(false)
+    if (!q.trim()) {
+      setYoutubeSearching(false)
+    }
+  }
+
+  const buscarYoutube = async () => {
+    const query = youtubeQuery.trim()
+    const seq = searchYoutubeSeqRef.current + 1
+    searchYoutubeSeqRef.current = seq
+    if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
+    if (!query) {
+      setYoutubeResults([])
+      setYoutubeHasSearched(false)
+      setYoutubeSearching(false)
+      return
+    }
+    setYoutubeSearching(true)
+    try {
+      const res = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}`, { cache: 'no-store' })
+      const data = await res.json().catch(() => ({} as { items?: YouTubeVideo[]; error?: string }))
+      if (seq !== searchYoutubeSeqRef.current) return
+      if (!res.ok) throw new Error(data.error || 'search_failed')
+      setYoutubeResults(data.items ?? [])
+      setYoutubeHasSearched(true)
+    } catch (error) {
+      if (seq !== searchYoutubeSeqRef.current) return
+      setYoutubeResults([])
+      setYoutubeHasSearched(true)
+      showConfigFeedback(error instanceof Error ? error.message : 'No se pudo buscar en YouTube')
+    } finally {
+      if (seq === searchYoutubeSeqRef.current) setYoutubeSearching(false)
+    }
+  }
+
+  const reproducirYoutube = async (video: YouTubeVideo, skipConfirm = false) => {
+    if (!skipConfirm && youtubeCurrent && !window.confirm('Hay un video en pantalla. ¿Reemplazarlo ahora?')) return false
+    setYoutubePlayingId(video.videoId)
+    try {
+      const res = await fetch('/api/youtube/play', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(video),
+      })
+      const data = await res.json().catch(() => ({} as { video?: YouTubeVideo; error?: string }))
+      if (!res.ok) throw new Error(data.error || 'play_failed')
+      setYoutubeCurrent(data.video ?? video)
+      setYoutubeIsPlaying(true)
+      await cargarYoutubeActual()
+      showYoutubeFeedback('Video enviado a pantalla')
+      return true
+    } catch {
+      showYoutubeFeedback('No se pudo enviar el video')
+      return false
+    } finally {
+      setYoutubePlayingId(null)
+    }
+  }
+
+  const controlarYoutube = async (action: 'play' | 'pause' | 'stop' | 'replay' | 'mute' | 'unmute' | 'set-volume', volume?: number) => {
+    setYoutubeLoading(true)
+    try {
+      const res = await fetch('/api/youtube/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, volume }),
+      })
+      if (!res.ok) throw new Error('control_failed')
+      const labels: Record<typeof action, string> = {
+        play: 'Play enviado',
+        pause: 'Pausa enviada',
+        stop: 'Stop enviado',
+        replay: 'Reiniciar enviado',
+        mute: 'Mute enviado',
+        unmute: 'Sonido enviado',
+        'set-volume': 'Volumen actualizado',
+      }
+      showYoutubeFeedback(labels[action])
+      if (action === 'play') setYoutubeIsPlaying(true)
+      if (action === 'pause' || action === 'stop') setYoutubeIsPlaying(false)
+    } catch {
+      showYoutubeFeedback('No se pudo controlar YouTube')
+    } finally {
+      setYoutubeLoading(false)
+    }
+  }
+
+  const agregarYoutubeACola = async (video: YouTubeVideo) => {
+    try {
+      const res = await fetch('/api/youtube/queue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(video),
+      })
+      const data = await res.json().catch(() => ({} as { queue?: YouTubeVideo[] }))
+      if (!res.ok) throw new Error('queue_failed')
+      setYoutubeQueue(data.queue ?? [])
+      showYoutubeFeedback('Video agregado a la cola')
+    } catch {
+      showYoutubeFeedback('No se pudo agregar a la cola')
+    }
+  }
+
+  const limpiarYoutubeCola = async () => {
+    if (!window.confirm('¿Vaciar toda la cola de YouTube?')) return
+    try {
+      const res = await fetch('/api/youtube/queue', { method: 'DELETE' })
+      if (!res.ok) throw new Error('clear_failed')
+      setYoutubeQueue([])
+      showYoutubeFeedback('Cola de YouTube vaciada')
+    } catch {
+      showYoutubeFeedback('No se pudo vaciar la cola')
+    }
+  }
+
+  const quitarYoutubeActual = async () => {
+    if (!youtubeCurrent) return
+    setYoutubeLoading(true)
+    try {
+      const res = await fetch('/api/youtube/current', { method: 'DELETE', cache: 'no-store' })
+      if (!res.ok) throw new Error('clear_current_failed')
+      setYoutubeCurrent(null)
+      setYoutubeIsPlaying(false)
+      showYoutubeFeedback('Video quitado de la pantalla')
+    } catch {
+      showYoutubeFeedback('No se pudo quitar el video')
+    } finally {
+      setYoutubeLoading(false)
+    }
+  }
+
+  const cambiarYoutubeVolumen = (value: number) => {
+    setYoutubeVolume(value)
+    if (youtubeVolumeRef.current) clearTimeout(youtubeVolumeRef.current)
+    youtubeVolumeRef.current = setTimeout(() => {
+      void controlarYoutube('set-volume', value)
+    }, 350)
+  }
+
+  const toggleYoutubePlayPause = () => {
+    void controlarYoutube(youtubeIsPlaying ? 'pause' : 'play')
+  }
+
+  const siguienteYoutube = async () => {
+    setYoutubeLoading(true)
+    try {
+      const res = await fetch('/api/youtube/next', { method: 'POST', cache: 'no-store' })
+      const data = await res.json().catch(() => ({} as { video?: YouTubeVideo | null; queue?: YouTubeVideo[] }))
+      if (!res.ok) throw new Error('next_failed')
+      setYoutubeCurrent(data.video ?? null)
+      setYoutubeQueue(data.queue ?? [])
+      setYoutubeIsPlaying(Boolean(data.video))
+      showYoutubeFeedback(data.video ? 'Siguiente video enviado' : 'No hay videos en cola')
+    } catch {
+      showYoutubeFeedback('No se pudo pasar al siguiente')
+    } finally {
+      setYoutubeLoading(false)
+    }
+  }
+
+  const actualizarItemColaYoutube = async (index: number, action: 'remove' | 'up' | 'down') => {
+    try {
+      const res = await fetch('/api/youtube/queue', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ index, action }),
+      })
+      const data = await res.json().catch(() => ({} as { queue?: YouTubeVideo[] }))
+      if (!res.ok) throw new Error('queue_update_failed')
+      setYoutubeQueue(data.queue ?? [])
+      if (action === 'remove') showYoutubeFeedback('Video quitado de la cola')
+    } catch {
+      showYoutubeFeedback('No se pudo actualizar la cola')
+    }
+  }
+
+  const reproducirYoutubeDesdeCola = async (video: YouTubeVideo, index: number) => {
+    if (youtubeCurrent && !window.confirm('Hay un video en pantalla. ¿Reemplazarlo ahora?')) return
+    const played = await reproducirYoutube(video, true)
+    if (played) await actualizarItemColaYoutube(index, 'remove')
+  }
+
+  const limpiarBusquedaYoutube = () => {
+    searchYoutubeSeqRef.current += 1
+    if (searchYoutubeRef.current) clearTimeout(searchYoutubeRef.current)
+    setYoutubeQuery('')
+    setYoutubeResults([])
+    setYoutubeHasSearched(false)
+    setYoutubeSearching(false)
   }
 
   const shutdownPc = async () => {
@@ -739,7 +1042,7 @@ return (
     <div className="max-w-lg mx-auto px-4 pt-4">
 
       {/* PLAYER */}
-      <div className="relative overflow-hidden rounded-2xl mb-4 border border-white/5">
+      {seccion !== 'youtube' && <div className="relative overflow-hidden rounded-2xl mb-4 border border-white/5">
         {nowPlaying?.imagenUrl && (
           <div className="absolute inset-0" style={{
             backgroundImage: `url(${nowPlaying.imagenUrl})`,
@@ -809,7 +1112,7 @@ return (
             </button>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* CONTENIDO SEGÚN TAB */}
 
@@ -818,10 +1121,24 @@ return (
           <div className="text-xs tracking-widest text-zinc-500 uppercase mb-1">Disponibles</div>
           <div className="text-8xl text-yellow-400 font-black leading-none mb-2"
             style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichas}</div>
-          <div className="flex items-baseline gap-3 mb-7">
-            <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
-            <div className="text-5xl text-yellow-400/70 font-black leading-none"
-              style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasHoy}</div>
+          <div className="space-y-3 mb-7">
+            <div className="flex items-baseline justify-between">
+              <div className="text-xs text-zinc-500 uppercase tracking-widest">Cargadas hoy</div>
+              <div className="text-5xl text-yellow-400/70 font-black leading-none"
+                style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{fichasHoy}</div>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <div className="text-xs uppercase tracking-widest" style={{ color: '#FF6A00' }}>Admin</div>
+              <div className="text-2xl font-black leading-none"
+                style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FF6A00' }}>{fichasAdminHoy}</div>
+            </div>
+
+            <div className="flex items-baseline justify-between">
+              <div className="text-xs uppercase tracking-widest" style={{ color: '#FFC400' }}>Ventas</div>
+              <div className="text-2xl font-black leading-none"
+                style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FFC400' }}>{fichasVentasHoy}</div>
+            </div>
           </div>
           <div className="grid grid-cols-4 gap-2">
             <button onClick={resetFichas}
@@ -836,6 +1153,224 @@ return (
             <button onClick={() => cargarFichas(2)}
               className="bg-yellow-400 active:bg-yellow-300 text-black font-black py-5 rounded-xl text-2xl transition-colors"
               style={{ fontFamily: 'Bebas Neue, sans-serif' }}>+2</button>
+          </div>
+        </div>
+      )}
+
+      {seccion === 'ventas' && (
+        <div className="bg-gradient-to-b from-blue-950/60 to-zinc-900 rounded-2xl p-6 border border-blue-900/30 shadow-lg">
+          <div className="text-xs tracking-widest text-zinc-500 uppercase mb-4">Ventas del día</div>
+
+          {cargandoVentas ? (
+            <div className="text-center py-8">
+              <div className="text-zinc-400">Cargando ventas...</div>
+            </div>
+          ) : ventas.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-zinc-400">No hay ventas registradas hoy</div>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {ventas.map((venta, index) => (
+                <div key={venta.ref || index} className="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm text-zinc-300">
+                      {new Date(venta.creadoEn).toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                    <div className="text-lg text-blue-400 font-black"
+                      style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                      PAGO
+                    </div>
+                  </div>
+                  <div className="text-xs text-zinc-500">
+                    Ref: {venta.ref}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={cargarVentas}
+            className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-lg text-sm transition-colors"
+            style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+          >
+            ACTUALIZAR
+          </button>
+        </div>
+      )}
+
+      {seccion === 'youtube' && (
+        <div className="space-y-4">
+        <div className="rounded-3xl border border-red-900/30 bg-gradient-to-b from-red-950/70 to-zinc-950 p-5 shadow-2xl">
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <div className="text-xs tracking-widest text-red-300 uppercase mb-1">YouTube</div>
+              <div className="text-3xl font-black leading-none text-white" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                Control de pantalla
+              </div>
+              <div className="mt-2 inline-flex rounded-full bg-zinc-800/80 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-zinc-300">
+                Pantalla HDMI
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => handleYoutubeAction('open')} disabled={youtubeLoading} className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white disabled:opacity-60">ABRIR PANTALLA</button>
+              <button onClick={() => handleYoutubeAction('close')} disabled={youtubeLoading} className="rounded-xl bg-zinc-800 px-3 py-2 text-xs font-black text-zinc-300 disabled:opacity-60">CERRAR</button>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/50">
+            <div className="flex gap-3 p-3">
+              {youtubeCurrent?.thumbnailUrl ? <img src={youtubeCurrent.thumbnailUrl} alt="" className="h-20 w-28 rounded-2xl object-cover" /> : <div className="flex h-20 w-28 items-center justify-center rounded-2xl bg-zinc-950 text-3xl text-red-400">▶</div>}
+              <div className="min-w-0 flex-1 py-1">
+                <div className="text-[10px] uppercase tracking-[0.35em] text-red-300">En pantalla</div>
+                <div className="mt-1 line-clamp-2 text-lg font-black leading-tight text-white" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+                  {youtubeCurrent?.title || 'Sin video seleccionado'}
+                </div>
+                <div className="mt-1 truncate text-xs text-zinc-400">{youtubeCurrent?.channelTitle || 'Buscá un video o agregá contenido a la cola.'}</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 border-t border-white/10 p-3">
+              <button aria-label="Play o pausa" onClick={toggleYoutubePlayPause} disabled={youtubeLoading} className="rounded-2xl bg-red-500 py-3 text-xs font-black text-white disabled:opacity-60">{youtubeIsPlaying ? 'PAUSA' : 'PLAY'}</button>
+              <button aria-label="Siguiente video" onClick={siguienteYoutube} disabled={youtubeLoading || youtubeQueue.length === 0} className="rounded-2xl bg-zinc-800 py-3 text-xs font-black text-zinc-200 disabled:opacity-40">SIGUIENTE</button>
+              <button aria-label="Reiniciar video" onClick={() => controlarYoutube('replay')} disabled={youtubeLoading || !youtubeCurrent} className="rounded-2xl bg-zinc-800 py-3 text-xs font-black text-zinc-200 disabled:opacity-40">REINICIAR</button>
+            </div>
+          </div>
+
+          {youtubeActionMsg && <div className="mt-3 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-100">{youtubeActionMsg}</div>}
+        </div>
+
+        <div className="bg-gradient-to-b from-red-950/60 to-zinc-900 rounded-2xl p-5 border border-red-900/30 shadow-lg">
+          <div className="mb-4">
+            <label className="mb-2 block text-xs uppercase tracking-widest text-zinc-500">Buscar video</label>
+            <div className="relative">
+              <input
+                value={youtubeQuery}
+                onChange={e => handleYoutubeSearch(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') void buscarYoutube()
+                }}
+                placeholder="Nombre del video, artista, cancion..."
+                className="w-full rounded-2xl border border-zinc-700 bg-black/60 px-4 py-4 pr-24 text-base text-white outline-none focus:border-red-400"
+              />
+              <button
+                onClick={() => void buscarYoutube()}
+                disabled={youtubeSearching || !youtubeQuery.trim()}
+                className="absolute right-3 top-1/2 flex h-8 -translate-y-1/2 items-center rounded-full bg-red-500 px-3 text-xs font-black text-white active:bg-red-400 disabled:bg-zinc-800 disabled:text-zinc-500"
+              >
+                BUSCAR
+              </button>
+              {youtubeQuery && (
+                <button
+                  onClick={limpiarBusquedaYoutube}
+                  className="absolute right-[84px] top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-zinc-800 text-sm font-black text-zinc-400 active:bg-zinc-700"
+                  aria-label="Limpiar busqueda"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            {youtubeSearching && <div className="mt-2 text-xs text-zinc-500">Buscando...</div>}
+          </div>
+
+          <div className="space-y-3">
+            {youtubeResults.map(video => (
+              <article key={video.videoId} className="overflow-hidden rounded-2xl border border-zinc-800 bg-black/35">
+                {video.thumbnailUrl && (
+                  <img src={video.thumbnailUrl} alt="" className="h-40 w-full object-cover" />
+                )}
+                <div className="p-4">
+                  <div className="line-clamp-2 text-base font-bold leading-tight text-white">{video.title}</div>
+                  <div className="mt-1 truncate text-xs text-zinc-500">{video.channelTitle}</div>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => reproducirYoutube(video)}
+                      disabled={youtubePlayingId === video.videoId}
+                      className="rounded-xl bg-red-500 py-3 text-sm font-black text-white transition-colors active:bg-red-400 disabled:opacity-60"
+                      style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+                    >
+                      {youtubePlayingId === video.videoId ? 'ENVIANDO...' : 'PONER AHORA'}
+                    </button>
+                    <button
+                      onClick={() => agregarYoutubeACola(video)}
+                      className="rounded-xl bg-white py-3 text-sm font-black text-zinc-950 transition-colors active:bg-zinc-200"
+                      style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+                    >
+                      AGREGAR A COLA
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            {!youtubeSearching && youtubeHasSearched && youtubeQuery.trim() && youtubeResults.length === 0 && (
+              <div className="rounded-2xl border border-zinc-800 bg-black/30 px-4 py-8 text-center text-sm text-zinc-500">
+                Sin resultados para esta busqueda.
+              </div>
+            )}
+          </div>
+        </div>
+
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-950/80 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-zinc-500">Siguientes</div>
+                <div className="text-2xl font-black text-white" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{youtubeQueue.length} en cola</div>
+              </div>
+              <button onClick={limpiarYoutubeCola} disabled={youtubeQueue.length === 0} className="rounded-xl bg-zinc-800 px-3 py-2 text-xs font-black text-zinc-400 disabled:opacity-40">VACIAR</button>
+            </div>
+            {youtubeQueue.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-zinc-800 bg-black/30 px-4 py-8 text-center text-sm text-zinc-500">No hay videos en cola.</div>
+            ) : (
+              <div className="space-y-2">
+                {youtubeQueue.slice(0, 12).map((item, index) => (
+                  <div key={`${item.videoId}-${index}`} className="rounded-2xl bg-black/40 p-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-5 text-center text-xs text-zinc-600">{index + 1}</div>
+                      {item.thumbnailUrl && <img src={item.thumbnailUrl} alt="" className="h-12 w-16 rounded-lg object-cover" />}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-white">{item.title}</div>
+                        <div className="truncate text-xs text-zinc-500">{item.channelTitle}</div>
+                      </div>
+                    </div>
+                    <div className="mt-2 grid grid-cols-4 gap-2 pl-8">
+                      <button onClick={() => reproducirYoutubeDesdeCola(item, index)} className="rounded-lg bg-red-500/90 py-2 text-[11px] font-black text-white">AHORA</button>
+                      <button onClick={() => actualizarItemColaYoutube(index, 'up')} disabled={index === 0} className="rounded-lg bg-zinc-800 py-2 text-[11px] font-black text-zinc-300 disabled:opacity-30">SUBIR</button>
+                      <button onClick={() => actualizarItemColaYoutube(index, 'down')} disabled={index === youtubeQueue.length - 1} className="rounded-lg bg-zinc-800 py-2 text-[11px] font-black text-zinc-300 disabled:opacity-30">BAJAR</button>
+                      <button onClick={() => actualizarItemColaYoutube(index, 'remove')} className="rounded-lg bg-zinc-900 py-2 text-[11px] font-black text-red-300">QUITAR</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-950/80 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-zinc-500">Controles de pantalla</div>
+                <div className="text-sm text-zinc-500">Usar con la PC conectada por HDMI.</div>
+              </div>
+              <div className="text-xl font-black text-red-300" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>{youtubeVolume}%</div>
+            </div>
+            <input type="range" min="0" max="100" value={youtubeVolume} onChange={e => cambiarYoutubeVolumen(Number(e.target.value))} className="w-full accent-red-500" />
+            <div className="mt-3 grid grid-cols-4 gap-2">
+              {[0, 50, 80, 100].map(value => <button key={value} onClick={() => cambiarYoutubeVolumen(value)} className="rounded-xl bg-zinc-900 py-2 text-xs font-black text-zinc-400">{value}%</button>)}
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button onClick={() => controlarYoutube('mute')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 py-2 text-xs font-black text-zinc-400 disabled:opacity-60">MUTE</button>
+              <button onClick={() => controlarYoutube('unmute')} disabled={youtubeLoading} className="rounded-xl bg-zinc-900 py-2 text-xs font-black text-zinc-400 disabled:opacity-60">SONIDO</button>
+            </div>
+            <div className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/5 p-3">
+              <div className="mb-2 text-xs uppercase tracking-widest text-red-300">Acciones delicadas</div>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => controlarYoutube('stop')} disabled={youtubeLoading || !youtubeCurrent} className="rounded-xl bg-zinc-900 py-3 text-xs font-black text-zinc-400 disabled:opacity-40">STOP</button>
+                <button onClick={quitarYoutubeActual} disabled={youtubeLoading || !youtubeCurrent} className="rounded-xl border border-red-500/30 bg-red-500/10 py-3 text-xs font-black text-red-200 disabled:border-zinc-800 disabled:bg-zinc-900 disabled:text-zinc-600">QUITAR ACTUAL</button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -1288,6 +1823,21 @@ return (
               <span className="text-zinc-500 text-lg">›</span>
             </button>
 
+            <div className="rounded-2xl border border-slate-700/50 bg-zinc-950/70 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-white">Ventas del día</div>
+                  <div className="text-xs text-zinc-500 mt-1">Ver las fichas vendidas en el día</div>
+                </div>
+                <button
+                  onClick={() => setSeccion('ventas')}
+                  className="rounded-xl bg-[#FFC400] hover:bg-[#e6b500] text-black font-semibold px-4 py-2 text-sm transition-colors"
+                >
+                  Ver ventas
+                </button>
+              </div>
+            </div>
+
             <div className="h-px bg-zinc-800" />
 
             <div>
@@ -1317,18 +1867,6 @@ return (
                   </span>
                   <span className="text-xs font-semibold text-white mt-2">Reiniciar kiosko</span>
                   <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra Chrome y lo vuelve a abrir</span>
-                </button>
-
-                <button
-                  onClick={() => setPendingEmergencyAction('close-kiosk')}
-                  disabled={maintenanceBusy !== null}
-                  className="group flex flex-col items-center text-center disabled:opacity-60"
-                >
-                  <span className="w-16 h-16 rounded-full border border-red-400/30 bg-red-400/10 text-red-300 flex items-center justify-center text-2xl transition-colors group-active:bg-red-400/20">
-                    !
-                  </span>
-                  <span className="text-xs font-semibold text-white mt-2">Cerrar kiosko</span>
-                  <span className="text-[11px] leading-4 text-zinc-500 mt-1">Cierra solo la ventana del kiosko</span>
                 </button>
 
                 <button
@@ -1496,6 +2034,7 @@ return (
         { id: 'cola', icon: '≡', label: 'Cola', color: 'text-sky-400', dot: 'bg-sky-400', bg: 'bg-sky-400/10' },
         { id: 'agregar', icon: '+', label: 'Agregar', color: 'text-emerald-400', dot: 'bg-emerald-400', bg: 'bg-emerald-400/10' },
         { id: 'listas', icon: '♪', label: 'Listas', color: 'text-violet-400', dot: 'bg-violet-400', bg: 'bg-violet-400/10' },
+        { id: 'youtube', icon: '▶', label: 'YouTube', color: 'text-red-400', dot: 'bg-red-400', bg: 'bg-red-400/10' },
         { id: 'config', icon: '⚙', label: 'Config', color: 'text-zinc-300', dot: 'bg-zinc-400', bg: 'bg-zinc-400/10' },
       ].map(tab => (
         <button key={tab.id} onClick={() => setSeccion(tab.id as any)}

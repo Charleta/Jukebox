@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   )
 
   if (!res.ok) {
-    let err: unknown = { status: res.status, message: res.statusText }
+    let err: Record<string, unknown> = { status: res.status, message: res.statusText }
     try {
       const text = await res.text()
       if (text) {
@@ -37,7 +37,13 @@ export async function POST(req: Request) {
     } catch {
       err = { status: res.status, message: res.statusText }
     }
-    console.error(`[play] Spotify error ${res.status}:`, JSON.stringify(err))
+    if (res.status === 429) {
+      const retryAfter = parseInt(res.headers.get('Retry-After') ?? '30', 10)
+      err.retryAfter = retryAfter
+      console.error(`[play] Spotify rate limit 429 — Retry-After: ${retryAfter}s`)
+    } else {
+      console.error(`[play] Spotify error ${res.status}:`, JSON.stringify(err))
+    }
     return NextResponse.json(err, { status: res.status })
   }
 

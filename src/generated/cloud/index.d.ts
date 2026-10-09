@@ -3884,18 +3884,24 @@ export namespace Prisma {
     id: number | null
     fichas: number | null
     fichasHoy: number | null
+    fichasAdminHoy: number | null
+    fichasVentasHoy: number | null
   }
 
   export type ConfigSumAggregateOutputType = {
     id: number | null
     fichas: number | null
     fichasHoy: number | null
+    fichasAdminHoy: number | null
+    fichasVentasHoy: number | null
   }
 
   export type ConfigMinAggregateOutputType = {
     id: number | null
     fichas: number | null
     fichasHoy: number | null
+    fichasAdminHoy: number | null
+    fichasVentasHoy: number | null
     fechaHoy: string | null
   }
 
@@ -3903,6 +3909,8 @@ export namespace Prisma {
     id: number | null
     fichas: number | null
     fichasHoy: number | null
+    fichasAdminHoy: number | null
+    fichasVentasHoy: number | null
     fechaHoy: string | null
   }
 
@@ -3910,6 +3918,8 @@ export namespace Prisma {
     id: number
     fichas: number
     fichasHoy: number
+    fichasAdminHoy: number
+    fichasVentasHoy: number
     fechaHoy: number
     _all: number
   }
@@ -3919,18 +3929,24 @@ export namespace Prisma {
     id?: true
     fichas?: true
     fichasHoy?: true
+    fichasAdminHoy?: true
+    fichasVentasHoy?: true
   }
 
   export type ConfigSumAggregateInputType = {
     id?: true
     fichas?: true
     fichasHoy?: true
+    fichasAdminHoy?: true
+    fichasVentasHoy?: true
   }
 
   export type ConfigMinAggregateInputType = {
     id?: true
     fichas?: true
     fichasHoy?: true
+    fichasAdminHoy?: true
+    fichasVentasHoy?: true
     fechaHoy?: true
   }
 
@@ -3938,6 +3954,8 @@ export namespace Prisma {
     id?: true
     fichas?: true
     fichasHoy?: true
+    fichasAdminHoy?: true
+    fichasVentasHoy?: true
     fechaHoy?: true
   }
 
@@ -3945,6 +3963,8 @@ export namespace Prisma {
     id?: true
     fichas?: true
     fichasHoy?: true
+    fichasAdminHoy?: true
+    fichasVentasHoy?: true
     fechaHoy?: true
     _all?: true
   }
@@ -4039,6 +4059,8 @@ export namespace Prisma {
     id: number
     fichas: number
     fichasHoy: number
+    fichasAdminHoy: number
+    fichasVentasHoy: number
     fechaHoy: string
     _count: ConfigCountAggregateOutputType | null
     _avg: ConfigAvgAggregateOutputType | null
@@ -4065,6 +4087,8 @@ export namespace Prisma {
     id?: boolean
     fichas?: boolean
     fichasHoy?: boolean
+    fichasAdminHoy?: boolean
+    fichasVentasHoy?: boolean
     fechaHoy?: boolean
   }, ExtArgs["result"]["config"]>
 
@@ -4072,6 +4096,8 @@ export namespace Prisma {
     id?: boolean
     fichas?: boolean
     fichasHoy?: boolean
+    fichasAdminHoy?: boolean
+    fichasVentasHoy?: boolean
     fechaHoy?: boolean
   }, ExtArgs["result"]["config"]>
 
@@ -4079,6 +4105,8 @@ export namespace Prisma {
     id?: boolean
     fichas?: boolean
     fichasHoy?: boolean
+    fichasAdminHoy?: boolean
+    fichasVentasHoy?: boolean
     fechaHoy?: boolean
   }
 
@@ -4090,6 +4118,8 @@ export namespace Prisma {
       id: number
       fichas: number
       fichasHoy: number
+      fichasAdminHoy: number
+      fichasVentasHoy: number
       fechaHoy: string
     }, ExtArgs["result"]["config"]>
     composites: {}
@@ -4487,6 +4517,8 @@ export namespace Prisma {
     readonly id: FieldRef<"Config", 'Int'>
     readonly fichas: FieldRef<"Config", 'Int'>
     readonly fichasHoy: FieldRef<"Config", 'Int'>
+    readonly fichasAdminHoy: FieldRef<"Config", 'Int'>
+    readonly fichasVentasHoy: FieldRef<"Config", 'Int'>
     readonly fechaHoy: FieldRef<"Config", 'String'>
   }
     
@@ -12601,6 +12633,8 @@ export namespace Prisma {
     id: 'id',
     fichas: 'fichas',
     fichasHoy: 'fichasHoy',
+    fichasAdminHoy: 'fichasAdminHoy',
+    fichasVentasHoy: 'fichasVentasHoy',
     fechaHoy: 'fechaHoy'
   };
 
@@ -12961,6 +12995,8 @@ export namespace Prisma {
     id?: IntFilter<"Config"> | number
     fichas?: IntFilter<"Config"> | number
     fichasHoy?: IntFilter<"Config"> | number
+    fichasAdminHoy?: IntFilter<"Config"> | number
+    fichasVentasHoy?: IntFilter<"Config"> | number
     fechaHoy?: StringFilter<"Config"> | string
   }
 
@@ -12968,6 +13004,8 @@ export namespace Prisma {
     id?: SortOrder
     fichas?: SortOrder
     fichasHoy?: SortOrder
+    fichasAdminHoy?: SortOrder
+    fichasVentasHoy?: SortOrder
     fechaHoy?: SortOrder
   }
 
@@ -12978,6 +13016,8 @@ export namespace Prisma {
     NOT?: ConfigWhereInput | ConfigWhereInput[]
     fichas?: IntFilter<"Config"> | number
     fichasHoy?: IntFilter<"Config"> | number
+    fichasAdminHoy?: IntFilter<"Config"> | number
+    fichasVentasHoy?: IntFilter<"Config"> | number
     fechaHoy?: StringFilter<"Config"> | string
   }, "id">
 
@@ -12985,6 +13025,8 @@ export namespace Prisma {
     id?: SortOrder
     fichas?: SortOrder
     fichasHoy?: SortOrder
+    fichasAdminHoy?: SortOrder
+    fichasVentasHoy?: SortOrder
     fechaHoy?: SortOrder
     _count?: ConfigCountOrderByAggregateInput
     _avg?: ConfigAvgOrderByAggregateInput
@@ -13000,6 +13042,8 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Config"> | number
     fichas?: IntWithAggregatesFilter<"Config"> | number
     fichasHoy?: IntWithAggregatesFilter<"Config"> | number
+    fichasAdminHoy?: IntWithAggregatesFilter<"Config"> | number
+    fichasVentasHoy?: IntWithAggregatesFilter<"Config"> | number
     fechaHoy?: StringWithAggregatesFilter<"Config"> | string
   }
 
@@ -13714,6 +13758,8 @@ export namespace Prisma {
     id?: number
     fichas?: number
     fichasHoy?: number
+    fichasAdminHoy?: number
+    fichasVentasHoy?: number
     fechaHoy?: string
   }
 
@@ -13721,6 +13767,8 @@ export namespace Prisma {
     id?: number
     fichas?: number
     fichasHoy?: number
+    fichasAdminHoy?: number
+    fichasVentasHoy?: number
     fechaHoy?: string
   }
 
@@ -13728,6 +13776,8 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     fichas?: IntFieldUpdateOperationsInput | number
     fichasHoy?: IntFieldUpdateOperationsInput | number
+    fichasAdminHoy?: IntFieldUpdateOperationsInput | number
+    fichasVentasHoy?: IntFieldUpdateOperationsInput | number
     fechaHoy?: StringFieldUpdateOperationsInput | string
   }
 
@@ -13735,6 +13785,8 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     fichas?: IntFieldUpdateOperationsInput | number
     fichasHoy?: IntFieldUpdateOperationsInput | number
+    fichasAdminHoy?: IntFieldUpdateOperationsInput | number
+    fichasVentasHoy?: IntFieldUpdateOperationsInput | number
     fechaHoy?: StringFieldUpdateOperationsInput | string
   }
 
@@ -13742,6 +13794,8 @@ export namespace Prisma {
     id?: number
     fichas?: number
     fichasHoy?: number
+    fichasAdminHoy?: number
+    fichasVentasHoy?: number
     fechaHoy?: string
   }
 
@@ -13749,6 +13803,8 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     fichas?: IntFieldUpdateOperationsInput | number
     fichasHoy?: IntFieldUpdateOperationsInput | number
+    fichasAdminHoy?: IntFieldUpdateOperationsInput | number
+    fichasVentasHoy?: IntFieldUpdateOperationsInput | number
     fechaHoy?: StringFieldUpdateOperationsInput | string
   }
 
@@ -13756,6 +13812,8 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     fichas?: IntFieldUpdateOperationsInput | number
     fichasHoy?: IntFieldUpdateOperationsInput | number
+    fichasAdminHoy?: IntFieldUpdateOperationsInput | number
+    fichasVentasHoy?: IntFieldUpdateOperationsInput | number
     fechaHoy?: StringFieldUpdateOperationsInput | string
   }
 
@@ -14566,6 +14624,8 @@ export namespace Prisma {
     id?: SortOrder
     fichas?: SortOrder
     fichasHoy?: SortOrder
+    fichasAdminHoy?: SortOrder
+    fichasVentasHoy?: SortOrder
     fechaHoy?: SortOrder
   }
 
@@ -14573,12 +14633,16 @@ export namespace Prisma {
     id?: SortOrder
     fichas?: SortOrder
     fichasHoy?: SortOrder
+    fichasAdminHoy?: SortOrder
+    fichasVentasHoy?: SortOrder
   }
 
   export type ConfigMaxOrderByAggregateInput = {
     id?: SortOrder
     fichas?: SortOrder
     fichasHoy?: SortOrder
+    fichasAdminHoy?: SortOrder
+    fichasVentasHoy?: SortOrder
     fechaHoy?: SortOrder
   }
 
@@ -14586,6 +14650,8 @@ export namespace Prisma {
     id?: SortOrder
     fichas?: SortOrder
     fichasHoy?: SortOrder
+    fichasAdminHoy?: SortOrder
+    fichasVentasHoy?: SortOrder
     fechaHoy?: SortOrder
   }
 
@@ -14593,6 +14659,8 @@ export namespace Prisma {
     id?: SortOrder
     fichas?: SortOrder
     fichasHoy?: SortOrder
+    fichasAdminHoy?: SortOrder
+    fichasVentasHoy?: SortOrder
   }
 
   export type AppConfigCountOrderByAggregateInput = {

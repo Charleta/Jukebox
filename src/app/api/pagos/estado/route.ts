@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
-import { prismaCloud } from '@/lib/dbCloud'
+import { prismaCloud, ensureConfigColumns } from '@/lib/dbCloud'
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -35,18 +35,41 @@ export async function GET(req: Request) {
 
       await prismaCloud.pagoProcesado.create({ data: { ref } })
 
+      await ensureConfigColumns()
+      const current = await prismaCloud.config.findUnique({ where: { id: 1 } })
+      const esNuevoDia = !current || current.fechaHoy !== today
+
+      const updateData: Record<string, unknown> = {
+        fichas: { increment: cantidad },
+        fechaHoy: today,
+      }
+
+      // Incrementar fichasVentasHoy para ventas
+      if (esNuevoDia) {
+        updateData.fichasVentasHoy = cantidad
+      } else {
+        updateData.fichasVentasHoy = { increment: cantidad }
+      }
+
+      // Mantener fichasHoy como suma total para compatibilidad
+      if (esNuevoDia) {
+        updateData.fichasHoy = cantidad
+      } else {
+        updateData.fichasHoy = { increment: cantidad }
+      }
+
       await prismaCloud.config.upsert({
         where: { id: 1 },
-        update: { fichas: { increment: cantidad } },
+        update: updateData,
         create: {
           id: 1,
           fichas: cantidad,
           fichasHoy: cantidad,
+          fichasAdminHoy: 0,
+          fichasVentasHoy: cantidad,
           fechaHoy: today,
         },
       })
-
-
     }
 
     return NextResponse.json({ aprobado })

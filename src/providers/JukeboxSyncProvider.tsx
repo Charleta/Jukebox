@@ -21,6 +21,8 @@ import {
 interface JukeboxSyncContextValue {
   fichas: number
   fichasHoy: number
+  fichasAdminHoy: number
+  fichasVentasHoy: number
   cola: CancionCola[]
   colaClientes: CancionCola[]
   maxDurKiosko: number
@@ -86,16 +88,20 @@ function normalizeAppConfig(data: Partial<AppConfigState> | null | undefined): A
 export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
   const [fichas, setFichas] = useState(0)
   const [fichasHoy, setFichasHoy] = useState(0)
+  const [fichasAdminHoy, setFichasAdminHoy] = useState(0)
+  const [fichasVentasHoy, setFichasVentasHoy] = useState(0)
   const [cola, setCola] = useState<CancionCola[]>([])
   const [appConfig, setAppConfig] = useState<AppConfigState>(DEFAULT_APP_CONFIG)
   const [recovery, setRecovery] = useState<RecoverySignal>(EMPTY_RECOVERY_SIGNAL)
 
   const refetchFichas = useCallback(async () => {
-    const data = await fetchJson<{ fichas?: number; fichasHoy?: number }>('/api/fichas')
+    const data = await fetchJson<{ fichas?: number; fichasHoy?: number; fichasAdminHoy?: number; fichasVentasHoy?: number }>('/api/fichas')
     if (!data) return
 
     setFichas(Number(data.fichas ?? 0))
     setFichasHoy(Number(data.fichasHoy ?? 0))
+    setFichasAdminHoy(Number(data.fichasAdminHoy ?? 0))
+    setFichasVentasHoy(Number(data.fichasVentasHoy ?? 0))
   }, [])
 
   const refetchCola = useCallback(async () => {
@@ -203,6 +209,8 @@ export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
   const value = useMemo<JukeboxSyncContextValue>(() => ({
     fichas,
     fichasHoy,
+    fichasAdminHoy,
+    fichasVentasHoy,
     cola,
     colaClientes,
     maxDurKiosko: appConfig.maxDurKiosko,
@@ -230,6 +238,8 @@ export function JukeboxSyncProvider({ children }: { children: ReactNode }) {
     colaClientes,
     fichas,
     fichasHoy,
+    fichasAdminHoy,
+    fichasVentasHoy,
     recovery.command,
     recovery.requestedAt,
     refetchAppConfig,
