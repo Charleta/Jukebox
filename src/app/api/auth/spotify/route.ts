@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getRedirectUri } from '@/lib/spotify'
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID!
 
@@ -13,7 +14,7 @@ const SCOPES = [
 ].join(' ')
 
 export async function GET(req: Request) {
-  const redirectUri = new URL('/callback', req.url).toString()
+  const redirectUri = getRedirectUri(req)
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: CLIENT_ID,

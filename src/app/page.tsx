@@ -98,6 +98,7 @@ export default function KioskoPage() {
   const playback = useSpotifyPlayback()
   const [artist, setArtist] = useState<SpotifyArtist | null>(null)
   const [tracks, setTracks] = useState<SpotifyTrack[]>([])
+  const [tracksError, setTracksError] = useState<string | null>(null)
   const [focused, setFocused] = useState(0)
   const [toast, setToast] = useState('')
 
@@ -161,15 +162,24 @@ export default function KioskoPage() {
   const handleArtistSelect = async (a: SpotifyArtist) => {
     setArtist(a)
     setTracks([])
+    setTracksError(null)
     setFocused(0)
-    const res = await fetch(`/api/spotify/search?artistId=${a.id}`)
-    const data = await res.json()
-    setTracks(data.tracks ?? [])
+    try {
+      const res = await fetch(`/api/spotify/search?artistId=${a.id}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      const lista = data.tracks ?? []
+      setTracks(lista)
+      if (lista.length === 0) setTracksError('Este artista no tiene canciones disponibles')
+    } catch {
+      setTracksError('No se pudieron cargar las canciones')
+    }
   }
 
   const handleInternalPlaylistSelect = async (id: number) => {
     setArtist({ id: 'loading', name: 'Cargando lista...', images: [], genres: [], followers: { total: 0 } })
     setTracks([])
+    setTracksError(null)
     setFocused(0)
     const res = await fetch(`/api/playlists/${id}`)
     const playlist = await res.json()
@@ -443,7 +453,11 @@ export default function KioskoPage() {
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full gap-3">
-              <div className="text-zinc-600 text-sm animate-pulse">Cargando canciones...</div>
+              {tracksError ? (
+                <div className="text-zinc-500 text-sm">{tracksError}</div>
+              ) : (
+                <div className="text-zinc-600 text-sm animate-pulse">Cargando canciones...</div>
+              )}
               <button onClick={() => { setArtist(null); setTracks([]) }} className="text-zinc-600 text-xs hover:text-zinc-400 transition-colors">
                 Volver
               </button>

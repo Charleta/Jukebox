@@ -19,6 +19,16 @@ function fetchWithTimeout(url: string, options: RequestInit = {}, ms = 8000): Pr
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id))
 }
 
+// ─── Redirect URI ────────────────────────────────────────────────────────────
+// Next dev reescribe req.url a localhost; usamos el host real para que coincida
+// con la URI registrada en Spotify (ej. http://127.0.0.1:3000/callback)
+export function getRedirectUri(req: Request, path = '/callback'): string {
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host')
+  if (!host) return new URL(path, req.url).toString()
+  const proto = req.headers.get('x-forwarded-proto') ?? new URL(req.url).protocol.replace(':', '')
+  return `${proto}://${host}${path}`
+}
+
 // ─── Token ────────────────────────────────────────────────────────────────────
 export async function getAccessToken(): Promise<string> {
   if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
@@ -160,8 +170,8 @@ export async function getArtistAlbums(artistId: string) {
     ),
   ])
 
-  const topData = await readJson(topRes)
-  const topTracks = topData.tracks ?? []
+  // Top tracks es opcional: Spotify lo bloquea (403) para apps en modo desarrollo
+  const topTracks = topRes.ok ? ((await topRes.json()).tracks ?? []) : []
 
   const albumsData = await readJson(albumsRes)
   const albums = albumsData.items ?? []

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getRedirectUri } from '@/lib/spotify'
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID!
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET!
@@ -7,7 +8,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
   const error = searchParams.get('error')
-  const redirectUri = new URL('/callback', req.url).toString()
+  const redirectUri = getRedirectUri(req)
 
   if (error || !code) {
     return NextResponse.json({ error: error ?? 'No code received' }, { status: 400 })
@@ -41,6 +42,6 @@ ${data.refresh_token}
 
 Reemplazá SPOTIFY_REFRESH_TOKEN en .env.local con este valor y reiniciá el servidor.
 </pre>`,
-    { headers: { 'Content-Type': 'text/html' } }
+    { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
   )
 }

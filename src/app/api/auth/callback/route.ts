@@ -41,6 +41,6 @@ ${data.refresh_token}
 
 Reemplazá SPOTIFY_REFRESH_TOKEN en .env.local con este valor y reiniciá el servidor.
 </pre>`,
-    { headers: { 'Content-Type': 'text/html' } }
+    { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
   )
 }
